@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'apps.stats',
     'apps.teams',
     'apps.users',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
