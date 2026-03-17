@@ -44,6 +44,125 @@ The application supports:
 
 ---
 
+## Setup & Installation
+
+### Prerequisites
+
+Ensure the following are installed:
+
+* Python **3.11**
+* Node.js (v18+ recommended)
+* MySQL Server
+* Git
+
+---
+
+## Backend Setup (Django)
+
+Navigate to the backend directory:
+
+```bash
+cd backend
+```
+
+### 1. Create Virtual Environment
+
+```bash
+py -3.11 -m venv venv
+```
+
+### 2. Activate Virtual Environment
+
+**Windows (Command Prompt):**
+
+```bash
+venv\Scripts\activate
+```
+
+**Git Bash:**
+
+```bash
+source venv/Scripts/activate
+```
+
+---
+
+### 3. Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+### 4. Run Migrations
+
+```bash
+python manage.py migrate
+```
+
+---
+
+### 5. Start Development Server
+
+```bash
+python manage.py runserver
+```
+
+Backend will be available at:
+
+```
+http://127.0.0.1:8000
+```
+
+---
+
+## Frontend Setup (Next.js)
+
+Navigate to the frontend directory:
+
+```bash
+cd frontend
+```
+
+### 1. Install Dependencies
+
+```bash
+npm install
+```
+
+### 2. Run Development Server
+
+```bash
+npm run dev
+```
+
+Frontend will be available at:
+
+```
+http://localhost:3000
+```
+
+---
+
+## Environment Variables
+
+Create a `.env` file in the `backend/` directory based on `.env.example`:
+
+Example:
+
+```env
+DB_NAME=gridtracker
+DB_USER=root
+DB_PASSWORD=yourpassword
+DB_HOST=localhost
+DB_PORT=3306
+SECRET_KEY=your_secret_key
+DEBUG=True
+```
+
+---
+
 ## Database Design
 
 The database is normalized to **Third Normal Form (3NF)** to:
