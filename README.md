@@ -1,18 +1,18 @@
 # UWM-COMPSCI557-Final-Project Group 9
 
-## Team Members + Roles (Can be switched later)
+**CS557 – Introduction to Database Systems**
+
+## Team Members + Roles
 
 | Name       | Role                        |
 | ---------- | --------------------------- |
 | Matthew    | Backend                     |
 | Brendan    | Database Layer              |
 | Drew       | Database Layer              |
-| Zach       | Frontend                    |
+| Zach       | Frontend                     |
 | William    | Database Layer              |
 
 # GridTracker
-
-**CS557 – Introduction to Database Systems**
 
 ## Overview
 
@@ -41,6 +41,17 @@ The application supports:
 * TypeScript
 * Tailwind CSS
 * Axios
+
+---
+
+## Project Setup
+
+This repository is structured as two separate applications:
+
+- [Backend (Django)](backend/README.md)
+- [Frontend (Next.js)](frontend/README.md)
+
+Please refer to each README for detailed installation, setup, and environment instructions.
 
 ---
 
@@ -89,58 +100,17 @@ The database is normalized to **Third Normal Form (3NF)** to:
 * View player statistics by season
 * Filter by team and season
 * Compare player performance
+* TBD
 
 ---
 
 ## Expected Project Structure
-
-```
 gridtracker/
 │
-├── backend/
-│   ├── manage.py
-│   ├── requirements.txt
-│   │
-│   ├── config/
-│   │   ├── settings.py
-│   │   ├── urls.py
-│   │   └── asgi.py
-│   │
-│   ├── apps/
-│   │   ├── players/
-│   │   ├── teams/
-│   │   ├── stats/
-│   │   ├── seasons/
-│   │   └── users/
-│   │
-│   ├── common/
-│   │   ├── permissions/
-│   │   └── utils/
-│   │
-│   └── tests/
-│
-├── frontend/
-│   ├── package.json
-│   ├── src/
-│   │   ├── app/
-│   │   ├── components/
-│   │   ├── services/
-│   │   ├── hooks/
-│   │   └── types/
-│
-├── database/
-│   ├── schema.sql
-│   ├── seed_data.sql
-│   └── queries.sql
-│
-├── docs/
-│   ├── ERD.png
-│   ├── design.md
-│   ├── api.md
-│   └── architecture.md
-│
-├── docker-compose.yml
-├── .env.example
-├── .gitignore
-└── README.md
-```
+├── backend/ # Django backend application
+├── frontend/ # Next.js frontend application
+├── database/ # SQL schema, seed data, queries
+├── docs/ # Documentation and ERDs
+├── docker/
+├── .env.example # Environment variable template (TBD)
+└── README.md # This file
