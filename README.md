@@ -1,18 +1,18 @@
 # UWM-COMPSCI557-Final-Project Group 9
 
-## Team Members + Roles (Can be switched later)
+**CS557 – Introduction to Database Systems**
+
+## Team Members + Roles
 
 | Name       | Role                        |
 | ---------- | --------------------------- |
 | Matthew    | Backend                     |
 | Brendan    | Database Layer              |
 | Drew       | Database Layer              |
-| Zach       | Frontend                    |
+| Zach       | Frontend                     |
 | William    | Database Layer              |
 
 # GridTracker
-
-**CS557 – Introduction to Database Systems**
 
 ## Overview
 
@@ -44,122 +44,14 @@ The application supports:
 
 ---
 
-## Setup & Installation
+## Project Setup
 
-### Prerequisites
+This repository is structured as two separate applications:
 
-Ensure the following are installed:
+- [Backend (Django)](backend/README.md)
+- [Frontend (Next.js)](frontend/README.md)
 
-* Python **3.11**
-* Node.js (v18+ recommended)
-* MySQL Server
-* Git
-
----
-
-## Backend Setup (Django)
-
-Navigate to the backend directory:
-
-```bash
-cd backend
-```
-
-### 1. Create Virtual Environment
-
-```bash
-py -3.11 -m venv venv
-```
-
-### 2. Activate Virtual Environment
-
-**Windows (Command Prompt):**
-
-```bash
-venv\Scripts\activate
-```
-
-**Git Bash:**
-
-```bash
-source venv/Scripts/activate
-```
-
----
-
-### 3. Install Dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
----
-
-### 4. Run Migrations
-
-```bash
-python manage.py migrate
-```
-
----
-
-### 5. Start Development Server
-
-```bash
-python manage.py runserver
-```
-
-Backend will be available at:
-
-```
-http://127.0.0.1:8000
-```
-
----
-
-## Frontend Setup (Next.js)
-
-Navigate to the frontend directory:
-
-```bash
-cd frontend
-```
-
-### 1. Install Dependencies
-
-```bash
-npm install
-```
-
-### 2. Run Development Server
-
-```bash
-npm run dev
-```
-
-Frontend will be available at:
-
-```
-http://localhost:3000
-```
-
----
-
-## Environment Variables
-
-Create a `.env` file in the `backend/` directory based on `.env.example`:
-
-Example:
-
-```env
-DB_NAME=gridtracker
-DB_USER=root
-DB_PASSWORD=yourpassword
-DB_HOST=localhost
-DB_PORT=3306
-SECRET_KEY=your_secret_key
-DEBUG=True
-```
+Please refer to each README for detailed installation, setup, and environment instructions.
 
 ---
 
@@ -208,58 +100,17 @@ The database is normalized to **Third Normal Form (3NF)** to:
 * View player statistics by season
 * Filter by team and season
 * Compare player performance
+* TBD
 
 ---
 
 ## Expected Project Structure
-
-```
 gridtracker/
 │
-├── backend/
-│   ├── manage.py
-│   ├── requirements.txt
-│   │
-│   ├── config/
-│   │   ├── settings.py
-│   │   ├── urls.py
-│   │   └── asgi.py
-│   │
-│   ├── apps/
-│   │   ├── players/
-│   │   ├── teams/
-│   │   ├── stats/
-│   │   ├── seasons/
-│   │   └── users/
-│   │
-│   ├── common/
-│   │   ├── permissions/
-│   │   └── utils/
-│   │
-│   └── tests/
-│
-├── frontend/
-│   ├── package.json
-│   ├── src/
-│   │   ├── app/
-│   │   ├── components/
-│   │   ├── services/
-│   │   ├── hooks/
-│   │   └── types/
-│
-├── database/
-│   ├── schema.sql
-│   ├── seed_data.sql
-│   └── queries.sql
-│
-├── docs/
-│   ├── ERD.png
-│   ├── design.md
-│   ├── api.md
-│   └── architecture.md
-│
-├── docker-compose.yml
-├── .env.example
-├── .gitignore
-└── README.md
-```
+├── backend/ # Django backend application
+├── frontend/ # Next.js frontend application
+├── database/ # SQL schema, seed data, queries
+├── docs/ # Documentation and ERDs
+├── docker/
+├── .env.example # Environment variable template (TBD)
+└── README.md # This file
