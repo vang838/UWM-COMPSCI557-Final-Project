@@ -100,28 +100,47 @@ gridtracker/
 ├── backend/
 │   ├── manage.py
 │   ├── requirements.txt
+│   │
+│   ├── config/
+│   │   ├── settings.py
+│   │   ├── urls.py
+│   │   └── asgi.py
+│   │
 │   ├── apps/
 │   │   ├── players/
 │   │   ├── teams/
 │   │   ├── stats/
 │   │   ├── seasons/
 │   │   └── users/
+│   │
+│   ├── common/
+│   │   ├── permissions/
+│   │   └── utils/
+│   │
+│   └── tests/
 │
 ├── frontend/
 │   ├── package.json
 │   ├── src/
+│   │   ├── app/
 │   │   ├── components/
-│   │   ├── pages/
 │   │   ├── services/
-│   │   └── styles/
+│   │   ├── hooks/
+│   │   └── types/
 │
 ├── database/
 │   ├── schema.sql
-│   └── seed_data.sql
+│   ├── seed_data.sql
+│   └── queries.sql
 │
 ├── docs/
 │   ├── ERD.png
-│   └── design.md
+│   ├── design.md
+│   ├── api.md
+│   └── architecture.md
 │
+├── docker-compose.yml
+├── .env.example
+├── .gitignore
 └── README.md
 ```
