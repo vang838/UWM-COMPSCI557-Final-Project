@@ -50,6 +50,8 @@ pip install -r requirements.txt
 ```bash
 python manage.py migrate
 ```
+---
+```bash
 ## Project Structure
 backend/
 ├── manage.py
@@ -58,3 +60,4 @@ backend/
 ├── apps/             # Players, Teams, Stats, Seasons, Users
 ├── tests/            # Unit & integration tests
 └── README.md
+```
