@@ -49,7 +49,7 @@ npm run dev # Frontend will be available at: http://localhost:3000
 ```
 
 ---
-
+```bash
 ## Project Structure
 frontend/
 ├── next/
@@ -63,4 +63,5 @@ frontend/
 ├── tsconfig.json
 ├── next.config.ts
 └── .env.local
+```
 ---
