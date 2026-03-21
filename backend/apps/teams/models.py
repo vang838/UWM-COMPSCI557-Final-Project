@@ -15,7 +15,7 @@ class Team(models.Model):
     team_id = models.AutoField(primary_key=True)
     team_name = models.CharField(max_length=100, unique=True)
     conference = models.CharField(max_length=3, choices=ConferenceChoices.choices)
-    division = models.CharField(max_length=5, choices = DivisonChoices.choices)
+    division = models.CharField(max_length=5, choices = DivisionChoices.choices)
 
     def __str__(self):
         return self.team_name
