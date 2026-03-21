@@ -3,12 +3,25 @@ from apps.teams.models import Team
 
 # Create your models here
 class Player(models.Model):
+    class PositionChoices(models.TextChoices):
+        QB = "QB", "Quarterback"
+        RB = "RB", "Running Back"
+        WR = "WR", "Wide Receiver"
+        TE = "TE", "Tight End"
+        OL = "OL", "Offensive Lineman"
+        DL = "DL", "Defensive Lineman"
+        LB = "LB", "Linebacker"
+        CB = "CB", "Cornerback"
+        S = "S", "Safety"
+        K = "K", "Kicker"
+        P = "P", "Punter"
+
     player_id = models.AutoField(primary_key=True)
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
-    position = models.CharField(max_length=20)
-    team = models.ForeignKey(Team, on_delete=models.CASCADE)
-    age = models.IntegerField(null=True, blank=True)
+    position = models.CharField(max_length=2,choices=PositionChoices.choices)
+    team = models.ForeignKey(Team, on_delete=models.PROTECT, related_name='players')
+    date_of_birth = models.DateField(null=True, blank=True)
     height = models.DecimalField(max_digits=4, decimal_places=1, null=True, blank=True)
     weight = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True)
     is_active = models.BooleanField(default=True)

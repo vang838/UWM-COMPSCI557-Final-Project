@@ -6,7 +6,7 @@ class Team(models.Model):
         AFC = "AFC", "AFC"
         NFC = "NFC", "NFC"
 
-    class DivisonChoices(models.TextChoices):
+    class DivisionChoices(models.TextChoices):
         NORTH = "North", "North"
         SOUTH = "South", "South"
         EAST = "East", "East"
