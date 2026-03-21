@@ -2,6 +2,11 @@ from django.db import models
 
 # Create your models here.
 class Team(models.Model):
+    team_id = models.AutoField(primary_key=True)
+    team_name = models.CharField(max_length=100)
+    city = models.CharField(max_length=50)
+    state = models.CharField(max_length=2)
+
     class ConferenceChoices(models.TextChoices):
         AFC = "AFC", "AFC"
         NFC = "NFC", "NFC"
@@ -12,13 +17,16 @@ class Team(models.Model):
         EAST = "East", "East"
         WEST = "West", "West"
 
-    team_id = models.AutoField(primary_key=True)
-    team_name = models.CharField(max_length=100, unique=True)
-    conference = models.CharField(max_length=3, choices=ConferenceChoices.choices)
-    division = models.CharField(max_length=5, choices = DivisionChoices.choices)
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields = ['city', 'state', 'team_name'],
+                name='unique_team_id'
+            )
+        ]
 
     def __str__(self):
-        return self.team_name
+        return f"{self.team_name} {self.city} {self.state}"
 
 class Coach(models.Model):
     class RoleChoices(models.TextChoices):
