@@ -3,6 +3,6 @@ from apps.players.models import Player
 from apps.players.serializers import PlayerSerializer
 
 # Create your views here.
-class PlayerViewset(viewsets.ModelViewSet):
+class PlayerViewSet(viewsets.ModelViewSet):
     queryset = Player.objects.all()
     serializer_class = PlayerSerializer
