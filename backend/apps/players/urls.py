@@ -1,7 +1,10 @@
 # backend/apps/players/urls.py
-from django.urls import path
-from .views import PlayerListAPIView
+from rest_framework.routers import DefaultRouter
+from .views import PlayerViewSet
 
-urlpatterns = [
-    path('players/', PlayerListAPIView.as_view(), name='player-list'),
-]
+router = DefaultRouter()
+router.register(r'players', PlayerViewSet, basename='player')
+
+urlpatterns = router.urls
+
+
