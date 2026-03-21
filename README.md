@@ -105,6 +105,7 @@ The database is normalized to **Third Normal Form (3NF)** to:
 ---
 
 ## Expected Project Structure
+```bash
 gridtracker/
 │
 ├── backend/ # Django backend application
@@ -114,3 +115,4 @@ gridtracker/
 ├── docker/
 ├── .env.example # Environment variable template (TBD)
 └── README.md # This file
+```
