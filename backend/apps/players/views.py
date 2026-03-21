@@ -1,10 +1,8 @@
-from django.shortcuts import render
-from django.urls import path
-from rest_framework import generics
+from rest_framework import viewsets
 from apps.players.models import Player
 from apps.players.serializers import PlayerSerializer
 
 # Create your views here.
-class PlayerListAPIView(generics.ListAPIView):
+class PlayerViewset(viewsets.ModelViewSet):
     queryset = Player.objects.all()
     serializer_class = PlayerSerializer
