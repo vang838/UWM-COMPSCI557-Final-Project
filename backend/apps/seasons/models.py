@@ -10,12 +10,6 @@ class Season(models.Model):
         return str(self.year)
 
 class TeamSeason(models.Model):
-    team_season_id = models.AutoField(primary_key=True)
-    team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='team_seasons')
-    season = models.ForeignKey(Season, on_delete=models.CASCADE, related_name='team_seasons')
-    conference = models.CharField(max_length=3, choices=ConferenceChoices.choices)
-    division = models.CharField(max_length=5, choices=DivisionChoices.choices)
-
     class ConferenceChoices(models.TextChoices):
         AFC = "AFC", "AFC"
         NFC = "NFC", "NFC"
@@ -25,6 +19,12 @@ class TeamSeason(models.Model):
         SOUTH = "South", "South"
         EAST = "East", "East"
         WEST = "West", "West"
+
+    team_season_id = models.AutoField(primary_key=True)
+    team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='team_seasons')
+    season = models.ForeignKey(Season, on_delete=models.CASCADE, related_name='team_seasons')
+    conference = models.CharField(max_length=3, choices=ConferenceChoices.choices)
+    division = models.CharField(max_length=5, choices=DivisionChoices.choices)
 
     class Meta:
         constraints = [
