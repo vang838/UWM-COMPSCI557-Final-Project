@@ -1,7 +1,7 @@
 // api fetch helper script
 import axios from 'axios';
 
-const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}/players/`;
+const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}/players`;
 
 export const fetchPlayers = async() => {
     try

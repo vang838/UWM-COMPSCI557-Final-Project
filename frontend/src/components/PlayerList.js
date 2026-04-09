@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { fetchPlayers } from "../api/players";
-
+import Link from "next/link";
 function PlayerList()
 {
     const [players, setPlayers] = useState([]);
@@ -25,6 +25,7 @@ function PlayerList()
 
             finally { setLoading(false); }
         }
+        loadPlayers();
     }, []);
 
     if(loading) return <p>Loading...</p>;
@@ -37,7 +38,17 @@ function PlayerList()
             <ul>
                 {players.map(player => (
                     <li key={player.player_id}>
-                        {player.first_name} {player.last_name} - {player.position}
+                    <Link
+                        href={`/players/${player.player_id}`}
+                            onClick={() =>
+                                localStorage.setItem(// save last player clicked to localStorage for navigation
+                                "lastPlayerId",
+                                String(player.player_id)
+                                )
+                            }
+                            >
+                            {player.first_name} {player.last_name} - {player.position}
+                        </Link>
                     </li>
                 ))}
             </ul>
