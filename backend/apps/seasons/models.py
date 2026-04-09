@@ -10,4 +10,4 @@ class Season(models.Model):
         ordering = ["-year"]
 
     def __str__(self):
-        return str(self.year
+        return str(self.year)
