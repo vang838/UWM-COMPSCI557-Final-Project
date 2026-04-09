@@ -50,6 +50,19 @@ pip install -r requirements.txt
 ```bash
 python manage.py migrate
 ```
+
+5. Run the backend:
+```bash
+python manage.py runserver
+```
+
+6. To create superuser:
+```bash
+python manage.py createsuperuser
+# then run step 5
+
+```
+
 ---
 ```bash
 ## Project Structure
