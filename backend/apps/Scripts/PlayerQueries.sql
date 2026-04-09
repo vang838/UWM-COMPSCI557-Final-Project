@@ -25,3 +25,35 @@ WHERE p.player_id = 1
 ORDER BY s.year;
 
 
+SELECT p.player_id, p.first_name, p.last_name, SUM(pss.value) as total_stats
+FROM PlayerSeasonStat pss
+JOIN Player p ON pss.player_id = p.player_id
+GROUP BY p.player_id
+ORDER BY total_stats DESC;
+
+
+SELECT p.first_name, p.last_name, SUM(pss.value) AS TD_Leaders
+FROM PlayerSeasonStat pss
+JOIN Player p ON pss.player_id = p.player_id
+JOIN StatType st ON pss.stat_type_id = st.stat_type_id
+WHERE st.stat_name = 'Touchdowns'
+GROUP BY p.player_id
+ORDER BY total DESC;
+
+
+SELECT p.first_name, p.last_name, SUM(pss.value) AS Rushing_Leaders
+FROM PlayerSeasonStat pss
+JOIN Player p ON pss.player_id = p.player_id
+JOIN StatType st ON pss.stat_type_id = st.stat_type_id
+WHERE st.stat_name = 'Rushing'
+GROUP BY p.player_id
+ORDER BY total DESC;
+
+
+SELECT p.first_name, p.last_name, SUM(pss.value) AS Receiving_Leaders
+FROM PlayerSeasonStat pss
+JOIN Player p ON pss.player_id = p.player_id
+JOIN StatType st ON pss.stat_type_id = st.stat_type_id
+WHERE st.stat_name = 'Receiving'
+GROUP BY p.player_id
+ORDER BY total DESC;
