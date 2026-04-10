@@ -57,3 +57,25 @@ JOIN StatType st ON pss.stat_type_id = st.stat_type_id
 WHERE st.stat_name = 'Receiving'
 GROUP BY p.player_id
 ORDER BY total DESC;
+
+
+SELECT t.team_name, SUM(pss.value) AS team_total
+FROM PlayerSeasonStat pss
+JOIN Player p ON pss.player_id = p.player_id
+JOIN Team t ON p.team_id = t.team_id
+GROUP BY t.team_name
+ORDER BY team_total DESC
+
+
+SELECT p.first_name, p.last_name, st.stat_name, pss.value
+FROM PlayerSeasonStat pss
+JOIN Player p ON  pss.player_id = p.player_id
+JOIN Season s ON pss.season_id = s.season_id
+JOIN StatType st ON pss.stat_type_id = st.stat_type_if
+WHERE s.year = 2026;
+
+
+SELECT p.position, COUNT(*) AS total_active
+FROM Player p
+WHERE p.is_active = TRUE
+GROUP BY p.position;
