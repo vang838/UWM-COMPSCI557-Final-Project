@@ -29,7 +29,7 @@ export default function LoginPage() {
           padding: "32px",
           borderRadius: "8px",
           width: "320px",
-          color: "black", // ✅ force all text black
+          color: "black", 
         }}
       >
         <h2 style={{ textAlign: "center" }}>Login</h2>
