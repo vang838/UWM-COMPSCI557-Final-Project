@@ -1,6 +1,6 @@
-from django.shortcuts import render
-from django.urls import path
-from rest_framework import generics
+from rest_framework import viewsets, generics
+from rest_framework.utils import json
+
 from apps.players.models import Player
 from apps.players.serializers import PlayerSerializer
 from rest_framework.generics import RetrieveAPIView
@@ -15,8 +15,7 @@ class PlayerListAPIView(generics.ListAPIView):#api view for players list
     queryset = Player.objects.all()
     serializer_class = PlayerSerializer
 
-
-class PlayerDetailAPIView(RetrieveAPIView):#api view for player details 
+class PlayerViewSet(viewsets.ModelViewSet):
     queryset = Player.objects.all()
     serializer_class = PlayerSerializer
     lookup_field = "player_id"
