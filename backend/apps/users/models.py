@@ -14,11 +14,11 @@ class User(AbstractUser):
     )
 
     def save(self, *args, **kwargs):
-        if self.is_superuser:
+        if self.is_superuser: # Django built-in superuser automatically gets staff status
             self.is_staff = True
             self.role = self.Role.ADMIN
         else:
-            self.is_staff = self.role == self.Role.USER
+            self.is_staff = self.role == self.Role.ADMIN # Grant staff status to custom admin model we have
 
         super().save(*args, **kwargs)
 

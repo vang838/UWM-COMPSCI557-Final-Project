@@ -20,6 +20,8 @@ from apps.players.views import PlayerDetailAPIView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('apps.players.urls')),
+    path('api/', include('apps.players.urls')),
+    path('api/', include('apps.teams.urls')),
+    path('api/auth/', include('apps.users.urls')),
     path("players/<int:player_id>/", PlayerDetailAPIView.as_view()),
 ]
