@@ -10,12 +10,12 @@ export default function DashboardPage() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Check authentication (prevent nauthorized access)
+        // Check authentication (prevent unauthorized access)
         const token = localStorage.getItem("token");
         const storedUsername = localStorage.getItem("username");
         const storedRole = localStorage.getItem("role");
 
-        if(!token || storedUsername !== "user") {
+        if(!token || storedRole !== "user") {
             router.push("/login");
             return;
         }
@@ -28,7 +28,7 @@ export default function DashboardPage() {
     const handleLogout = async () => {
         try {
             const token = localStorage.getItem("token");
-            await fetch("http://localhost:8000/api/logout", {
+            await fetch("http://localhost:8000/api/auth/logout/", {
                 method: "POST",
                 headers: {
                     "Authorization": `Token ${token}`,
@@ -48,6 +48,8 @@ export default function DashboardPage() {
             router.push("/login");
         }
     };
+
+    if(loading) return <p>Loading...</p>
 
     return (
     <div style={{ padding: "32px", minHeight: "100vh", backgroundColor: "#f5f5f5" }}>
