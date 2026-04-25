@@ -8,10 +8,57 @@ export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
-    router.push("/search"); // temporary
+    if( !username || !password ) {
+        setError("Username and password are required.");
+        return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    try {
+        // call backend login api endpoint
+        const response = await fetch("http://localhost:8000/api/auth/login/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", },
+            body: JSON.stringify({username, password}),
+        });
+
+        const data = await response.json();
+
+        if(!response.ok) {
+            // Adds specific error from backend
+            setError(data.error || "Login failed");
+            return;
+        }
+
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user_id", data.user_id);
+        localStorage.setItem("username", data.username);
+        localStorage.setItem("role", data.role);
+
+        // Role-based routing (separate dashboards)
+        if(data.role === "admin") { router.push("/admin")}
+        else if (data.role === "user") { router.push("/dashboard")}
+        else { setError("Invalid role"); }
+    }
+
+    catch(err) {
+        // Network error handling
+        setError("Network error: Unable to reach login server");
+        console.error("Login error:", err);
+    }
+
+    finally { setLoading(false); }
   };
+
+  // Allow enter key to submit
+    const handleKeyPress = (e: React.KeyboardEvent) => {
+        if(e.key === "Enter") { handleLogin(); }
+    };
 
   return (
     <div
@@ -38,6 +85,8 @@ export default function LoginPage() {
           placeholder="Username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
+          onKeyPress={handleKeyPress}
+          disabled={loading}
           style={{
             width: "100%",
             marginTop: "16px",
@@ -54,6 +103,8 @@ export default function LoginPage() {
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          onKeyPress={handleKeyPress}
+          disabled={loading}
           style={{
             width: "100%",
             marginTop: "12px",
@@ -71,6 +122,7 @@ export default function LoginPage() {
 
         <button
           onClick={handleLogin}
+          disabled={loading}
           style={{
             marginTop: "16px",
             width: "100%",
@@ -81,7 +133,7 @@ export default function LoginPage() {
             cursor: "pointer",
           }}
         >
-          Login
+            {loading ? "Logging in..." : "Login"}
         </button>
         <style jsx>{`
           input::placeholder {
