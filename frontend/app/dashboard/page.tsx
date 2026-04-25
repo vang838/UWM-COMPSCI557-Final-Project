@@ -52,36 +52,57 @@ export default function DashboardPage() {
     if(loading) return <p>Loading...</p>
 
     return (
-    <div style={{ padding: "32px", minHeight: "100vh", backgroundColor: "#f5f5f5" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px" }}>
-        <h1>User Dashboard</h1>
-        <button
-          onClick={handleLogout}
-          style={{
-            padding: "10px 16px",
-            backgroundColor: "red",
-            color: "white",
-            border: "none",
-            cursor: "pointer",
-            borderRadius: "4px",
-          }}
-        >
-          Logout
-        </button>
-      </div>
+        <div style={{
+            padding: "32px",
+            minHeight: "100vh",
+            backgroundColor: "#121212",
+            fontFamily: "var(--font-geist-sans), system-ui, sans-serif",
+        }}>
 
-      <div style={{ backgroundColor: "white", padding: "16px", borderRadius: "8px" }}>
-        <p><strong>Welcome, {username}!</strong></p>
-        <p>Role: {role}</p>
-        <hr />
-        <p>Standard User Features (Coming Soon):</p>
-        <ul>
-          <li>Search players</li>
-          <li>View seasonal statistics</li>
-          <li>Filter by team/season</li>
-          <li>Compare player performance</li>
-        </ul>
-      </div>
-    </div>
-  );
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px" }}>
+            <h1 style={{ color: "#e0e0e0", fontSize: "1.75rem", fontWeight: 700 }}>
+                User Dashboard
+            </h1>
+
+            <button
+                onClick={handleLogout}
+                style={{
+                    padding: "10px 16px",
+                    backgroundColor: "#dc3545",
+                    color: "white",
+                    border: "none",
+                    cursor: "pointer",
+                    borderRadius: "4px",
+                    fontWeight: 600,
+                    fontSize: "0.9rem",
+                }}
+            >
+                Logout
+            </button>
+        </div>
+
+            <div style={{
+                backgroundColor: "#1e1e1e",
+                padding: "24px",
+                borderRadius: "10px",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
+                border: "1px solid #2e2e2e",
+            }}>
+                <p style={{ fontSize: "1.1rem", marginBottom: "8px", color: "#e0e0e0" }}>
+                    <strong>Welcome, {username}!</strong>
+                </p>
+                <p style={{ color: "#6b6b6b", marginBottom: "12px" }}>Role: {role}</p>
+                <hr style={{ borderColor: "#2e2e2e", marginBottom: "16px" }} />
+                <p style={{ fontWeight: 600, marginBottom: "8px", color: "#e0e0e0" }}>
+                    Standard User Features (Coming Soon):
+                </p>
+                <ul style={{ paddingLeft: "20px", color: "#a0a0a0", lineHeight: "1.8" }}>
+                    <li>Search players</li>
+                    <li>View seasonal statistics</li>
+                    <li>Filter by team/season</li>
+                    <li>Compare player performance</li>
+                </ul>
+            </div>
+        </div>
+    );
 }

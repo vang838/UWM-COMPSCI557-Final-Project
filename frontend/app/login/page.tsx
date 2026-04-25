@@ -84,6 +84,40 @@ export default function LoginPage() {
         }}
       >
         <h2 style={{ textAlign: "center" }}>Login</h2>
+        {/* JavaScript: Show error message if conditional branch message */}
+        {showError && error && (
+            <div style={{
+                position: "fixed",
+                top: "20px",
+                right: "20px",
+                backgroundColor: "#fee",
+                color: "#c33",
+                padding: "12px",
+                borderRadius: "4px",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                zIndex: 1000,
+                maxWidth: "400px",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                gap: "12px",
+            }}>
+                <span>{error}</span>
+                <button
+                    onClick={() => setShowError(false)}
+                    style={{
+                        background: "none",
+                        border: "none",
+                        color: "#c33",
+                        cursor: "pointer",
+                        fontSize: "18px",
+                        padding: "0 4px",
+                    }}
+                >
+                    ✕
+                </button>
+            </div>
+        )}
 
         <input
           placeholder="Username"
@@ -119,41 +153,6 @@ export default function LoginPage() {
             WebkitTextFillColor: "black",
           }}
         />
-
-        {/* JavaScript: Show error message if conditional branch message */}
-        {showError && error && (
-            <div style={{
-                position: "fixed",
-                top: "20px",
-                right: "20px",
-                backgroundColor: "#fee",
-                color: "#c33",
-                padding: "12px",
-                borderRadius: "4px",
-                boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-                zIndex: 1000,
-                maxWidth: "400px",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                gap: "12px",
-            }}>
-                <span>{error}</span>
-                <button
-                    onClick={() => setShowError(false)}
-                    style={{
-                        background: "none",
-                        border: "none",
-                        color: "#c33",
-                        cursor: "pointer",
-                        fontSize: "18px",
-                        padding: "0 4px",
-                    }}
-                >
-                    ✕
-                </button>
-            </div>
-        )}
 
         <button
           onClick={handleLogin}
