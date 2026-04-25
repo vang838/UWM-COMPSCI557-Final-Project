@@ -8,6 +8,7 @@ export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [showError, setShowError] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
@@ -32,6 +33,9 @@ export default function LoginPage() {
         if(!response.ok) {
             // Adds specific error from backend
             setError(data.error || "Login failed");
+            setShowError(true);
+
+            setTimeout(() => setShowError(false), 5000); // hides error after 5 seconds
             return;
         }
 
@@ -116,8 +120,39 @@ export default function LoginPage() {
           }}
         />
 
-        {error && (
-          <p style={{ color: "red", marginTop: "8px" }}>{error}</p>
+        {/* JavaScript: Show error message if conditional branch message */}
+        {showError && error && (
+            <div style={{
+                position: "fixed",
+                top: "20px",
+                right: "20px",
+                backgroundColor: "#fee",
+                color: "#c33",
+                padding: "12px",
+                borderRadius: "4px",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                zIndex: 1000,
+                maxWidth: "400px",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                gap: "12px",
+            }}>
+                <span>{error}</span>
+                <button
+                    onClick={() => setShowError(false)}
+                    style={{
+                        background: "none",
+                        border: "none",
+                        color: "#c33",
+                        cursor: "pointer",
+                        fontSize: "18px",
+                        padding: "0 4px",
+                    }}
+                >
+                    ✕
+                </button>
+            </div>
         )}
 
         <button

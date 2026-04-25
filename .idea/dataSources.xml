@@ -10,7 +10,7 @@
       <jdbc-url>jdbc:sqlite:C:\Users\mlvan\PycharmProjects\UWM-COMPSCI557-Final-Project\backend\db.sqlite3</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
-    <data-source source="LOCAL" name="Django default2" uuid="ab6531f3-d334-4fa3-a25f-f86c39e0cce9">
+    <data-source source="LOCAL" name="MySQL" uuid="ab6531f3-d334-4fa3-a25f-f86c39e0cce9">
       <driver-ref>mysql.8</driver-ref>
       <synchronize>true</synchronize>
       <imported>true</imported>

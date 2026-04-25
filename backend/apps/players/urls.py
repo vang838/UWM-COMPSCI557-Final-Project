@@ -1,8 +1,7 @@
-# backend/apps/players/urls.py
+from rest_framework.routers import DefaultRouter
 from django.urls import include, path
-from .views import PlayerListAPIView
-from .views import login_view
+from .views import PlayerViewSet
 
-urlpatterns = [
-    path('players/', PlayerListAPIView.as_view(), name='player-list'),#api route for players list
-]
+router = DefaultRouter()
+router.register(r'players', PlayerViewSet, basename='player')
+urlpatterns = router.urls

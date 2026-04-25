@@ -16,12 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from apps.players.views import PlayerDetailAPIView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('apps.players.urls')),
-    path('api/', include('apps.teams.urls')),
+    # path('api/', include('apps.teams.urls')),
     path('api/auth/', include('apps.users.urls')),
-    path("players/<int:player_id>/", PlayerDetailAPIView.as_view()),
 ]
