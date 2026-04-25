@@ -60,6 +60,7 @@ export default function DashboardPage() {
         }}>
 
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px" }}>
+            <div style={{ width: "90px", }} /> {/* Added Spacer */}
             <h1 style={{ color: "#e0e0e0", fontSize: "1.75rem", fontWeight: 700 }}>
                 User Dashboard
             </h1>
