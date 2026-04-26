@@ -8,6 +8,8 @@ export default function DashboardPage() {
     const [username, setUsername] = useState("");
     const [role, setRole] = useState("")
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+    const [showError, setShowError] = useState(false);
 
     useEffect(() => {
         // Check authentication (prevent unauthorized access)
@@ -28,13 +30,22 @@ export default function DashboardPage() {
     const handleLogout = async () => {
         try {
             const token = localStorage.getItem("token");
-            await fetch("http://localhost:8000/api/auth/logout/", {
+            const response = await fetch("http://localhost:8000/api/auth/logout/", {
                 method: "POST",
                 headers: {
                     "Authorization": `Token ${token}`,
                     "Content-Type": "application/json",
                 },
             });
+
+            const data = await response.json();
+
+            if(!response.ok) {
+                setError(data.error || "Logout failed, please try again");
+                setShowError(true);
+                setTimeout(() => setShowError(false), 5000);
+                return;
+            }
         }
 
         catch(error) { console.error("Logout error:", error); }
@@ -58,6 +69,40 @@ export default function DashboardPage() {
             backgroundColor: "#121212",
             fontFamily: "var(--font-geist-sans), system-ui, sans-serif",
         }}>
+            {/* error toast for failed logout attempt */}
+            {showError && error && (
+                <div style={{
+                    position: "fixed",
+                    top: "20px",
+                    right: "20px",
+                    backgroundColor: "#fee",
+                    color: "#c33",
+                    padding: "12px",
+                    borderRadius: "4px",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                    zIndex: 1000,
+                    maxWidth: "400px",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    gap: "12px",
+                }}>
+                    <span>{error}</span>
+                    <button
+                        onClick={() => setShowError(false)}
+                        style={{
+                            background: "none",
+                            border: "none",
+                            color: "#c33",
+                            cursor: "pointer",
+                            fontSize: "18px",
+                            padding: "0 4px",
+                        }}
+                    >
+                        ✕
+                    </button>
+                </div>
+            )}
 
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px" }}>
             <div style={{ width: "90px", }} /> {/* Added Spacer */}

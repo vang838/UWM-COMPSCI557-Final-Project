@@ -8,9 +8,11 @@ export default function AdminPage() {
   const [username, setUsername] = useState("");
   const [role, setRole] = useState("");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [showError, setShowError] = useState(false);
 
   useEffect(() => {
-    // Industry: Check authentication + authorization (admin only)
+    // Check authentication + authorization (admin only)
     const token = localStorage.getItem("token");
     const storedUsername = localStorage.getItem("username");
     const storedRole = localStorage.getItem("role");
@@ -28,16 +30,27 @@ export default function AdminPage() {
   const handleLogout = async () => {
     try {
       const token = localStorage.getItem("token");
-      await fetch("http://localhost:8000/api/auth/logout/", {
+      const response = await fetch("http://localhost:8000/api/auth/logout/", {
         method: "POST",
         headers: {
           "Authorization": `Token ${token}`,
           "Content-Type": "application/json",
         },
       });
-    } catch (error) {
-      console.error("Logout error:", error);
-    } finally {
+
+      const data = await response.json();
+
+      if(!response.ok) {
+        setError(data.error || "Logout failed, please try again");
+        setShowError(true);
+        setTimeout(() => setShowError(false), 5000);
+        return;
+      }
+    }
+
+    catch (error) { console.error("Logout error:", error); }
+
+    finally {
       localStorage.removeItem("token");
       localStorage.removeItem("user_id");
       localStorage.removeItem("username");
@@ -49,7 +62,42 @@ export default function AdminPage() {
   if (loading) return <p>Loading...</p>;
 
   return (
-    <div style={{ padding: "32px", minHeight: "100vh", backgroundColor: "#f5f5f5" }}>
+    <div style={{ padding: "32px", minHeight: "100vh", backgroundColor: "#121212", fontFamily: "var(--font-geist-sans), system-ui, sans-serif", }}>
+      {/* error toast for failed logout attempt */}
+      {showError && error && (
+        <div style={{
+          position: "fixed",
+          top: "20px",
+          right: "20px",
+          backgroundColor: "#fee",
+          color: "#c33",
+          padding: "12px",
+          borderRadius: "4px",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+          zIndex: 1000,
+          maxWidth: "400px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          gap: "12px",
+        }}>
+          <span>{error}</span>
+          <button
+            onClick={() => setShowError(false)}
+            style={{
+              background: "none",
+              border: "none",
+              color: "#c33",
+              cursor: "pointer",
+              fontSize: "18px",
+              padding: "0 4px",
+            }}
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px" }}>
         <h1>Admin Dashboard</h1>
         <button

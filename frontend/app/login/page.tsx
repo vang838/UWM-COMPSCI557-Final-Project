@@ -34,7 +34,6 @@ export default function LoginPage() {
             // Adds specific error from backend
             setError(data.error || "Login failed");
             setShowError(true);
-
             setTimeout(() => setShowError(false), 5000); // hides error after 5 seconds
             return;
         }
@@ -84,7 +83,7 @@ export default function LoginPage() {
         }}
       >
         <h2 style={{ textAlign: "center" }}>Login</h2>
-        {/* JavaScript: Show error message if conditional branch message */}
+        {/* error toast for failed login */}
         {showError && error && (
             <div style={{
                 position: "fixed",
