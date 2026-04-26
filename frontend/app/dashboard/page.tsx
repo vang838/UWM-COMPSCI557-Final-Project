@@ -1,7 +1,9 @@
-"use client";
+// frontend/app/dashboard/page.tsx
+'use client';
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import PlayerList from '../../src/components/PlayerList';
 
 export default function DashboardPage() {
     const router = useRouter();
@@ -10,6 +12,7 @@ export default function DashboardPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [showError, setShowError] = useState(false);
+    const [fetchingPlayers, setFetchingPlayers] = useState(false);
 
     useEffect(() => {
         // Check authentication (prevent unauthorized access)
@@ -104,28 +107,28 @@ export default function DashboardPage() {
                 </div>
             )}
 
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px" }}>
-            <div style={{ width: "90px", }} /> {/* Added Spacer */}
-            <h1 style={{ color: "#e0e0e0", fontSize: "1.75rem", fontWeight: 700 }}>
-                User Dashboard
-            </h1>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px" }}>
+                <div style={{ width: "90px", }} /> {/* Added Spacer */}
+                <h1 style={{ color: "#e0e0e0", fontSize: "1.75rem", fontWeight: 700 }}>
+                    User Dashboard
+                </h1>
 
-            <button
-                onClick={handleLogout}
-                style={{
-                    padding: "10px 16px",
-                    backgroundColor: "#dc3545",
-                    color: "white",
-                    border: "none",
-                    cursor: "pointer",
-                    borderRadius: "4px",
-                    fontWeight: 600,
-                    fontSize: "0.9rem",
-                }}
-            >
-                Logout
-            </button>
-        </div>
+                <button
+                    onClick={handleLogout}
+                    style={{
+                        padding: "10px 16px",
+                        backgroundColor: "#dc3545",
+                        color: "white",
+                        border: "none",
+                        cursor: "pointer",
+                        borderRadius: "4px",
+                        fontWeight: 600,
+                        fontSize: "0.9rem",
+                    }}
+                >
+                    Logout
+                </button>
+            </div>
 
             <div style={{
                 backgroundColor: "#1e1e1e",
@@ -133,6 +136,7 @@ export default function DashboardPage() {
                 borderRadius: "10px",
                 boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
                 border: "1px solid #2e2e2e",
+                marginBottom: "32px"
             }}>
                 <p style={{ fontSize: "1.1rem", marginBottom: "8px", color: "#e0e0e0" }}>
                     <strong>Welcome, {username}!</strong>
@@ -140,7 +144,7 @@ export default function DashboardPage() {
                 <p style={{ color: "#6b6b6b", marginBottom: "12px" }}>Role: {role}</p>
                 <hr style={{ borderColor: "#2e2e2e", marginBottom: "16px" }} />
                 <p style={{ fontWeight: 600, marginBottom: "8px", color: "#e0e0e0" }}>
-                    Standard User Features (Coming Soon):
+                    Standard User Features:
                 </p>
                 <ul style={{ paddingLeft: "20px", color: "#a0a0a0", lineHeight: "1.8" }}>
                     <li>Search players</li>
@@ -148,6 +152,20 @@ export default function DashboardPage() {
                     <li>Filter by team/season</li>
                     <li>Compare player performance</li>
                 </ul>
+            </div>
+
+            {/* Player List Section - Remove the prop passing */}
+            <div style={{
+                backgroundColor: "#1e1e1e",
+                padding: "24px",
+                borderRadius: "10px",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
+                border: "1px solid #2e2e2e",
+            }}>
+                <h2 style={{ color: "#e0e0e0", fontSize: "1.5rem", fontWeight: 600, marginBottom: "16px" }}>
+                    Players
+                </h2>
+                <PlayerList /> {/* No props needed */}
             </div>
         </div>
     );
