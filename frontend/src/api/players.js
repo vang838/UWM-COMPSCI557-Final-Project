@@ -1,7 +1,7 @@
 // frontend/src/api/players.js
 import apiClient from './index';
 
-export const playerApi = {
+export const playerAPI = {
   // Fetch all players
   getAllPlayers: () => apiClient.get('/players/'),
   
