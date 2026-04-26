@@ -1,7 +1,7 @@
 // frontend/app/dashboard/page.tsx
 'use client';
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import PlayerList from '../../src/components/PlayerList';
 
