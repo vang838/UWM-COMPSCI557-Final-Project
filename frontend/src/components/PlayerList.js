@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { fetchPlayers } from "../api/players";
+import { playerAPI } from "@/src/api/players";
 import Link from "next/link";
 function PlayerList()
 {
@@ -13,8 +13,8 @@ function PlayerList()
         const loadPlayers = async() => {
             try
             {
-                const data = await fetchPlayers();
-                setPlayers(data);
+                const response = await playerAPI.getAllPlayers();
+                setPlayers(response.data);
             }
 
             catch(error)
@@ -47,7 +47,7 @@ function PlayerList()
                                 )
                             }
                             >
-                            {player.first_name} {player.last_name} - {player.position}
+                            {player.first_name} {player.last_name}: {player.position}
                         </Link>
                     </li>
                 ))}
