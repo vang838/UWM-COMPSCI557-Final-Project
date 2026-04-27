@@ -1,18 +1,21 @@
-// frontend/app/dashboard/page.tsx
 'use client';
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import PlayerList from '../../src/components/PlayerList';
+import { useApiData } from "@/src/hooks/useApiData";
+import { playerAPI } from "@/src/api/players";
+import LoadingSpinner from "@/src/components/LoadingSpinner";
+import PageLayout from "@/src/components/pageLayout";
 
 export default function DashboardPage() {
     const router = useRouter();
-    const [username, setUsername] = useState("");
-    const [role, setRole] = useState("")
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
-    const [showError, setShowError] = useState(false);
-    const [fetchingPlayers, setFetchingPlayers] = useState(false);
+    const [username, setUsername] = React.useState("");
+    const [role, setRole] = React.useState("");
+    const [showError, setShowError] = React.useState(false);
+    const [error, setError] = React.useState("");
+
+    const fetchPlayers = React.useCallback(() => playerAPI.getAllPlayers(), []);
+    const { data: players, loading, error: apiError } = useApiData(fetchPlayers);
 
     useEffect(() => {
         // Check authentication (prevent unauthorized access)
@@ -27,7 +30,6 @@ export default function DashboardPage() {
 
         setUsername(storedUsername || "User");
         setRole(storedRole || "");
-        setLoading(false);
     }, [router]);
 
     const handleLogout = async () => {
@@ -51,10 +53,11 @@ export default function DashboardPage() {
             }
         }
 
-        catch(error) { console.error("Logout error:", error); }
+        catch(error) {
+            console.error("Logout error:", error);
+        }
 
         finally {
-            // Clear local storage
             localStorage.removeItem("token");
             localStorage.removeItem("user_id");
             localStorage.removeItem("username");
@@ -63,15 +66,24 @@ export default function DashboardPage() {
         }
     };
 
-    if(loading) return <p>Loading...</p>
+    useEffect(() => {
+        if (apiError) {
+            setError(apiError);
+            setShowError(true);
+            setTimeout(() => setShowError(false), 5000);
+        }
+    }, [apiError]);
+
+    if(loading) {
+        return (
+            <PageLayout title="Dashboard" navigation={<div>Navigation</div>}>
+                <LoadingSpinner />
+            </PageLayout>
+        );
+    }
 
     return (
-        <div style={{
-            padding: "32px",
-            minHeight: "100vh",
-            backgroundColor: "#121212",
-            fontFamily: "var(--font-geist-sans), system-ui, sans-serif",
-        }}>
+        <PageLayout title="Dashboard" navigation={<div>Navigation</div>}>
             {/* error toast for failed logout attempt */}
             {showError && error && (
                 <div style={{
@@ -107,9 +119,10 @@ export default function DashboardPage() {
                 </div>
             )}
 
+            {/* Header Section */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px" }}>
                 <div style={{ width: "90px", }} /> {/* Added Spacer */}
-                <h1 style={{ color: "#e0e0e0", fontSize: "1.75rem", fontWeight: 700 }}>
+                <h1 style={{ color: "#333", fontSize: "1.75rem", fontWeight: 700 }}>
                     User Dashboard
                 </h1>
 
@@ -130,8 +143,9 @@ export default function DashboardPage() {
                 </button>
             </div>
 
+            {/* User Info Section */}
             <div style={{
-                backgroundColor: "#1e1e1e",
+                backgroundColor: "#1e1e1e", // Dark gray background for content cards
                 padding: "24px",
                 borderRadius: "10px",
                 boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
@@ -154,9 +168,9 @@ export default function DashboardPage() {
                 </ul>
             </div>
 
-            {/* Player List Section - Remove the prop passing */}
+            {/* Player List Section */}
             <div style={{
-                backgroundColor: "#1e1e1e",
+                backgroundColor: "#1e1e1e", // Dark gray background for content cards
                 padding: "24px",
                 borderRadius: "10px",
                 boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
@@ -165,8 +179,14 @@ export default function DashboardPage() {
                 <h2 style={{ color: "#e0e0e0", fontSize: "1.5rem", fontWeight: 600, marginBottom: "16px" }}>
                     Players
                 </h2>
-                <PlayerList /> {/* No props needed */}
+                <div className="min-h-32">
+                    {players ? (
+                        <p>Player count: {players.length}</p>
+                    ) : (
+                        <p>No players available</p>
+                    )}
+                </div>
             </div>
-        </div>
+        </PageLayout>
     );
 }
