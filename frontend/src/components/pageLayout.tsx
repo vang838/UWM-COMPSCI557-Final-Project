@@ -5,7 +5,7 @@ const PageLayout = ({ children, title, navigation }) => {
     <main className="min-h-screen bg-gray-500 py-8">
       <div className="max-w-6xl mx-auto px-4">
         {navigation}
-        <h1 className="text-2xl font-bold mb-6">{title}</h1>
+        <h1 className="text-center text-2xl font-bold mb-6">{title}</h1>
         {children}
       </div>
     </main>
