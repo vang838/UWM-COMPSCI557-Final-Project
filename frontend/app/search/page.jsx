@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import PlayerNavigation from "../../src/components/navigation";
+import PlayerNavigation from "@/src/components/navigation";
 
 export default function PlayerSearchPage() {
   const [query, setQuery] = useState("");
