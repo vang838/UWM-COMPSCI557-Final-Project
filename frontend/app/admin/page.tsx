@@ -1,15 +1,21 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useApiData } from "@/src/hooks/useApiData";
+import { playerAPI } from "@/src/api/players";
+import LoadingSpinner from "@/src/components/LoadingSpinner";
+import PageLayout from "@/src/components/pageLayout";
 
 export default function AdminPage() {
   const router = useRouter();
-  const [username, setUsername] = useState("");
-  const [role, setRole] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [showError, setShowError] = useState(false);
+  const [username, setUsername] = React.useState("");
+  const [role, setRole] = React.useState("");
+  const [showError, setShowError] = React.useState(false);
+  const [error, setError] = React.useState("");
+
+  const fetchPlayers = React.useCallback(() => playerAPI.getAllPlayers(), []);
+  const { data: players, loading, error: apiError } = useApiData(fetchPlayers);
 
   useEffect(() => {
     // Check authentication + authorization (admin only)
@@ -24,7 +30,6 @@ export default function AdminPage() {
 
     setUsername(storedUsername || "Admin");
     setRole(storedRole || "");
-    setLoading(false);
   }, [router]);
 
   const handleLogout = async () => {
@@ -48,7 +53,9 @@ export default function AdminPage() {
       }
     }
 
-    catch (error) { console.error("Logout error:", error); }
+    catch (error) {
+      console.error("Logout error:", error);
+    }
 
     finally {
       localStorage.removeItem("token");
@@ -59,10 +66,24 @@ export default function AdminPage() {
     }
   };
 
-  if (loading) return <p>Loading...</p>;
+  useEffect(() => {
+    if (apiError) {
+      setError(apiError);
+      setShowError(true);
+      setTimeout(() => setShowError(false), 5000);
+    }
+  }, [apiError]);
+
+  if(loading) {
+    return (
+      <PageLayout title="Admin Dashboard" navigation={<div>Navigation</div>}>
+        <LoadingSpinner />
+      </PageLayout>
+    );
+  }
 
   return (
-    <div style={{ padding: "32px", minHeight: "100vh", backgroundColor: "#121212", fontFamily: "var(--font-geist-sans), system-ui, sans-serif", }}>
+    <PageLayout title="Admin Dashboard" navigation={<div>Navigation</div>}>
       {/* error toast for failed logout attempt */}
       {showError && error && (
         <div style={{
@@ -100,22 +121,37 @@ export default function AdminPage() {
 
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px" }}>
         <div style={{ width: "90px" }} /> {/* spacer */}
-        <h1 style={{ color: "#e0e0e0", fontSize: "1.75rem", fontWeight: 700 }}>Admin Dashboard</h1>
         <button
           onClick={handleLogout}
-          style={{ padding: "10px 16px", backgroundColor: "red", color: "white", border: "none", cursor: "pointer", borderRadius: "4px", fontWeight: 600, fontSize: "0.9rem",}}>
+          style={{
+            padding: "10px 16px",
+            backgroundColor: "#dc3545",
+            color: "white",
+            border: "none",
+            cursor: "pointer",
+            borderRadius: "4px",
+            fontWeight: 600,
+            fontSize: "0.9rem",
+          }}
+        >
           Logout
         </button>
       </div>
 
-      <div style={{ backgroundColor: "#1e1e1e", padding: "24px", borderRadius: "10px", boxShadow: "0 4px 12px rgba(0,0,0,0.4)", border: "1px solid #2e2e2e", }}>
-        <p style = {{ fontSize: "1.1rem", marginBottom: "8px", color: "#e0e0e0", }}>
+      <div style={{
+        backgroundColor: "#1e1e1e", // Dark gray background for content cards
+        padding: "24px",
+        borderRadius: "10px",
+        boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
+        border: "1px solid #2e2e2e",
+      }}>
+        <p style={{ fontSize: "1.1rem", marginBottom: "8px", color: "#e0e0e0" }}>
           <strong>Welcome, {username}!</strong>
         </p>
         <p style={{ color: "#6b6b6b", marginBottom: "12px" }}>Role: {role}</p>
-        <hr style={{ borderColor: "2e2e2e", marginBottom: "16px", }} />
-        <p style={{ fontWeight: 600, marginBottom: "8px", color: "e0e0e0" }}>Admin Features:</p>
-        <ul style={{ paddingLeft: "20px", color: "#a0a0a0", lineHeight: "1.8", }}>
+        <hr style={{ borderColor: "#2e2e2e", marginBottom: "16px" }} />
+        <p style={{ fontWeight: 600, marginBottom: "8px", color: "#e0e0e0" }}>Admin Features:</p>
+        <ul style={{ paddingLeft: "20px", color: "#a0a0a0", lineHeight: "1.8" }}>
           <li>Create/Edit/Delete Players</li>
           <li>Manage Teams & Seasons</li>
           <li>Manage Coaches</li>
@@ -123,6 +159,6 @@ export default function AdminPage() {
           <li>User Management</li>
         </ul>
       </div>
-    </div>
+    </PageLayout>
   );
 }
