@@ -11,5 +11,5 @@ export const teamAPI = {
     getTeamStats: (teamId) => apiClient.get(`/teams/${teamId}/stats/`),
     getTeamSeasonStats: (teamId, seasonId) => apiClient.get(`/teams/${teamId}/season-stats/${seasonId}/`),
     getTeamDashboardData: (teamId) => apiClient.get(`/teams/${teamId}/dashboard/`),
-    getTeamSeasonBreakdwon: (teamId) => apiClient.get(`/teams/${teamId}/season-breakdown/`),
+    getTeamSeasonBreakdown: (teamId) => apiClient.get(`/teams/${teamId}/season-breakdown/`),
 };
