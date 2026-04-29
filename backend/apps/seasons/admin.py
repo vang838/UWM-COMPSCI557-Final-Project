@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Season, TeamSeason
+from .models import Season, TeamSeason, PlayerSeasonRoster
 
 # Register your models here.
 @admin.register(Season)
@@ -26,3 +26,32 @@ class TeamSeasonAdmin(admin.ModelAdmin):
         "season__year",
     )
     ordering = ("-season__year", "conference", "division", "team__team_name")
+
+@admin.register(PlayerSeasonRoster)
+class PlayerSeasonRosterAdmin(admin.ModelAdmin):
+    list_display = (
+        "roster_id",
+        "player",
+        "team_season",
+        "jersey_number",
+        "roster_status",
+        "is_active",
+    )
+    list_filter = (
+        "team_season__season",
+        "team_season__team",
+        "roster_status",
+        "is_active",
+    )
+    search_fields = (
+        "player__first_name",
+        "player__last_name",
+        "team_season__team__team_name",
+        "team_season__team__city",
+        "team_season__season__year",
+    )
+    ordering = (
+        "-team_season__season__year",
+        "team_season__team__team_name",
+        "player__last_name",
+    )
