@@ -57,6 +57,10 @@ interface TeamFormData {
     text_color: string;
 }
 
+interface SeasonFormData {
+  year: string;
+}
+
 // Nav config
 const ADMIN_NAV: NavSection[] = [
     {
@@ -1078,6 +1082,18 @@ export default function AdminPage() {
                     </button>
                 </div>
             )}
+
+          {showSuccess && successMsg && (
+              <div className="fixed top-5 right-5 z-50 flex items-center gap-3 bg-emerald-950 border border-emerald-800 text-emerald-300 text-sm px-4 py-3 rounded-lg shadow-xl max-w-sm">
+                  <span className="flex-1">{successMsg}</span>
+                  <button
+                      onClick={() => setShowSuccess(false)}
+                      className="text-emerald-400 hover:text-emerald-200 text-lg leading-none cursor-pointer bg-transparent border-none"
+                  >
+                      ✕
+                  </button>
+              </div>
+          )}
 
             {renderAdminContent()}
 
