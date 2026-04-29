@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import LoadingSpinner from "@/src/components/LoadingSpinner";
-import PageLayout, { NavSection } from "@/src/components/pageLayout";
+import PageLayout, { NavSection, LayoutTheme } from "@/src/components/pageLayout";
 
 
 import { playerAPI } from "@/src/api/players";
@@ -80,6 +80,20 @@ const ADMIN_NAV: NavSection[] = [
     ],
   },
 ];
+
+// ui customization
+const ADMIN_THEME: Partial<LayoutTheme> = {
+  sidebarBg: "#111827",
+  sidebarText: "#ffffff",
+  sidebarMutedText: "rgba(255, 255, 255, 0.5)",
+  sidebarHoverBg: "rgba(255, 255, 255, 0.06)",
+  accent: "#94a3b8",
+  activeBg: "rgba(148, 163, 184, 0.16)",
+  activeText: "#e5e7eb",
+  dotInactive: "rgba(255, 255, 255, 0.25)",
+  roleBadgeBg: "rgba(148, 163, 184, 0.18)",
+  roleBadgeText: "#e5e7eb",
+};
 
 // Helpers
 function unwrapApiData<T>(response: unknown): T {
