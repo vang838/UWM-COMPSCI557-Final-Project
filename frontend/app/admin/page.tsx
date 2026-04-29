@@ -886,14 +886,19 @@ export default function AdminPage() {
         }
 
         try {
-            setSavingTeam(true);
-            await teamAPI.updateTeam(teamId, teamFormData);
+          setSavingTeam(true);
 
-            setEditingTeam(null);
-            setTeamFormData(null);
+          const teamName = getTeamDisplayName(editingTeam);
 
-            await fetchAdminReferenceData();
-        } catch (error) {
+          await teamAPI.updateTeam(teamId, teamFormData);
+
+          setEditingTeam(null);
+          setTeamFormData(null);
+
+          await fetchAdminReferenceData();
+
+          showTemporarySuccess(`${teamName} updated successfully`);
+      } catch (error) {
             console.error("Update team error:", error);
             showTemporaryError("Failed to update team");
         } finally {
@@ -919,11 +924,16 @@ export default function AdminPage() {
 
         try {
             setDeletingTeam(true);
+
+            const teamName = getTeamDisplayName(teamPendingDelete);
+
             await teamAPI.deleteTeam(teamId);
 
             setTeamPendingDelete(null);
 
             await fetchAdminReferenceData();
+
+            showTemporarySuccess(`${teamName} deleted successfully`);
         } catch (error) {
             console.error("Delete team error:", error);
             showTemporaryError(
