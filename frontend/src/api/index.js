@@ -39,12 +39,19 @@ apiClient.interceptors.response.use(
 
 export default apiClient;
 
+// api for dashboard data
 export const dashboardAPI = {
-    getDashboardStats: () => apiClient.get('/dashboard/stats/'),
+    getDashboardStats: (params = {}) => {
+        const queryParams = new URLSearchParams(params).toString();
+        return apiClient.get(`/dashboard/stats/${queryParams ? `?${queryParams}` : ""}`)
+    },
 
     getPlayerLeaderboard: (params = {}) => {
         const queryParams = new URLSearchParams(params).toString();
-        return apiClient.get(`/dashboard/leaderboard/?${queryParams}`);
+        return apiClient.get(`/dashboard/leaderboard/${queryParams ? `?${queryParams}` : ""}`);
     },
-    getSeasonPerformance: () => apiClient.get('/dashboard/season-performance/'),
+    getSeasonPerformance: (params = {}) => {
+        const queryParams = new URLSearchParams(params).toString();
+        return apiClient.get(`/dashboard/season-performance/${queryParams ? `?${queryParams}` : ""}`);
+    },
 };
