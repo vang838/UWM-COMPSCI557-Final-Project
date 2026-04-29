@@ -2,11 +2,15 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useApiData } from "@/src/hooks/useApiData";
-import { playerAPI } from "@/src/api/players";
-import { seasonAPI } from "@/src/api/seasons";
 import LoadingSpinner from "@/src/components/LoadingSpinner";
 import PageLayout, { NavSection } from "@/src/components/pageLayout";
+
+
+import { playerAPI } from "@/src/api/players";
+import { seasonAPI } from "@/src/api/seasons";
+import { teamAPI } from "@/src/api/teams";
+
+import { useApiData } from "@/src/hooks/useApiData";
 
 // Types
 interface Player {
@@ -25,6 +29,21 @@ interface Season {
   id?: number;
   season_id?: number;
   year?: number | string;
+}
+
+interface Team {
+  id?: number;
+  team_id?: number;
+  city?: string;
+  state?: string;
+  team_name?: string;
+  display_name?: string;
+  conference?: string;
+  division?: string;
+  abbreviation?: string;
+  primary_color?: string;
+  secondary_color?: string;
+  text_color?: string;
 }
 
 // Nav config
