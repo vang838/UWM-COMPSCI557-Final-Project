@@ -411,10 +411,14 @@ export default function DashboardPage() {
             setSeasons(seasonList);
             setTeams(teamList);
 
-            if (!activeTeamId && teamList.length > 0) {
+            let selectedTeamId = activeTeamId;
+
+            if (!selectedTeamId && teamList.length > 0) {
                 const firstTeamId = teamList[0].team_id ?? teamList[0].id;
+
                 if (firstTeamId !== undefined) {
-                    setActiveTeamId(String(firstTeamId));
+                    selectedTeamId = String(firstTeamId);
+                    setActiveTeamId(selectedTeamId);
                 }
             }
 
@@ -428,9 +432,14 @@ export default function DashboardPage() {
                 setActiveSeason(`${selectedSeasonYear} Season`);
             }
 
-            const leaderboardParams = selectedSeasonYear
-                ? {season: selectedSeasonYear}
-                : {};
+            const dashboardParams = {
+                ...(selectedTeamId ? {team: selectedTeamId} : {}),
+                ...(selectedSeasonYear ? {season: selectedSeasonYear} : {}),
+            };
+
+            const playerParams = {
+                ...(selectedTeamId ? {team: selectedTeamId} : {}),
+            };
 
             const [
                 playerListResult,
@@ -438,16 +447,27 @@ export default function DashboardPage() {
                 leaderboardResult,
                 seasonPerformanceResult,
             ] = await Promise.all([
-                safeApiCall<unknown[]>(() => playerAPI.getAllPlayers(), []),
-                safeApiCall<DashboardStats | null>(
-                    () => dashboardAPI.getDashboardStats(),
-                    null
-                ),
                 safeApiCall<unknown[]>(
-                    () => dashboardAPI.getPlayerLeaderboard(leaderboardParams),
+                    () => playerAPI.getAllPlayers(
+                        activeTeamId ? {team: activeTeamId} : {}
+                    ),
                     []
                 ),
-                safeApiCall<unknown[]>(() => dashboardAPI.getSeasonPerformance(), []),
+
+                safeApiCall<DashboardStats | null>(
+                    () => dashboardAPI.getDashboardStats(dashboardParams),
+                    null
+                ),
+
+                safeApiCall<unknown[]>(
+                    () => dashboardAPI.getPlayerLeaderboard(dashboardParams),
+                    []
+                ),
+
+                safeApiCall<unknown[]>(
+                    () => dashboardAPI.getSeasonPerformance(dashboardParams),
+                    []
+                ),
             ]);
 
             const normalizedPlayers = normalizeApiList<Player>(playerListResult);
