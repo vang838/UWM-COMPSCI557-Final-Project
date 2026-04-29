@@ -9,22 +9,27 @@ export const playerAPI = {
   getPlayerById: (id) => apiClient.get(`/players/${id}/`),
   
   // Fetch player stats for a specific season
-  getPlayerStatsBySeason: (playerId, seasonId) => 
-    apiClient.get(`/players/${playerId}/stats/season/${seasonId}/`),
+  getPlayerStatsBySeason: (playerId, seasonId) => apiClient.get(`/players/${playerId}/stats/season/${seasonId}/`),
   
   // Search players
   searchPlayers: (query) => apiClient.get(`/players/search/?q=${query}`),
-  
+
   // Fetch player stats by season for dashboard
-  getPlayerSeasonStats: (playerId) => 
-    apiClient.get(`/players/${playerId}/season-stats/`),
-    
+  getPlayerSeasonStats: (playerId) => apiClient.get(`/players/${playerId}/season-stats/`),
+
   // Create a new player
   createPlayer: (playerData) => apiClient.post('/players/', playerData),
-  
+
   // Update an existing player
   updatePlayer: (id, playerData) => apiClient.put(`/players/${id}/`, playerData),
-  
+
   // Delete a player
   deletePlayer: (id) => apiClient.delete(`/players/${id}/`),
+
+  // Dashboard endpoints
+  // Dashboard-specific: Get comprehensive player stats with team info
+  getPlayerDashboardData: (playerId) => apiClient.get(`/players/${playerId}/dashboard/`),
+
+  // Dashboard-specific: Get player stats with season breakdown
+  getPlayerSeasonBreakdown: (playerId) => apiClient.get(`/players/${playerId}/season-breakdown/`),
 };
