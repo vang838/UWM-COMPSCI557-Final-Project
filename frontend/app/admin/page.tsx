@@ -58,7 +58,7 @@ interface TeamFormData {
 }
 
 interface SeasonFormData {
-  year: string;
+    year: string;
 }
 
 // Nav config
@@ -198,6 +198,21 @@ function teamToFormData(team: Team): TeamFormData {
     };
 }
 
+function getSeasonId(season: Season): number | string | undefined {
+    return season.season_id ?? season.id;
+}
+
+function seasonToFormData(season: Season): SeasonFormData {
+    return {
+        year: season.year ? String(season.year) : "",
+    };
+}
+
+function isValidSeasonYear(year: string): boolean {
+    const parsedYear = Number(year);
+    return Number.isInteger(parsedYear) && parsedYear >= 1920 && parsedYear <= 2030;
+}
+
 function getSectionTitle(section: string): string {
     const titles: Record<string, string> = {
         dashboard: "Admin Dashboard",
@@ -216,22 +231,6 @@ function getSectionTitle(section: string): string {
 
     return titles[section] ?? "Admin Dashboard";
 }
-
-function getSeasonId(season: Season): number | string | undefined {
-    return season.season_id ?? season.id;
-}
-
-function seasonToFormData(season: Season): SeasonFormData {
-    return {
-        year: season.year ? String(season.year) : "",
-    };
-}
-
-function isValidSeasonYear(year: string): boolean {
-    const parsedYear = Number(year);
-    return Number.isInteger(parsedYear) && parsedYear >= 1920 && parsedYear <= 2030;
-}
-
 
 // Small components
 function StatCard({
@@ -469,28 +468,30 @@ function AdminOverview({
 }
 
 function SeasonsPanel({
-        seasons,
-        onAdd,
-        onEdit,
-        onDelete,
-    }: {
-        seasons: Season[];
-        onAdd: () => void;
-        onEdit: (season: Season) => void;
-        onDelete: (season: Season) => void;
-    }) {
+    seasons,
+    onAdd,
+    onEdit,
+    onDelete,
+}: {
+    seasons: Season[];
+    onAdd: () => void;
+    onEdit: (season: Season) => void;
+    onDelete: (season: Season) => void;
+}) {
     return (
         <div>
-            <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-2">
-                Seasons ({seasons.length})
-            </p>
+            <div className="flex items-center justify-between mb-2">
+                <p className="text-[10px] uppercase tracking-widest text-gray-500">
+                    Seasons ({seasons.length})
+                </p>
 
-            <button
-                onClick={onAdd}
-                className="text-[10px] px-2.5 py-1 rounded border border-white/10 text-gray-300 hover:text-white hover:border-white/30 transition-colors cursor-pointer bg-transparent"
-            >
-                Add season
-            </button>
+                <button
+                    onClick={onAdd}
+                    className="text-[10px] px-2.5 py-1 rounded border border-white/10 text-gray-300 hover:text-white hover:border-white/30 transition-colors cursor-pointer bg-transparent"
+                >
+                    Add season
+                </button>
+            </div>
 
             <div className="bg-[#1a1a1a] border border-white/8 rounded-lg overflow-hidden">
                 <div className="grid grid-cols-[1fr_1fr_auto] gap-3 px-3 py-2 border-b border-white/8 text-[10px] uppercase tracking-widest text-gray-500">
@@ -768,6 +769,123 @@ function DeleteTeamModal({
     );
 }
 
+function SeasonModal({
+    mode,
+    formData,
+    onChange,
+    onClose,
+    onSave,
+    saving,
+}: {
+    mode: "create" | "edit";
+    formData: SeasonFormData;
+    onChange: (value: string) => void;
+    onClose: () => void;
+    onSave: () => void;
+    saving: boolean;
+}) {
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
+            <div className="w-full max-w-sm bg-[#1a1a1a] border border-white/10 rounded-lg shadow-xl">
+                <div className="px-4 py-3 border-b border-white/8">
+                    <p className="text-sm font-medium text-white">
+                        {mode === "create" ? "Add season" : "Edit season"}
+                    </p>
+                    <p className="text-[11px] text-gray-500">
+                        Enter the season year used by dashboard filters and reports.
+                    </p>
+                </div>
+
+                <div className="p-4">
+                    <label className="flex flex-col gap-1">
+                        <span className="text-[10px] uppercase tracking-widest text-gray-500">
+                            Year
+                        </span>
+                        <input
+                            type="number"
+                            min="1920"
+                            max="2030"
+                            value={formData.year}
+                            onChange={(event) => onChange(event.target.value)}
+                            className="bg-[#111] border border-white/10 rounded px-2 py-1.5 text-sm text-white outline-none focus:border-white/30"
+                            placeholder="example: 2024"
+                        />
+                    </label>
+                </div>
+
+                <div className="px-4 py-3 border-t border-white/8 flex justify-end gap-2">
+                    <button
+                        onClick={onClose}
+                        disabled={saving}
+                        className="px-3 py-1.5 rounded border border-white/10 text-gray-300 text-xs hover:text-white hover:border-white/30 disabled:opacity-50 bg-transparent"
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        onClick={onSave}
+                        disabled={saving}
+                        className="px-3 py-1.5 rounded border border-emerald-800 bg-emerald-900/40 text-emerald-300 text-xs hover:bg-emerald-800/60 disabled:opacity-50"
+                    >
+                        {saving
+                            ? "Saving..."
+                            : mode === "create"
+                                ? "Create season"
+                                : "Save changes"}
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function DeleteSeasonModal({
+    season,
+    onClose,
+    onConfirm,
+    deleting,
+}: {
+    season: Season;
+    onClose: () => void;
+    onConfirm: () => void;
+    deleting: boolean;
+}) {
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
+            <div className="w-full max-w-md bg-[#1a1a1a] border border-red-900/50 rounded-lg shadow-xl">
+                <div className="px-4 py-3 border-b border-white/8">
+                    <p className="text-sm font-medium text-white">Delete season?</p>
+                    <p className="text-[12px] text-gray-400 mt-1">
+                        Are you sure you want to delete{" "}
+                        <span className="text-red-300 font-medium">
+                            Season {season.year ?? "unknown"}
+                        </span>
+                        ? This action cannot be undone.
+                    </p>
+                </div>
+
+                <div className="px-4 py-3 flex justify-end gap-2">
+                    <button
+                        onClick={onClose}
+                        disabled={deleting}
+                        className="px-3 py-1.5 rounded border border-white/10 text-gray-300 text-xs hover:text-white hover:border-white/30 disabled:opacity-50 bg-transparent"
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        onClick={onConfirm}
+                        disabled={deleting}
+                        className="px-3 py-1.5 rounded border border-red-800 bg-red-900/40 text-red-300 text-xs hover:bg-red-800/60 disabled:opacity-50"
+                    >
+                        {deleting ? "Deleting..." : "Delete season"}
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 // Page component
 export default function AdminPage() {
     const router = useRouter();
@@ -777,7 +895,7 @@ export default function AdminPage() {
     const [role, setRole] = useState("");
     const [activeSection, setActiveSection] = useState("dashboard");
 
-    // toast notifications
+    // Toast notifications
     const [showError, setShowError] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
     const [showSuccess, setShowSuccess] = useState(false);
@@ -786,14 +904,14 @@ export default function AdminPage() {
     const [teams, setTeams] = useState<Team[]>([]);
     const [seasons, setSeasons] = useState<Season[]>([]);
 
-    // team modals
+    // Team modals
     const [editingTeam, setEditingTeam] = useState<Team | null>(null);
     const [teamFormData, setTeamFormData] = useState<TeamFormData | null>(null);
     const [teamPendingDelete, setTeamPendingDelete] = useState<Team | null>(null);
     const [savingTeam, setSavingTeam] = useState(false);
     const [deletingTeam, setDeletingTeam] = useState(false);
 
-    // season modals
+    // Season modals
     const [editingSeason, setEditingSeason] = useState<Season | null>(null);
     const [seasonFormData, setSeasonFormData] = useState<SeasonFormData | null>(null);
     const [seasonPendingDelete, setSeasonPendingDelete] = useState<Season | null>(null);
@@ -878,8 +996,9 @@ export default function AdminPage() {
 
         const timeout = setTimeout(() => setShowSuccess(false), 5000);
         return () => clearTimeout(timeout);
-}, []);
+    }, []);
 
+    // Handlers
     const handleLogout = async () => {
         try {
             const token = localStorage.getItem("token");
@@ -908,6 +1027,7 @@ export default function AdminPage() {
         }
     };
 
+    // Team handlers
     const handleEditTeam = (team: Team) => {
         setEditingTeam(team);
         setTeamFormData(teamToFormData(team));
@@ -931,6 +1051,21 @@ export default function AdminPage() {
             return;
         }
 
+        const colorFields: (keyof TeamFormData)[] = [
+            "primary_color",
+            "secondary_color",
+            "text_color",
+        ];
+
+        const invalidColorField = colorFields.find(
+            (field) => !isValidHexColor(teamFormData[field])
+        );
+
+        if (invalidColorField) {
+            showTemporaryError("Team colors must use a valid hex format like #203731");
+            return;
+        }
+
         const teamId = getTeamId(editingTeam);
 
         if (teamId === undefined) {
@@ -939,19 +1074,19 @@ export default function AdminPage() {
         }
 
         try {
-          setSavingTeam(true);
+            setSavingTeam(true);
 
-          const teamName = getTeamDisplayName(editingTeam);
+            const teamName = getTeamDisplayName(editingTeam);
 
-          await teamAPI.updateTeam(teamId, teamFormData);
+            await teamAPI.updateTeam(teamId, teamFormData);
 
-          setEditingTeam(null);
-          setTeamFormData(null);
+            setEditingTeam(null);
+            setTeamFormData(null);
 
-          await fetchAdminReferenceData();
+            await fetchAdminReferenceData();
 
-          showTemporarySuccess(`${teamName} updated successfully`);
-      } catch (error) {
+            showTemporarySuccess(`${teamName} updated successfully`);
+        } catch (error) {
             console.error("Update team error:", error);
             showTemporaryError("Failed to update team");
         } finally {
@@ -997,6 +1132,108 @@ export default function AdminPage() {
         }
     };
 
+    // Season handlers
+    const handleAddSeason = () => {
+        setEditingSeason(null);
+        setSeasonFormData({ year: "" });
+    };
+
+    const handleEditSeason = (season: Season) => {
+        setEditingSeason(season);
+        setSeasonFormData(seasonToFormData(season));
+    };
+
+    const handleSeasonFormChange = (value: string) => {
+        setSeasonFormData({ year: value });
+    };
+
+    const handleSaveSeason = async () => {
+        if (!seasonFormData) {
+            return;
+        }
+
+        if (!isValidSeasonYear(seasonFormData.year)) {
+            showTemporaryError("Season year must be a valid year between 1920 and 2030");
+            return;
+        }
+
+        const payload = {
+            year: Number(seasonFormData.year),
+        };
+
+        try {
+            if (editingSeason) {
+                const seasonId = getSeasonId(editingSeason);
+
+                if (seasonId === undefined) {
+                    showTemporaryError("Unable to update season because the season ID is missing");
+                    return;
+                }
+
+                setSavingSeason(true);
+                await seasonAPI.updateSeason(seasonId, payload);
+                showTemporarySuccess(`Season ${payload.year} updated successfully`);
+            } else {
+                setCreatingSeason(true);
+                await seasonAPI.createSeason(payload);
+                showTemporarySuccess(`Season ${payload.year} created successfully`);
+            }
+
+            setEditingSeason(null);
+            setSeasonFormData(null);
+
+            await fetchAdminReferenceData();
+        } catch (error) {
+            console.error("Save season error:", error);
+            showTemporaryError(
+                editingSeason
+                    ? "Failed to update season"
+                    : "Failed to create season"
+            );
+        } finally {
+            setSavingSeason(false);
+            setCreatingSeason(false);
+        }
+    };
+
+    const handleDeleteSeason = (season: Season) => {
+        setSeasonPendingDelete(season);
+    };
+
+    const handleConfirmDeleteSeason = async () => {
+        if (!seasonPendingDelete) {
+            return;
+        }
+
+        const seasonId = getSeasonId(seasonPendingDelete);
+
+        if (seasonId === undefined) {
+            showTemporaryError("Unable to delete season because the season ID is missing");
+            return;
+        }
+
+        try {
+            setDeletingSeason(true);
+
+            const seasonYear = seasonPendingDelete.year ?? "selected season";
+
+            await seasonAPI.deleteSeason(seasonId);
+
+            setSeasonPendingDelete(null);
+
+            await fetchAdminReferenceData();
+
+            showTemporarySuccess(`Season ${seasonYear} deleted successfully`);
+        } catch (error) {
+            console.error("Delete season error:", error);
+            showTemporaryError(
+                "Failed to delete season. It may still be connected to player stats or roster records."
+            );
+        } finally {
+            setDeletingSeason(false);
+        }
+    };
+
     const renderAdminContent = () => {
         switch (activeSection) {
             case "dashboard":
@@ -1013,7 +1250,14 @@ export default function AdminPage() {
                 return <PlayerRecordsTable players={playerList} />;
 
             case "manage-seasons":
-                return <SeasonsPanel seasons={seasons} />;
+                return (
+                    <SeasonsPanel
+                        seasons={seasons}
+                        onAdd={handleAddSeason}
+                        onEdit={handleEditSeason}
+                        onDelete={handleDeleteSeason}
+                    />
+                );
 
             case "manage-teams":
                 return (
@@ -1132,17 +1376,17 @@ export default function AdminPage() {
                 </div>
             )}
 
-          {showSuccess && successMsg && (
-              <div className="fixed top-5 right-5 z-50 flex items-center gap-3 bg-emerald-950 border border-emerald-800 text-emerald-300 text-sm px-4 py-3 rounded-lg shadow-xl max-w-sm">
-                  <span className="flex-1">{successMsg}</span>
-                  <button
-                      onClick={() => setShowSuccess(false)}
-                      className="text-emerald-400 hover:text-emerald-200 text-lg leading-none cursor-pointer bg-transparent border-none"
-                  >
-                      ✕
-                  </button>
-              </div>
-          )}
+            {showSuccess && successMsg && (
+                <div className="fixed top-20 right-5 z-50 flex items-center gap-3 bg-emerald-950 border border-emerald-800 text-emerald-300 text-sm px-4 py-3 rounded-lg shadow-xl max-w-sm">
+                    <span className="flex-1">{successMsg}</span>
+                    <button
+                        onClick={() => setShowSuccess(false)}
+                        className="text-emerald-400 hover:text-emerald-200 text-lg leading-none cursor-pointer bg-transparent border-none"
+                    >
+                        ✕
+                    </button>
+                </div>
+            )}
 
             {renderAdminContent()}
 
@@ -1166,6 +1410,29 @@ export default function AdminPage() {
                     onClose={() => setTeamPendingDelete(null)}
                     onConfirm={handleConfirmDeleteTeam}
                     deleting={deletingTeam}
+                />
+            )}
+
+            {seasonFormData && (
+                <SeasonModal
+                    mode={editingSeason ? "edit" : "create"}
+                    formData={seasonFormData}
+                    onChange={handleSeasonFormChange}
+                    onClose={() => {
+                        setEditingSeason(null);
+                        setSeasonFormData(null);
+                    }}
+                    onSave={handleSaveSeason}
+                    saving={savingSeason || creatingSeason}
+                />
+            )}
+
+            {seasonPendingDelete && (
+                <DeleteSeasonModal
+                    season={seasonPendingDelete}
+                    onClose={() => setSeasonPendingDelete(null)}
+                    onConfirm={handleConfirmDeleteSeason}
+                    deleting={deletingSeason}
                 />
             )}
         </PageLayout>
