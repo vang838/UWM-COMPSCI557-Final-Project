@@ -194,6 +194,10 @@ function getPlayerId(player: Player): number | string {
     return player.id ?? player.player_id ?? crypto.randomUUID();
 }
 
+function getStablePlayerId(player: Player): number | string | undefined {
+    return player.player_id ?? player.id;
+}
+
 function noData(value: unknown): string | number {
     if (value === null || value === undefined || value === "") {
         return "No data";
@@ -669,6 +673,173 @@ function TeamsPanel({
     );
 }
 
+function TeamRosterPanel({
+    seasons,
+    teams,
+    players,
+    rosters,
+    selectedSeasonYear,
+    selectedTeamId,
+    selectedTeamSeason,
+    loading,
+    onSeasonChange,
+    onTeamChange,
+    onAddRoster,
+    onDeleteRoster,
+}: {
+    seasons: Season[];
+    teams: Team[];
+    players: Player[];
+    rosters: PlayerSeasonRoster[];
+    selectedSeasonYear: string;
+    selectedTeamId: string;
+    selectedTeamSeason?: TeamSeason;
+    loading: boolean;
+    onSeasonChange: (year: string) => void;
+    onTeamChange: (teamId: string) => void;
+    onAddRoster: () => void;
+    onDeleteRoster: (roster: PlayerSeasonRoster) => void;
+}) {
+    return (
+        <div className="flex flex-col gap-3">
+            <div className="bg-[#1a1a1a] border border-white/8 rounded-lg p-3">
+                <div className="flex items-center justify-between gap-3">
+                    <div>
+                        <p className="text-[13px] font-medium text-white">
+                            Team roster assignments
+                        </p>
+                        <p className="text-[11px] text-gray-500">
+                            Select a season and team to manage player roster assignments.
+                        </p>
+                    </div>
+
+                    <button
+                        onClick={onAddRoster}
+                        disabled={!selectedTeamSeason || players.length === 0}
+                        className="text-[10px] px-2.5 py-1 rounded border border-white/10 text-gray-300 hover:text-white hover:border-white/30 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer bg-transparent"
+                    >
+                        Add player
+                    </button>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 mt-3">
+                    <label className="flex flex-col gap-1">
+                        <span className="text-[10px] uppercase tracking-widest text-gray-500">
+                            Season
+                        </span>
+                        <select
+                            value={selectedSeasonYear}
+                            onChange={(event) => onSeasonChange(event.target.value)}
+                            className="bg-[#111] border border-white/10 rounded px-2 py-1.5 text-sm text-white outline-none focus:border-white/30"
+                        >
+                            <option value="">Select season</option>
+                            {seasons.map((season) => (
+                                <option
+                                    key={season.season_id ?? season.id ?? season.year}
+                                    value={String(season.year)}
+                                >
+                                    {season.year}
+                                </option>
+                            ))}
+                        </select>
+                    </label>
+
+                    <label className="flex flex-col gap-1">
+                        <span className="text-[10px] uppercase tracking-widest text-gray-500">
+                            Team
+                        </span>
+                        <select
+                            value={selectedTeamId}
+                            onChange={(event) => onTeamChange(event.target.value)}
+                            className="bg-[#111] border border-white/10 rounded px-2 py-1.5 text-sm text-white outline-none focus:border-white/30"
+                        >
+                            <option value="">Select team</option>
+                            {teams.map((team) => {
+                                const teamId = getTeamId(team);
+
+                                if (teamId === undefined) {
+                                    return null;
+                                }
+
+                                return (
+                                    <option key={teamId} value={String(teamId)}>
+                                        {getTeamDisplayName(team)}
+                                    </option>
+                                );
+                            })}
+                        </select>
+                    </label>
+                </div>
+
+                {!selectedTeamSeason && selectedSeasonYear && selectedTeamId && (
+                    <p className="text-[11px] text-red-400 mt-2">
+                        This team is not assigned to the selected season yet.
+                    </p>
+                )}
+            </div>
+
+            <div className="bg-[#1a1a1a] border border-white/8 rounded-lg overflow-hidden">
+                <div className="grid grid-cols-[2fr_1fr_1fr_1fr_auto] gap-3 px-3 py-2 border-b border-white/8 text-[10px] uppercase tracking-widest text-gray-500">
+                    <span>Player</span>
+                    <span>Position</span>
+                    <span>Jersey</span>
+                    <span>Status</span>
+                    <span>Actions</span>
+                </div>
+
+                {loading ? (
+                    <div className="px-3 py-6 text-center text-[12px] text-gray-500">
+                        Loading roster...
+                    </div>
+                ) : rosters.length > 0 ? (
+                    rosters.map((roster) => (
+                        <div
+                            key={roster.roster_id}
+                            className="grid grid-cols-[2fr_1fr_1fr_1fr_auto] gap-3 items-center px-3 py-2 border-b border-white/6 last:border-b-0 hover:bg-white/3 transition-colors text-[12px]"
+                        >
+                            <span className="text-white font-medium truncate">
+                                {roster.player_name || `Player #${roster.player}`}
+                            </span>
+
+                            <span className="text-gray-400">
+                                {roster.player_position || "—"}
+                            </span>
+
+                            <span className="text-gray-400">
+                                {roster.jersey_number ?? "—"}
+                            </span>
+
+                            <span
+                                className={
+                                    roster.is_active
+                                        ? "text-emerald-400"
+                                        : "text-gray-500"
+                                }
+                            >
+                                {roster.roster_status ||
+                                    (roster.is_active ? "Active" : "Inactive")}
+                            </span>
+
+                            <div className="flex gap-1.5">
+                                <button
+                                    onClick={() => onDeleteRoster(roster)}
+                                    className="text-[10px] px-2 py-0.5 rounded border border-red-900/50 text-red-500 hover:border-red-700 hover:text-red-300 transition-colors cursor-pointer bg-transparent"
+                                >
+                                    Remove
+                                </button>
+                            </div>
+                        </div>
+                    ))
+                ) : (
+                    <div className="px-3 py-6 text-center text-[12px] text-gray-500">
+                        No players assigned to this team-season roster.
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
 function EditTeamModal({
     team,
     formData,
@@ -925,6 +1096,199 @@ function DeleteSeasonModal({
     );
 }
 
+function RosterModal({
+    players,
+    existingRosters,
+    formData,
+    onChange,
+    onClose,
+    onSave,
+    saving,
+}: {
+    players: Player[];
+    existingRosters: PlayerSeasonRoster[];
+    formData: RosterFormData;
+    onChange: (field: keyof RosterFormData, value: string | boolean) => void;
+    onClose: () => void;
+    onSave: () => void;
+    saving: boolean;
+}) {
+    const assignedPlayerIds = new Set(
+        existingRosters.map((roster) => String(roster.player))
+    );
+
+    const availablePlayers = players.filter((player) => {
+        const playerId = getStablePlayerId(player);
+
+        if (playerId === undefined) {
+            return false;
+        }
+
+        return !assignedPlayerIds.has(String(playerId));
+    });
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
+            <div className="w-full max-w-md bg-[#1a1a1a] border border-white/10 rounded-lg shadow-xl">
+                <div className="px-4 py-3 border-b border-white/8">
+                    <p className="text-sm font-medium text-white">
+                        Add player to roster
+                    </p>
+                    <p className="text-[11px] text-gray-500">
+                        Assign an existing player to the selected team-season.
+                    </p>
+                </div>
+
+                <div className="p-4 grid gap-3">
+                    <label className="flex flex-col gap-1">
+                        <span className="text-[10px] uppercase tracking-widest text-gray-500">
+                            Player
+                        </span>
+                        <select
+                            value={formData.player}
+                            onChange={(event) =>
+                                onChange("player", event.target.value)
+                            }
+                            className="bg-[#111] border border-white/10 rounded px-2 py-1.5 text-sm text-white outline-none focus:border-white/30"
+                        >
+                            <option value="">Select player</option>
+                            {availablePlayers.map((player) => {
+                                const playerId = getStablePlayerId(player);
+
+                                if (playerId === undefined) {
+                                    return null;
+                                }
+
+                                return (
+                                    <option key={playerId} value={String(playerId)}>
+                                        {displayPlayerName(player)}
+                                        {player.position ? ` (${player.position})` : ""}
+                                    </option>
+                                );
+                            })}
+                        </select>
+
+                        {availablePlayers.length === 0 && (
+                            <span className="text-[11px] text-gray-500">
+                                No available players. Create more players or remove an existing roster assignment first.
+                            </span>
+                        )}
+                    </label>
+
+                    <label className="flex flex-col gap-1">
+                        <span className="text-[10px] uppercase tracking-widest text-gray-500">
+                            Jersey number
+                        </span>
+                        <input
+                            type="number"
+                            value={formData.jersey_number}
+                            onChange={(event) =>
+                                onChange("jersey_number", event.target.value)
+                            }
+                            className="bg-[#111] border border-white/10 rounded px-2 py-1.5 text-sm text-white outline-none focus:border-white/30"
+                            placeholder="example: 10"
+                        />
+                    </label>
+
+                    <label className="flex flex-col gap-1">
+                        <span className="text-[10px] uppercase tracking-widest text-gray-500">
+                            Roster status
+                        </span>
+                        <select
+                            value={formData.roster_status}
+                            onChange={(event) =>
+                                onChange("roster_status", event.target.value)
+                            }
+                            className="bg-[#111] border border-white/10 rounded px-2 py-1.5 text-sm text-white outline-none focus:border-white/30"
+                        >
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                            <option value="Practice Squad">Practice Squad</option>
+                            <option value="Injured Reserve">Injured Reserve</option>
+                        </select>
+                    </label>
+
+                    <label className="flex items-center gap-2 text-[12px] text-gray-300">
+                        <input
+                            type="checkbox"
+                            checked={formData.is_active}
+                            onChange={(event) =>
+                                onChange("is_active", event.target.checked)
+                            }
+                        />
+                        Active roster assignment
+                    </label>
+                </div>
+
+                <div className="px-4 py-3 border-t border-white/8 flex justify-end gap-2">
+                    <button
+                        onClick={onClose}
+                        disabled={saving}
+                        className="px-3 py-1.5 rounded border border-white/10 text-gray-300 text-xs hover:text-white hover:border-white/30 disabled:opacity-50 bg-transparent"
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        onClick={onSave}
+                        disabled={saving || availablePlayers.length === 0}
+                        className="px-3 py-1.5 rounded border border-emerald-800 bg-emerald-900/40 text-emerald-300 text-xs hover:bg-emerald-800/60 disabled:opacity-50"
+                    >
+                        {saving ? "Saving..." : "Add player"}
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function DeleteRosterModal({
+    roster,
+    onClose,
+    onConfirm,
+    deleting,
+}: {
+    roster: PlayerSeasonRoster;
+    onClose: () => void;
+    onConfirm: () => void;
+    deleting: boolean;
+}) {
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
+            <div className="w-full max-w-md bg-[#1a1a1a] border border-red-900/50 rounded-lg shadow-xl">
+                <div className="px-4 py-3 border-b border-white/8">
+                    <p className="text-sm font-medium text-white">Remove player?</p>
+                    <p className="text-[12px] text-gray-400 mt-1">
+                        Remove{" "}
+                        <span className="text-red-300 font-medium">
+                            {roster.player_name || `Player #${roster.player}`}
+                        </span>{" "}
+                        from this team-season roster?
+                    </p>
+                </div>
+
+                <div className="px-4 py-3 flex justify-end gap-2">
+                    <button
+                        onClick={onClose}
+                        disabled={deleting}
+                        className="px-3 py-1.5 rounded border border-white/10 text-gray-300 text-xs hover:text-white hover:border-white/30 disabled:opacity-50 bg-transparent"
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        onClick={onConfirm}
+                        disabled={deleting}
+                        className="px-3 py-1.5 rounded border border-red-800 bg-red-900/40 text-red-300 text-xs hover:bg-red-800/60 disabled:opacity-50"
+                    >
+                        {deleting ? "Removing..." : "Remove player"}
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 // Page component
 export default function AdminPage() {
     const router = useRouter();
@@ -958,6 +1322,21 @@ export default function AdminPage() {
     const [deletingSeason, setDeletingSeason] = useState(false);
     const [creatingSeason, setCreatingSeason] = useState(false);
 
+    // Team roster state
+    const [teamSeasons, setTeamSeasons] = useState<TeamSeason[]>([]);
+    const [rosters, setRosters] = useState<PlayerSeasonRoster[]>([]);
+
+    const [selectedRosterSeasonYear, setSelectedRosterSeasonYear] = useState("");
+    const [selectedRosterTeamId, setSelectedRosterTeamId] = useState("");
+
+    const [rosterFormData, setRosterFormData] = useState<RosterFormData | null>(null);
+    const [rosterPendingDelete, setRosterPendingDelete] =
+        useState<PlayerSeasonRoster | null>(null);
+
+    const [loadingRosters, setLoadingRosters] = useState(false);
+    const [savingRoster, setSavingRoster] = useState(false);
+    const [deletingRoster, setDeletingRoster] = useState(false);
+
     const fetchPlayers = useCallback(() => playerAPI.getAllPlayers(), []);
     const {
         data: playersResponse,
@@ -971,9 +1350,10 @@ export default function AdminPage() {
     );
 
     const fetchAdminReferenceData = useCallback(async () => {
-        const [seasonData, teamData] = await Promise.all([
+        const [seasonData, teamData, teamSeasonData] = await Promise.all([
             safeApiCall<unknown[]>(() => seasonAPI.getAllSeasons(), []),
             safeApiCall<unknown[]>(() => teamAPI.getAllTeams(), []),
+            safeApiCall<unknown[]>(() => seasonAPI.getTeamSeasons(), []),
         ]);
 
         const seasonList = normalizeApiList<Season>(seasonData)
@@ -984,9 +1364,66 @@ export default function AdminPage() {
             .filter((team) => team.team_id !== undefined || team.id !== undefined)
             .sort((a, b) => getTeamDisplayName(a).localeCompare(getTeamDisplayName(b)));
 
+        const teamSeasonList = normalizeApiList<TeamSeason>(teamSeasonData)
+            .filter((item) => item.team_season_id !== undefined)
+            .sort((a, b) => {
+                const yearCompare =
+                    Number(b.season_year ?? 0) - Number(a.season_year ?? 0);
+
+                if (yearCompare !== 0) {
+                    return yearCompare;
+                }
+
+                return (a.team_display_name ?? "").localeCompare(
+                    b.team_display_name ?? ""
+                );
+            });
+
         setSeasons(seasonList);
         setTeams(teamList);
+        setTeamSeasons(teamSeasonList);
     }, []);
+
+    const selectedTeamSeason = useMemo(() => {
+        return teamSeasons.find((item) => {
+            return (
+                String(item.team) === selectedRosterTeamId &&
+                String(item.season_year) === selectedRosterSeasonYear
+            );
+        });
+    }, [teamSeasons, selectedRosterTeamId, selectedRosterSeasonYear]);
+
+    const fetchSelectedRoster = useCallback(async () => {
+        if (!selectedRosterSeasonYear || !selectedRosterTeamId) {
+            setRosters([]);
+            return;
+        }
+
+        try {
+            setLoadingRosters(true);
+
+            const rosterData = await safeApiCall<unknown[]>(
+                () =>
+                    seasonAPI.getPlayerSeasonRosters({
+                        team: selectedRosterTeamId,
+                        year: selectedRosterSeasonYear,
+                    }),
+                []
+            );
+
+            const rosterList = normalizeApiList<PlayerSeasonRoster>(rosterData)
+                .filter((roster) => roster.roster_id !== undefined)
+                .sort((a, b) => {
+                    const aName = a.player_name ?? "";
+                    const bName = b.player_name ?? "";
+                    return aName.localeCompare(bName);
+                });
+
+            setRosters(rosterList);
+        } finally {
+            setLoadingRosters(false);
+        }
+    }, [selectedRosterSeasonYear, selectedRosterTeamId]);
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -1010,6 +1447,30 @@ export default function AdminPage() {
 
         fetchAdminReferenceData();
     }, [authChecked, fetchAdminReferenceData]);
+
+    useEffect(() => {
+        if (!selectedRosterSeasonYear && seasons.length > 0) {
+            setSelectedRosterSeasonYear(String(seasons[0].year));
+        }
+    }, [seasons, selectedRosterSeasonYear]);
+
+    useEffect(() => {
+        if (!selectedRosterTeamId && teams.length > 0) {
+            const firstTeamId = getTeamId(teams[0]);
+
+            if (firstTeamId !== undefined) {
+                setSelectedRosterTeamId(String(firstTeamId));
+            }
+        }
+    }, [teams, selectedRosterTeamId]);
+
+    useEffect(() => {
+        if (!authChecked) {
+            return;
+        }
+
+        fetchSelectedRoster();
+    }, [authChecked, fetchSelectedRoster]);
 
     useEffect(() => {
         if (apiError) {
@@ -1273,6 +1734,109 @@ export default function AdminPage() {
         }
     };
 
+    // Roster handlers
+    const handleOpenAddRoster = () => {
+        if (!selectedTeamSeason) {
+            showTemporaryError("Select a valid season and team before adding a player");
+            return;
+        }
+
+        setRosterFormData({
+            player: "",
+            jersey_number: "",
+            roster_status: "Active",
+            is_active: true,
+        });
+    };
+
+    const handleRosterFormChange = (
+        field: keyof RosterFormData,
+        value: string | boolean
+    ) => {
+        setRosterFormData((current) => {
+            if (!current) {
+                return current;
+            }
+
+            return {
+                ...current,
+                [field]: value,
+            };
+        });
+    };
+
+    const handleSaveRoster = async () => {
+        if (!rosterFormData) {
+            return;
+        }
+
+        if (!selectedTeamSeason) {
+            showTemporaryError("Selected team-season does not exist");
+            return;
+        }
+
+        if (!rosterFormData.player) {
+            showTemporaryError("Select a player before saving the roster assignment");
+            return;
+        }
+
+        const payload = {
+            player: Number(rosterFormData.player),
+            team_season: selectedTeamSeason.team_season_id,
+            jersey_number: rosterFormData.jersey_number
+                ? Number(rosterFormData.jersey_number)
+                : null,
+            roster_status: rosterFormData.roster_status,
+            is_active: rosterFormData.is_active,
+        };
+
+        try {
+            setSavingRoster(true);
+
+            await seasonAPI.createPlayerSeasonRoster(payload);
+
+            setRosterFormData(null);
+
+            await fetchSelectedRoster();
+
+            showTemporarySuccess("Player assigned to roster successfully");
+        } catch (error) {
+            console.error("Create roster error:", error);
+            showTemporaryError(
+                "Failed to assign player. They may already be on this team-season roster."
+            );
+        } finally {
+            setSavingRoster(false);
+        }
+    };
+
+    const handleDeleteRoster = (roster: PlayerSeasonRoster) => {
+        setRosterPendingDelete(roster);
+    };
+
+    const handleConfirmDeleteRoster = async () => {
+        if (!rosterPendingDelete) {
+            return;
+        }
+
+        try {
+            setDeletingRoster(true);
+
+            await seasonAPI.deletePlayerSeasonRoster(rosterPendingDelete.roster_id);
+
+            setRosterPendingDelete(null);
+
+            await fetchSelectedRoster();
+
+            showTemporarySuccess("Player removed from roster successfully");
+        } catch (error) {
+            console.error("Delete roster error:", error);
+            showTemporaryError("Failed to remove player from roster");
+        } finally {
+            setDeletingRoster(false);
+        }
+    };
+
     const renderAdminContent = () => {
         switch (activeSection) {
             case "dashboard":
@@ -1325,9 +1889,19 @@ export default function AdminPage() {
 
             case "team-roster":
                 return (
-                    <EmptySection
-                        title="Team roster"
-                        description="This section should show roster assignments by team and season once the teams and roster APIs are available."
+                    <TeamRosterPanel
+                        seasons={seasons}
+                        teams={teams}
+                        players={playerList}
+                        rosters={rosters}
+                        selectedSeasonYear={selectedRosterSeasonYear}
+                        selectedTeamId={selectedRosterTeamId}
+                        selectedTeamSeason={selectedTeamSeason}
+                        loading={loadingRosters}
+                        onSeasonChange={setSelectedRosterSeasonYear}
+                        onTeamChange={setSelectedRosterTeamId}
+                        onAddRoster={handleOpenAddRoster}
+                        onDeleteRoster={handleDeleteRoster}
                     />
                 );
 
@@ -1472,6 +2046,27 @@ export default function AdminPage() {
                     onClose={() => setSeasonPendingDelete(null)}
                     onConfirm={handleConfirmDeleteSeason}
                     deleting={deletingSeason}
+                />
+            )}
+
+            {rosterFormData && (
+                <RosterModal
+                    players={playerList}
+                    existingRosters={rosters}
+                    formData={rosterFormData}
+                    onChange={handleRosterFormChange}
+                    onClose={() => setRosterFormData(null)}
+                    onSave={handleSaveRoster}
+                    saving={savingRoster}
+                />
+            )}
+
+            {rosterPendingDelete && (
+                <DeleteRosterModal
+                    roster={rosterPendingDelete}
+                    onClose={() => setRosterPendingDelete(null)}
+                    onConfirm={handleConfirmDeleteRoster}
+                    deleting={deletingRoster}
                 />
             )}
         </PageLayout>
