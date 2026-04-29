@@ -217,6 +217,22 @@ function getSectionTitle(section: string): string {
     return titles[section] ?? "Admin Dashboard";
 }
 
+function getSeasonId(season: Season): number | string | undefined {
+    return season.season_id ?? season.id;
+}
+
+function seasonToFormData(season: Season): SeasonFormData {
+    return {
+        year: season.year ? String(season.year) : "",
+    };
+}
+
+function isValidSeasonYear(year: string): boolean {
+    const parsedYear = Number(year);
+    return Number.isInteger(parsedYear) && parsedYear >= 1920 && parsedYear <= 2030;
+}
+
+
 // Small components
 function StatCard({
     label,
