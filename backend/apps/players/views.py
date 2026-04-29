@@ -61,7 +61,108 @@ class PlayerViewSet(viewsets.ModelViewSet):
         elif team_id:
             queryset = queryset.filter(team_id=team_id)
 
-        return queryset
+        return queryset.order_by("last_name", "first_name")
+
+    @action(detail=True, methods=["get"], url_path="season-stats")
+    def season_stats(self, request, player_id=None):
+        """
+        Get player stats grouped by season.
+
+        Current assumption:
+        PlayerSeasonStat still links directly to player + season + stat_type.
+
+        If you later migrate PlayerSeasonStat to PlayerSeasonRoster,
+        this action should be updated to query through player_roster instead.
+        """
+        try:
+            player = self.get_object()
+
+            stats = (
+                PlayerSeasonStat.objects.filter(player=player)
+                .select_related("season", "stat_type")
+                .order_by("season__year")
+            )
+
+            season_data = {}
+
+            for stat in stats:
+                season_key = stat.season.year
+
+                if season_key not in season_data:
+                    season_data[season_key] = {
+                        "season": stat.season.year,
+                        "total_stats": [],
+                    }
+
+                season_data[season_key]["total_stats"].append(
+                    {
+                        "stat_type": stat.stat_type.name,
+                        "value": stat.value,
+                    }
+                )
+
+            return Response(
+                {
+                    "player_id": player.player_id,
+                    "first_name": player.first_name,
+                    "last_name": player.last_name,
+                    "seasons": list(season_data.values()),
+                }
+            )
+
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+    @action(detail=True, methods=["get"], url_path="stats/season/(?P<season_id>[^/.]+)")
+    def player_season_stats(self, request, player_id=None, season_id=None):
+        """
+        Get a specific player's stats for a specific season.
+
+        Current assumption:
+        PlayerSeasonStat still links directly to player + season + stat_type.
+        """
+        try:
+            player = self.get_object()
+            season = Season.objects.get(season_id=season_id)
+
+            stats = PlayerSeasonStat.objects.filter(
+                player=player,
+                season=season,
+            ).select_related("stat_type")
+
+            stat_data = []
+
+            for stat in stats:
+                stat_data.append(
+                    {
+                        "stat_type": stat.stat_type.name,
+                        "value": stat.value,
+                        "description": stat.stat_type.description,
+                    }
+                )
+
+            return Response(
+                {
+                    "player_id": player.player_id,
+                    "season": season.year,
+                    "stats": stat_data,
+                }
+            )
+
+        except Season.DoesNotExist:
+            return Response(
+                {"error": "Season not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
     # custom dashboard endpoint for player stats by season
     @action(detail=True, methods=['get'], url_path='season-stats')
