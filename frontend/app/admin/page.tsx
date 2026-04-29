@@ -61,6 +61,45 @@ interface SeasonFormData {
     year: string;
 }
 
+interface TeamSeason {
+    team_season_id: number;
+    team: number;
+    season: number;
+    season_year?: number;
+    team_name?: string;
+    team_city?: string;
+    team_display_name?: string;
+    team_abbreviation?: string;
+    conference?: string;
+    division?: string;
+}
+
+interface PlayerSeasonRoster {
+    roster_id: number;
+    player: number;
+    player_name?: string;
+    player_position?: string;
+    team_season: number;
+    team_season_id?: number;
+    team_id?: number;
+    team_display_name?: string;
+    team_abbreviation?: string;
+    season_id?: number;
+    season_year?: number;
+    conference?: string;
+    division?: string;
+    jersey_number?: number | null;
+    roster_status?: string;
+    is_active?: boolean;
+}
+
+interface RosterFormData {
+    player: string;
+    jersey_number: string;
+    roster_status: string;
+    is_active: boolean;
+}
+
 // Nav config
 const ADMIN_NAV: NavSection[] = [
     {
