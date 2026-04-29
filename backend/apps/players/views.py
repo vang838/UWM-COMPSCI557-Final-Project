@@ -17,9 +17,48 @@ class PlayerViewSet(viewsets.ModelViewSet):
     # supports filtering for frontend e.g. /api/players/ for all players or /api/players/?team1 for filtering
     def get_queryset(self):
         queryset = Player.objects.all()
-        team_id = self.request.query_params.get("team") or self.request.query_params.get("team_id")
 
-        if team_id:
+        team_id = (
+                self.request.query_params.get("team")
+                or self.request.query_params.get("team_id")
+        )
+
+        season_id = (
+                self.request.query_params.get("season")
+                or self.request.query_params.get("season_id")
+        )
+
+        season_year = (
+                self.request.query_params.get("year")
+                or self.request.query_params.get("season_year")
+        )
+
+        # Historical filtering: team + season/year
+        if team_id and season_year:
+            queryset = queryset.filter(
+                season_rosters__team_season__team_id=team_id,
+                season_rosters__team_season__season__year=season_year,
+            ).distinct()
+
+        elif team_id and season_id:
+            queryset = queryset.filter(
+                season_rosters__team_season__team_id=team_id,
+                season_rosters__team_season__season_id=season_id,
+            ).distinct()
+
+        # Historical filtering: all players in a season/year
+        elif season_year:
+            queryset = queryset.filter(
+                season_rosters__team_season__season__year=season_year,
+            ).distinct()
+
+        elif season_id:
+            queryset = queryset.filter(
+                season_rosters__team_season__season_id=season_id,
+            ).distinct()
+
+        # Backward-compatible current-team filtering
+        elif team_id:
             queryset = queryset.filter(team_id=team_id)
 
         return queryset
