@@ -8,10 +8,7 @@ import { seasonAPI } from "@/src/api/seasons";
 import LoadingSpinner from "@/src/components/LoadingSpinner";
 import PageLayout, { NavSection } from "@/src/components/pageLayout";
 
-// ---------------------------------------------------------------------------
 // Types
-// ---------------------------------------------------------------------------
-
 interface Player {
   id?: number;
   player_id?: number;
@@ -30,10 +27,7 @@ interface Season {
   year?: number | string;
 }
 
-// ---------------------------------------------------------------------------
 // Nav config
-// ---------------------------------------------------------------------------
-
 const ADMIN_NAV: NavSection[] = [
   {
     heading: "Overview",
@@ -68,10 +62,7 @@ const ADMIN_NAV: NavSection[] = [
   },
 ];
 
-// ---------------------------------------------------------------------------
 // Helpers
-// ---------------------------------------------------------------------------
-
 function unwrapApiData<T>(response: unknown): T {
   const maybeResponse = response as { data?: T };
   return maybeResponse?.data ?? (response as T);
@@ -141,10 +132,7 @@ function getSectionTitle(section: string): string {
   return titles[section] ?? "Admin Dashboard";
 }
 
-// ---------------------------------------------------------------------------
 // Small components
-// ---------------------------------------------------------------------------
-
 function StatCard({
   label,
   value,
