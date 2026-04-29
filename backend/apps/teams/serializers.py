@@ -3,6 +3,8 @@ from apps.teams.models import Team, Coach
 
 
 class TeamSerializer(serializers.ModelSerializer):
+    display_name = serializers.SerializerMethodField()
+
     class Meta:
         model = Team
         fields = (
