@@ -468,12 +468,29 @@ function AdminOverview({
     );
 }
 
-function SeasonsPanel({ seasons }: { seasons: Season[] }) {
+function SeasonsPanel({
+        seasons,
+        onAdd,
+        onEdit,
+        onDelete,
+    }: {
+        seasons: Season[];
+        onAdd: () => void;
+        onEdit: (season: Season) => void;
+        onDelete: (season: Season) => void;
+    }) {
     return (
         <div>
             <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-2">
                 Seasons ({seasons.length})
             </p>
+
+            <button
+                onClick={onAdd}
+                className="text-[10px] px-2.5 py-1 rounded border border-white/10 text-gray-300 hover:text-white hover:border-white/30 transition-colors cursor-pointer bg-transparent"
+            >
+                Add season
+            </button>
 
             <div className="bg-[#1a1a1a] border border-white/8 rounded-lg overflow-hidden">
                 <div className="grid grid-cols-[1fr_1fr_auto] gap-3 px-3 py-2 border-b border-white/8 text-[10px] uppercase tracking-widest text-gray-500">
@@ -493,10 +510,17 @@ function SeasonsPanel({ seasons }: { seasons: Season[] }) {
                             </span>
                             <span className="text-white font-medium">{season.year}</span>
                             <div className="flex gap-1.5">
-                                <button className="text-[10px] px-2 py-0.5 rounded border border-white/10 text-gray-400 hover:text-white hover:border-white/30 transition-colors cursor-pointer bg-transparent">
+                                <button
+                                    onClick={() => onEdit(season)}
+                                    className="text-[10px] px-2 py-0.5 rounded border border-white/10 text-gray-400 hover:text-white hover:border-white/30 transition-colors cursor-pointer bg-transparent"
+                                >
                                     Edit
                                 </button>
-                                <button className="text-[10px] px-2 py-0.5 rounded border border-red-900/50 text-red-500 hover:border-red-700 hover:text-red-300 transition-colors cursor-pointer bg-transparent">
+
+                                <button
+                                    onClick={() => onDelete(season)}
+                                    className="text-[10px] px-2 py-0.5 rounded border border-red-900/50 text-red-500 hover:border-red-700 hover:text-red-300 transition-colors cursor-pointer bg-transparent"
+                                >
                                     Delete
                                 </button>
                             </div>
@@ -762,11 +786,20 @@ export default function AdminPage() {
     const [teams, setTeams] = useState<Team[]>([]);
     const [seasons, setSeasons] = useState<Season[]>([]);
 
+    // team modals
     const [editingTeam, setEditingTeam] = useState<Team | null>(null);
     const [teamFormData, setTeamFormData] = useState<TeamFormData | null>(null);
     const [teamPendingDelete, setTeamPendingDelete] = useState<Team | null>(null);
     const [savingTeam, setSavingTeam] = useState(false);
     const [deletingTeam, setDeletingTeam] = useState(false);
+
+    // season modals
+    const [editingSeason, setEditingSeason] = useState<Season | null>(null);
+    const [seasonFormData, setSeasonFormData] = useState<SeasonFormData | null>(null);
+    const [seasonPendingDelete, setSeasonPendingDelete] = useState<Season | null>(null);
+    const [savingSeason, setSavingSeason] = useState(false);
+    const [deletingSeason, setDeletingSeason] = useState(false);
+    const [creatingSeason, setCreatingSeason] = useState(false);
 
     const fetchPlayers = useCallback(() => playerAPI.getAllPlayers(), []);
     const {
