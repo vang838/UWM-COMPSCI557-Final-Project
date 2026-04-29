@@ -3,7 +3,7 @@ import PlayerList from "@/src/components/PlayerList";
 import PlayerNavigation from "@/src/components/navigation";
 import { playerAPI } from "@/src/api/players";
 import { useApiData } from "@/src/hooks/useApiData";
-import LoadingSpinner from "@/src/components/loadingSpinner";
+import LoadingSpinner from "@/src/components/LoadingSpinner";
 import PageLayout from "@/src/components/pageLayout";
 
 export default function PlayersPage() {
