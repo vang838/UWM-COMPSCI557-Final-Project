@@ -20,4 +20,18 @@ export const seasonAPI = {
 
     deleteTeamSeason: (id) =>
         apiClient.delete(`/team-seasons/${id}/`),
+
+    getPlayerSeasonRosters: (params = {}) => {
+        const queryParams = new URLSearchParams(params).toString();
+        return apiClient.get(`/player-season-rosters/${queryParams ? `?${queryParams}` : ''}`);
+    },
+
+    createPlayerSeasonRoster: (rosterData) =>
+        apiClient.post('/player-season-rosters/', rosterData),
+
+    updatePlayerSeasonRoster: (id, rosterData) =>
+        apiClient.patch(`/player-season-rosters/${id}/`, rosterData),
+
+    deletePlayerSeasonRoster: (id) =>
+        apiClient.delete(`/player-season-rosters/${id}/`),
 }
