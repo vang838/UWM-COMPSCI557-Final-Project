@@ -112,7 +112,6 @@ const PageLayout: React.FC<PageLayoutProps> = ({
   activeSeason,
   onSeasonChange,
   teamLabel = "GB Packers · 2024",
-
   theme = {},
   teamOptions = [],
   activeTeamId,
