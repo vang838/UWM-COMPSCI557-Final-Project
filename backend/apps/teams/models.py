@@ -4,6 +4,8 @@ from django.db import models
 class Team(models.Model):
     team_id = models.AutoField(primary_key=True)
     team_name = models.CharField(max_length=100, unique=True)
+    city = models.CharField(max_length=100, blank=True, default="")
+    state = models.CharField(max_length=2, blank=True, default="")
     conference = models.CharField(max_length=50)
     division = models.CharField(max_length=50)
 
