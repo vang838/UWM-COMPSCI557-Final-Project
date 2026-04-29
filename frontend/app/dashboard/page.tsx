@@ -172,7 +172,6 @@ function noData(value: unknown): string | number {
 // ---------------------------------------------------------------------------
 // Small helper components
 // ---------------------------------------------------------------------------
-
 function StatCard({
                       label,
                       value,
@@ -214,6 +213,18 @@ function PlayerInitials({name}: { name: string }) {
             : name.slice(0, 2);
 
     return <>{initials.toUpperCase()}</>;
+}
+
+async function safeApiCall<T>(
+    request: () => Promise<unknown>,
+    fallback: T
+): Promise<T> {
+    try {
+        const response = await request();
+        return unwrapApiData<T>(response);
+    } catch {
+        return fallback;
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -292,36 +303,28 @@ export default function DashboardPage() {
     const rosterPreview = playerList.slice(0, 5);
 
     const fetchDashboardData = useCallback(async () => {
-    if (!authChecked) {
-        return;
-    }
+        if (!authChecked) {
+            return;
+        }
 
-    try {
-        setLoadingDashboardData(true);
-        setLoadingSeasonData(true);
-        setLoadingComparisonData(false);
-        setComparisonData([]);
+        try {
+            setLoadingDashboardData(true);
+            setLoadingSeasonData(true);
+            setLoadingComparisonData(false);
+            setComparisonData([]);
 
-        const [
-            seasonsResult,
-            playersResult,
-            statsResult,
-            seasonPerformanceResult,
-        ] = await Promise.allSettled([
-            seasonAPI.getAllSeasons(),
-            playerAPI.getAllPlayers(),
-            dashboardAPI.getDashboardStats(),
-            dashboardAPI.getSeasonPerformance(),
-        ]);
+            const seasonListRaw = await safeApiCall<unknown[]>(
+                () => seasonAPI.getAllSeasons(),
+                []
+            );
 
-        let selectedSeasonYear = getSeasonYearFromLabel(activeSeason) ?? "";
-
-        if (seasonsResult.status === "fulfilled") {
-            const seasonList = normalizeApiList<Season>(seasonsResult.value)
+            const seasonList = normalizeApiList<Season>(seasonListRaw)
                 .filter((season) => season.year !== undefined && season.year !== null)
                 .sort((a, b) => Number(b.year) - Number(a.year));
 
             setSeasons(seasonList);
+
+            let selectedSeasonYear = getSeasonYearFromLabel(activeSeason) ?? "";
 
             if (!selectedSeasonYear && seasonList.length > 0) {
                 selectedSeasonYear = String(seasonList[0].year);
@@ -330,47 +333,42 @@ export default function DashboardPage() {
             if (!activeSeason && selectedSeasonYear) {
                 setActiveSeason(`${selectedSeasonYear} Season`);
             }
-        } else {
-            console.error("Seasons API error:", seasonsResult.reason);
-            setSeasons([]);
-        }
 
-        const leaderboardParams = selectedSeasonYear
-            ? { season: selectedSeasonYear }
-            : {};
+            const leaderboardParams = selectedSeasonYear
+                ? {season: selectedSeasonYear}
+                : {};
 
-        const leaderboardResult = await Promise.allSettled([
-            dashboardAPI.getPlayerLeaderboard(leaderboardParams),
-        ]);
+            const [
+                playerListResult,
+                dashboardStatsResult,
+                leaderboardResult,
+                seasonPerformanceResult,
+            ] = await Promise.all([
+                safeApiCall<unknown[]>(() => playerAPI.getAllPlayers(), []),
+                safeApiCall<DashboardStats | null>(
+                    () => dashboardAPI.getDashboardStats(),
+                    null
+                ),
+                safeApiCall<unknown[]>(
+                    () => dashboardAPI.getPlayerLeaderboard(leaderboardParams),
+                    []
+                ),
+                safeApiCall<unknown[]>(
+                    () => dashboardAPI.getSeasonPerformance(),
+                    []
+                ),
+            ]);
 
-        if (playersResult.status === "fulfilled") {
-            setPlayers(normalizeApiList<Player>(playersResult.value));
+            const normalizedPlayers = normalizeApiList<Player>(playerListResult);
+            const normalizedLeaderboard =
+                normalizeApiList<LeaderboardRow>(leaderboardResult);
+            const seasonPerformanceData =
+                normalizeApiList<any>(seasonPerformanceResult);
+
+            setPlayers(normalizedPlayers);
             setPlayersLoaded(true);
-        } else {
-            console.error("Players API error:", playersResult.reason);
-            setPlayers([]);
-            setPlayersLoaded(false);
-        }
-
-        if (statsResult.status === "fulfilled") {
-            const stats = unwrapApiData<DashboardStats>(statsResult.value);
-            setDashboardStats(stats ?? null);
-        } else {
-            console.error("Dashboard stats API error:", statsResult.reason);
-            setDashboardStats(null);
-        }
-
-        if (leaderboardResult[0].status === "fulfilled") {
-            setLeaderboard(normalizeApiList<LeaderboardRow>(leaderboardResult[0].value));
-        } else {
-            console.error("Leaderboard API error:", leaderboardResult[0].reason);
-            setLeaderboard([]);
-        }
-
-        if (seasonPerformanceResult.status === "fulfilled") {
-            const seasonPerformanceData = normalizeApiList<any>(
-                seasonPerformanceResult.value
-            );
+            setDashboardStats(dashboardStatsResult);
+            setLeaderboard(normalizedLeaderboard);
 
             const values = seasonPerformanceData.map((item) => {
                 const rawValue =
@@ -410,41 +408,34 @@ export default function DashboardPage() {
             });
 
             setSeasonBars(transformedSeasonBars);
-        } else {
-            console.error(
-                "Season performance API error:",
-                seasonPerformanceResult.reason
-            );
+
+            const noDashboardData =
+                normalizedPlayers.length === 0 &&
+                !dashboardStatsResult &&
+                normalizedLeaderboard.length === 0 &&
+                transformedSeasonBars.length === 0;
+
+            if (noDashboardData) {
+                showTemporaryError("No dashboard data available");
+            }
+        } catch (error) {
+            console.error("Unexpected dashboard data error:", error);
+
+            setPlayers([]);
+            setPlayersLoaded(false);
+            setSeasons([]);
+            setDashboardStats(null);
+            setLeaderboard([]);
             setSeasonBars([]);
-        }
+            setComparisonData([]);
 
-        const allPrimaryDataMissing =
-            playersResult.status !== "fulfilled" &&
-            statsResult.status !== "fulfilled" &&
-            leaderboardResult[0].status !== "fulfilled" &&
-            seasonPerformanceResult.status !== "fulfilled";
-
-        if (allPrimaryDataMissing) {
             showTemporaryError("No dashboard data available");
+        } finally {
+            setLoadingDashboardData(false);
+            setLoadingSeasonData(false);
+            setLoadingComparisonData(false);
         }
-    } catch (error) {
-        console.error("Dashboard data error:", error);
-
-        setPlayers([]);
-        setPlayersLoaded(false);
-        setSeasons([]);
-        setDashboardStats(null);
-        setLeaderboard([]);
-        setSeasonBars([]);
-        setComparisonData([]);
-
-        showTemporaryError("No dashboard data available");
-    } finally {
-        setLoadingDashboardData(false);
-        setLoadingSeasonData(false);
-        setLoadingComparisonData(false);
-    }
-}, [activeSeason, authChecked, showTemporaryError]);
+    }, [activeSeason, authChecked, showTemporaryError]);
 
     useEffect(() => {
         fetchDashboardData();
