@@ -7,6 +7,11 @@ class Team(models.Model):
     conference = models.CharField(max_length=50)
     division = models.CharField(max_length=50)
 
+    abbreviation = models.CharField(max_length=5, blank=True)
+    primary_color = models.CharField(max_length=7, default="#1a3d28")
+    secondary_color = models.CharField(max_length=7, default="#f0c040")
+    text_color = models.CharField(max_length=7, default="#ffffff")
+
     def __str__(self):
         return self.team_name
 
