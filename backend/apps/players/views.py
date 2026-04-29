@@ -14,6 +14,16 @@ class PlayerViewSet(viewsets.ModelViewSet):
     serializer_class = PlayerDashboardSerializer
     lookup_field = "player_id"
 
+    # supports filtering for frontend e.g. /api/players/ for all players or /api/players/?team1 for filtering
+    def get_queryset(self):
+        queryset = Player.objects.all()
+        team_id = self.request.query_params.get("team") or self.request.query_params.get("team_id")
+
+        if team_id:
+            queryset = queryset.filter(team_id=team_id)
+
+        return queryset
+
     # custom dashboard endpoint for player stats by season
     @action(detail=True, methods=['get'], url_path='season-stats')
     def season_stats(self, request, player_id=None):
