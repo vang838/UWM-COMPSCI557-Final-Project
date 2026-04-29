@@ -3,7 +3,10 @@ import apiClient from './index';
 
 export const playerAPI = {
   // Fetch all players
-  getAllPlayers: () => apiClient.get('/players/'),
+  getAllPlayers: (params = {}) => {
+    const queryParams = new URLSearchParams(params).toString();
+    return apiClient.get(`/players/${queryParams} ? ${queryParams} : ""}`);
+  },
   
   // Fetch a specific player by ID
   getPlayerById: (id) => apiClient.get(`/players/${id}/`),
