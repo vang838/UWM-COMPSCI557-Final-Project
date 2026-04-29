@@ -292,135 +292,159 @@ export default function DashboardPage() {
     const rosterPreview = playerList.slice(0, 5);
 
     const fetchDashboardData = useCallback(async () => {
-        if (!authChecked) { return; }
+    if (!authChecked) {
+        return;
+    }
 
-        try {
-            setLoadingDashboardData(true);
-            setLoadingSeasonData(true);
-            setLoadingComparisonData(false);
-            setComparisonData([]);
+    try {
+        setLoadingDashboardData(true);
+        setLoadingSeasonData(true);
+        setLoadingComparisonData(false);
+        setComparisonData([]);
 
-            const seasonsResponse = await seasonAPI.getAllSeasons();
-            const seasonList = normalizeApiList<Season>(seasonsResponse);
+        const [
+            seasonsResult,
+            playersResult,
+            statsResult,
+            seasonPerformanceResult,
+        ] = await Promise.allSettled([
+            seasonAPI.getAllSeasons(),
+            playerAPI.getAllPlayers(),
+            dashboardAPI.getDashboardStats(),
+            dashboardAPI.getSeasonPerformance(),
+        ]);
+
+        let selectedSeasonYear = getSeasonYearFromLabel(activeSeason) ?? "";
+
+        if (seasonsResult.status === "fulfilled") {
+            const seasonList = normalizeApiList<Season>(seasonsResult.value)
+                .filter((season) => season.year !== undefined && season.year !== null)
+                .sort((a, b) => Number(b.year) - Number(a.year));
+
             setSeasons(seasonList);
 
-            const selectedSeasonYear =
-                getSeasonYearFromLabel(activeSeason) ??
-                String(
-                    seasonList.find((season) => season.is_active)?.year ??
-                    seasonList[0]?.year ??
-                    ""
-                );
-
-            if (!activeSeason && selectedSeasonYear) { setActiveSeason(`${selectedSeasonYear} Season`); }
-
-            const leaderboardParams = selectedSeasonYear
-                ? {season: selectedSeasonYear}
-                : {};
-
-            const [
-                playersResult,
-                statsResult,
-                leaderboardResult,
-                seasonPerformanceResult,
-            ] = await Promise.allSettled([
-                playerAPI.getAllPlayers(),
-                dashboardAPI.getDashboardStats(),
-                dashboardAPI.getPlayerLeaderboard(leaderboardParams),
-                dashboardAPI.getSeasonPerformance(),
-            ]);
-
-            if (playersResult.status === "fulfilled") {
-                setPlayers(normalizeApiList<Player>(playersResult.value));
-                setPlayersLoaded(true);
-            } else {
-                console.error("Players API error:", playersResult.reason);
-                setPlayers([]);
-                setPlayersLoaded(false);
+            if (!selectedSeasonYear && seasonList.length > 0) {
+                selectedSeasonYear = String(seasonList[0].year);
             }
 
-            if (statsResult.status === "fulfilled") {
-                const stats = unwrapApiData<DashboardStats>(statsResult.value);
-                setDashboardStats(stats ?? null);
-            } else {
-                console.error("Dashboard stats API error:", statsResult.reason);
-                setDashboardStats(null);
+            if (!activeSeason && selectedSeasonYear) {
+                setActiveSeason(`${selectedSeasonYear} Season`);
             }
+        } else {
+            console.error("Seasons API error:", seasonsResult.reason);
+            setSeasons([]);
+        }
 
-            if (leaderboardResult.status === "fulfilled") {
-                setLeaderboard(normalizeApiList<LeaderboardRow>(leaderboardResult.value));
-            } else {
-                console.error("Leaderboard API error:", leaderboardResult.reason);
-                setLeaderboard([]);
-            }
+        const leaderboardParams = selectedSeasonYear
+            ? { season: selectedSeasonYear }
+            : {};
 
-            if (seasonPerformanceResult.status === "fulfilled") {
-                const seasonPerformanceData = normalizeApiList<any>(
-                    seasonPerformanceResult.value
-                );
+        const leaderboardResult = await Promise.allSettled([
+            dashboardAPI.getPlayerLeaderboard(leaderboardParams),
+        ]);
 
-                const values = seasonPerformanceData.map((item) => {
-                    const rawValue =
-                        item.rushing_yards ??
-                        item.rush_yards ??
-                        item.total_rushing_yards ??
-                        item.value ??
-                        0;
-
-                    const numericValue = Number(rawValue);
-                    return Number.isFinite(numericValue) ? numericValue : 0;
-                });
-
-                const maxValue = Math.max(...values, 0);
-
-                const transformedSeasonBars = seasonPerformanceData.map((item, index) => {
-                    const value = values[index];
-                    const height =
-                        maxValue > 0 ? Math.max(4, Math.round((value / maxValue) * 80)) : 0;
-
-                    return {
-                        year: String(item.year ?? item.season_year ?? "Unknown"),
-                        height,
-                        current: Boolean(item.is_current_season ?? item.is_active),
-                    };
-                });
-
-                setSeasonBars(transformedSeasonBars);
-            } else {
-                console.error(
-                    "Season performance API error:",
-                    seasonPerformanceResult.reason
-                );
-                setSeasonBars([]);
-            }
-
-            const allPrimaryDataMissing =
-                playersResult.status !== "fulfilled" &&
-                statsResult.status !== "fulfilled" &&
-                leaderboardResult.status !== "fulfilled" &&
-                seasonPerformanceResult.status !== "fulfilled";
-
-            if (allPrimaryDataMissing) {
-                showTemporaryError("No dashboard data available");
-            }
-        } catch (error) {
-            console.error("Dashboard data error:", error);
-
+        if (playersResult.status === "fulfilled") {
+            setPlayers(normalizeApiList<Player>(playersResult.value));
+            setPlayersLoaded(true);
+        } else {
+            console.error("Players API error:", playersResult.reason);
             setPlayers([]);
             setPlayersLoaded(false);
-            setSeasons([]);
-            setDashboardStats(null);
-            setLeaderboard([]);
-            setSeasonBars([]);
-            setComparisonData([]);
-
-            showTemporaryError("No dashboard data available");
-        } finally {
-            setLoadingDashboardData(false);
-            setLoadingSeasonData(false);
-            setLoadingComparisonData(false);
         }
-    }, [activeSeason, authChecked, showTemporaryError]);
+
+        if (statsResult.status === "fulfilled") {
+            const stats = unwrapApiData<DashboardStats>(statsResult.value);
+            setDashboardStats(stats ?? null);
+        } else {
+            console.error("Dashboard stats API error:", statsResult.reason);
+            setDashboardStats(null);
+        }
+
+        if (leaderboardResult[0].status === "fulfilled") {
+            setLeaderboard(normalizeApiList<LeaderboardRow>(leaderboardResult[0].value));
+        } else {
+            console.error("Leaderboard API error:", leaderboardResult[0].reason);
+            setLeaderboard([]);
+        }
+
+        if (seasonPerformanceResult.status === "fulfilled") {
+            const seasonPerformanceData = normalizeApiList<any>(
+                seasonPerformanceResult.value
+            );
+
+            const values = seasonPerformanceData.map((item) => {
+                const rawValue =
+                    item.rushing_yards ??
+                    item.rush_yards ??
+                    item.total_rushing_yards ??
+                    item.value ??
+                    0;
+
+                const numericValue = Number(rawValue);
+                return Number.isFinite(numericValue) ? numericValue : 0;
+            });
+
+            const maxValue = Math.max(...values, 0);
+
+            const transformedSeasonBars = seasonPerformanceData.map((item, index) => {
+                const value = values[index];
+
+                const year = String(
+                    item.year ??
+                    item.season_year ??
+                    "Unknown"
+                );
+
+                const height =
+                    maxValue > 0
+                        ? Math.max(4, Math.round((value / maxValue) * 80))
+                        : 0;
+
+                return {
+                    year,
+                    height,
+                    current: selectedSeasonYear
+                        ? year === selectedSeasonYear
+                        : index === 0,
+                };
+            });
+
+            setSeasonBars(transformedSeasonBars);
+        } else {
+            console.error(
+                "Season performance API error:",
+                seasonPerformanceResult.reason
+            );
+            setSeasonBars([]);
+        }
+
+        const allPrimaryDataMissing =
+            playersResult.status !== "fulfilled" &&
+            statsResult.status !== "fulfilled" &&
+            leaderboardResult[0].status !== "fulfilled" &&
+            seasonPerformanceResult.status !== "fulfilled";
+
+        if (allPrimaryDataMissing) {
+            showTemporaryError("No dashboard data available");
+        }
+    } catch (error) {
+        console.error("Dashboard data error:", error);
+
+        setPlayers([]);
+        setPlayersLoaded(false);
+        setSeasons([]);
+        setDashboardStats(null);
+        setLeaderboard([]);
+        setSeasonBars([]);
+        setComparisonData([]);
+
+        showTemporaryError("No dashboard data available");
+    } finally {
+        setLoadingDashboardData(false);
+        setLoadingSeasonData(false);
+        setLoadingComparisonData(false);
+    }
+}, [activeSeason, authChecked, showTemporaryError]);
 
     useEffect(() => {
         fetchDashboardData();
