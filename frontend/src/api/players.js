@@ -43,7 +43,7 @@ export const playerAPI = {
 
     // Update an existing player
     updatePlayer: (id, playerData) =>
-        apiClient.put(`/players/${id}/`, playerData),
+        apiClient.patch(`/players/${id}/`, playerData),
 
     // Delete a player
     deletePlayer: (id) =>
