@@ -67,8 +67,8 @@ function formatNumber(value: number): string {
     return Number.isInteger(value)
         ? value.toLocaleString()
         : value.toLocaleString(undefined, {
-            maximumFractionDigits: 2,
-        });
+              maximumFractionDigits: 2,
+          });
 }
 
 function formatCategoryLabel(category: string): string {
@@ -144,9 +144,7 @@ export default function PlayerComparisonPanel({
                     Player comparison
                 </span>
 
-                <span className="text-[10px] text-gray-500">
-                    {teamLabel}
-                </span>
+                <span className="text-[10px] text-gray-500">{teamLabel}</span>
             </div>
 
             <div className="p-3 space-y-3">
@@ -207,40 +205,34 @@ export default function PlayerComparisonPanel({
                         {report.rows.map((row) => (
                             <div
                                 key={row.stat_key}
-                                className="border border-white/8 bg-[#111] rounded-lg px-3 py-2"
+                                className="border border-white/8 bg-[#111] rounded-lg px-3 py-3"
                             >
-                                <div className="flex items-center justify-between mb-2">
-                                    <div>
-                                        <p className="text-[12px] font-medium text-white">
-                                            {row.stat_name}
-                                        </p>
-                                        <p className="text-[10px] text-gray-500">
-                                            {formatCategoryLabel(row.stat_category)}
-                                            {row.stat_unit ? ` · ${row.stat_unit}` : ""}
-                                        </p>
-                                    </div>
-
-                                    <div className="text-[11px] text-gray-400">
-                                        <span className="text-[#f0c040] font-medium">
-                                            {formatNumber(row.left_value)}
-                                        </span>
-                                        <span className="mx-2">vs</span>
-                                        <span className="text-blue-400 font-medium">
-                                            {formatNumber(row.right_value)}
-                                        </span>
-                                    </div>
+                                <div className="mb-2">
+                                    <p className="text-[12px] font-medium text-white">
+                                        {row.stat_name}
+                                    </p>
+                                    <p className="text-[10px] text-gray-500">
+                                        {formatCategoryLabel(row.stat_category)}
+                                        {row.stat_unit ? ` · ${row.stat_unit}` : ""}
+                                    </p>
                                 </div>
 
-                                <div className="grid grid-cols-[1fr_70px_1fr] gap-2 items-center">
+                                <div className="flex items-center justify-center gap-2 mb-3 text-[12px]">
+                                    <span className="font-medium text-[#f0c040]">
+                                        {formatNumber(row.left_value)}
+                                    </span>
+                                    <span className="text-gray-500">vs</span>
+                                    <span className="font-medium text-blue-400">
+                                        {formatNumber(row.right_value)}
+                                    </span>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4 items-center">
                                     <div className="h-[5px] bg-white/8 rounded-full overflow-hidden flex justify-end">
                                         <div
                                             className="h-full bg-[#c49a22] rounded-full"
                                             style={{ width: `${row.left_percent}%` }}
                                         />
-                                    </div>
-
-                                    <div className="text-center text-[10px] text-gray-500">
-                                        {row.stat_key}
                                     </div>
 
                                     <div className="h-[5px] bg-white/8 rounded-full overflow-hidden">
