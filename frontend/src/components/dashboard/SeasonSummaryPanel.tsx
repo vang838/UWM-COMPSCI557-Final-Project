@@ -41,6 +41,14 @@ interface TopPerformer {
     unit?: string;
 }
 
+interface StatTypeTotal {
+    category: string;
+    statKey: string;
+    statName: string;
+    unit?: string;
+    value: number;
+}
+
 interface SeasonSummaryPanelProps {
     players: SeasonSummaryPlayer[];
     stats: SeasonSummaryStat[];
@@ -93,6 +101,15 @@ const TOP_PERFORMER_CONFIG = [
     },
 ];
 
+const CATEGORY_ORDER: Record<string, number> = {
+    passing: 1,
+    rushing: 2,
+    receiving: 3,
+    defense: 4,
+    kicking: 5,
+    other: 999,
+};
+
 function toNumber(value: unknown): number {
     const numericValue = Number(value);
     return Number.isFinite(numericValue) ? numericValue : 0;
@@ -104,14 +121,6 @@ function formatNumber(value: number): string {
         : value.toLocaleString(undefined, {
             maximumFractionDigits: 2,
         });
-}
-
-function displayPlayerName(player: SeasonSummaryPlayer): string {
-    return (
-        player.name ||
-        `${player.first_name ?? ""} ${player.last_name ?? ""}`.trim() ||
-        "Unknown player"
-    );
 }
 
 function sumStatsByKeys(stats: SeasonSummaryStat[], keys: string[]): number {
@@ -176,38 +185,55 @@ function buildPositionBreakdown(
         });
 }
 
-function buildCategoryTotals(stats: SeasonSummaryStat[]) {
-    const categoryTotals = new Map<string, number>();
+function buildStatTypeTotals(stats: SeasonSummaryStat[]): StatTypeTotal[] {
+    const totals = new Map<string, StatTypeTotal>();
 
     stats.forEach((stat) => {
         const category = stat.stat_type_category || "other";
-        categoryTotals.set(category, (categoryTotals.get(category) ?? 0) + toNumber(stat.value));
+        const statKey = stat.stat_type_key || "unknown";
+        const statName = stat.stat_type_name || statKey;
+        const unit = stat.stat_type_unit || undefined;
+
+        const mapKey = `${category}:${statKey}:${unit ?? ""}`;
+
+        const existing = totals.get(mapKey);
+
+        if (existing) {
+            existing.value += toNumber(stat.value);
+        } else {
+            totals.set(mapKey, {
+                category,
+                statKey,
+                statName,
+                unit,
+                value: toNumber(stat.value),
+            });
+        }
     });
 
-    const categoryOrder: Record<string, number> = {
-        passing: 1,
-        rushing: 2,
-        receiving: 3,
-        defense: 4,
-        kicking: 5,
-        other: 999,
-    };
+    return Array.from(totals.values()).sort((a, b) => {
+        const categoryA = CATEGORY_ORDER[a.category] ?? 999;
+        const categoryB = CATEGORY_ORDER[b.category] ?? 999;
 
-    return Array.from(categoryTotals.entries())
-        .map(([category, value]) => ({
-            category,
-            value,
-        }))
-        .sort((a, b) => {
-            const orderA = categoryOrder[a.category] ?? 999;
-            const orderB = categoryOrder[b.category] ?? 999;
+        if (categoryA !== categoryB) {
+            return categoryA - categoryB;
+        }
 
-            if (orderA !== orderB) {
-                return orderA - orderB;
-            }
+        return a.statName.localeCompare(b.statName);
+    });
+}
 
-            return a.category.localeCompare(b.category);
-        });
+function groupStatTotalsByCategory(
+    totals: StatTypeTotal[]
+): Record<string, StatTypeTotal[]> {
+    return totals.reduce<Record<string, StatTypeTotal[]>>((groups, total) => {
+        if (!groups[total.category]) {
+            groups[total.category] = [];
+        }
+
+        groups[total.category].push(total);
+        return groups;
+    }, {});
 }
 
 function formatCategoryLabel(category: string): string {
@@ -329,7 +355,8 @@ export default function SeasonSummaryPanel({
             .filter((performer): performer is TopPerformer => performer !== null);
 
         const positionBreakdown = buildPositionBreakdown(players, stats);
-        const categoryTotals = buildCategoryTotals(stats);
+        const statTypeTotals = buildStatTypeTotals(stats);
+        const groupedStatTotals = groupStatTotalsByCategory(statTypeTotals);
 
         const activePlayers = players.filter(
             (player) => player.is_active !== false
@@ -342,9 +369,21 @@ export default function SeasonSummaryPanel({
             statCards,
             topPerformers,
             positionBreakdown,
-            categoryTotals,
+            statTypeTotals,
+            groupedStatTotals,
         };
     }, [players, stats, coaches]);
+
+    const statTotalCategories = Object.keys(summary.groupedStatTotals).sort((a, b) => {
+        const orderA = CATEGORY_ORDER[a] ?? 999;
+        const orderB = CATEGORY_ORDER[b] ?? 999;
+
+        if (orderA !== orderB) {
+            return orderA - orderB;
+        }
+
+        return a.localeCompare(b);
+    });
 
     return (
         <div className="space-y-3">
@@ -458,27 +497,43 @@ export default function SeasonSummaryPanel({
                 </SectionCard>
             </div>
 
-            <SectionCard title="Tracked stat category totals" rightLabel="raw totals">
-                {summary.categoryTotals.length > 0 ? (
-                    <div className="grid grid-cols-4 gap-2">
-                        {summary.categoryTotals.map((item) => (
-                            <div
-                                key={item.category}
-                                className="bg-[#111] border border-white/8 rounded-lg px-3 py-2"
-                            >
-                                <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-1">
-                                    {formatCategoryLabel(item.category)}
+            <SectionCard title="Tracked stat totals" rightLabel="grouped by category">
+                {statTotalCategories.length > 0 ? (
+                    <div className="space-y-3">
+                        {statTotalCategories.map((category) => (
+                            <div key={category}>
+                                <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-2">
+                                    {formatCategoryLabel(category)}
                                 </p>
 
-                                <p className="text-[18px] font-medium text-white leading-none">
-                                    {formatNumber(item.value)}
-                                </p>
+                                <div className="grid grid-cols-4 gap-2">
+                                    {summary.groupedStatTotals[category].map((item) => (
+                                        <div
+                                            key={`${item.category}-${item.statKey}-${item.unit ?? "none"}`}
+                                            className="bg-[#111] border border-white/8 rounded-lg px-3 py-2"
+                                        >
+                                            <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-1 truncate">
+                                                {item.statName}
+                                            </p>
+
+                                            <p className="text-[18px] font-medium text-white leading-none">
+                                                {formatNumber(item.value)}
+                                            </p>
+
+                                            {item.unit && (
+                                                <p className="text-[10px] text-gray-600 mt-1">
+                                                    {item.unit}
+                                                </p>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         ))}
                     </div>
                 ) : (
                     <div className="py-6 text-center text-[12px] text-gray-500">
-                        No stat categories available for this season.
+                        No stat totals available for this season.
                     </div>
                 )}
             </SectionCard>

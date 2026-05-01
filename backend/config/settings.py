@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'apps.stats',
     'apps.teams',
     'apps.users',
+    'apps.reports',
     'rest_framework',
     "rest_framework.authtoken",
 ]

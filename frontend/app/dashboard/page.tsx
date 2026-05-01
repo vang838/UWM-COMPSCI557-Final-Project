@@ -8,8 +8,10 @@ import { seasonAPI } from "@/src/api/seasons";
 import { teamAPI } from "@/src/api/teams";
 import { statAPI } from "@/src/api/stats";
 import { coachAPI } from "@/src/api/coaches";
+import { reportAPI } from "@/src/api/reports";
 
 import SeasonSummaryPanel from "@/src/components/dashboard/SeasonSummaryPanel";
+import PlayerComparisonPanel from "@/src/components/dashboard/PlayerComparisonPanel";
 import LoadingSpinner from "@/src/components/LoadingSpinner";
 import PageLayout, { NavSection, LayoutTheme, TeamOption } from "@/src/components/pageLayout";
 
@@ -129,12 +131,31 @@ interface SeasonBarData {
     current: boolean;
 }
 
-interface PlayerComparisonData {
-    label: string;
-    l: number;
-    r: number;
-    lv: string;
-    rv: string;
+interface PlayerComparisonReportPlayer {
+    player_id: number;
+    first_name?: string;
+    last_name?: string;
+    full_name?: string;
+    position?: string;
+}
+
+interface PlayerComparisonReportRow {
+    stat_key: string;
+    stat_name: string;
+    stat_category: string;
+    stat_unit?: string;
+    left_value: number;
+    right_value: number;
+    left_percent: number;
+    right_percent: number;
+}
+
+interface PlayerComparisonReport {
+    team_id: number;
+    year: number;
+    left_player: PlayerComparisonReportPlayer;
+    right_player: PlayerComparisonReportPlayer;
+    rows: PlayerComparisonReportRow[];
 }
 
 // ---------------------------------------------------------------------------
@@ -620,12 +641,16 @@ export default function DashboardPage() {
     const [coachAssignments, setCoachAssignments] = useState<CoachSeasonAssignment[]>([]);
 
     const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
-    const [comparisonData, setComparisonData] = useState<PlayerComparisonData[]>([]);
+
+    const [leftComparisonPlayerId, setLeftComparisonPlayerId] = useState("");
+    const [rightComparisonPlayerId, setRightComparisonPlayerId] = useState("");
+    const [comparisonReport, setComparisonReport] =
+        useState<PlayerComparisonReport | null>(null);
+    const [comparisonError, setComparisonError] = useState("");
 
     const [loadingDashboardData, setLoadingDashboardData] = useState(true);
     const [loadingSeasonData, setLoadingSeasonData] = useState(true);
     const [loadingComparisonData, setLoadingComparisonData] = useState(false);
-
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -663,6 +688,89 @@ export default function DashboardPage() {
 
     const playerList = players;
 
+    const selectedSeasonYear =
+        getSeasonYearFromLabel(activeSeason) ??
+        (seasons[0]?.year ? String(seasons[0].year) : "");
+
+    const comparisonPlayerIds = useMemo(() => {
+        return players
+            .map((player) => String(player.player_id ?? player.id ?? ""))
+            .filter(Boolean);
+    }, [players]);
+
+    useEffect(() => {
+        if (comparisonPlayerIds.length < 2) {
+            setLeftComparisonPlayerId("");
+            setRightComparisonPlayerId("");
+            setComparisonReport(null);
+            return;
+        }
+
+        const nextLeft =
+            leftComparisonPlayerId && comparisonPlayerIds.includes(leftComparisonPlayerId)
+                ? leftComparisonPlayerId
+                : comparisonPlayerIds[0];
+
+        const nextRight =
+            rightComparisonPlayerId &&
+            comparisonPlayerIds.includes(rightComparisonPlayerId) &&
+            rightComparisonPlayerId !== nextLeft
+                ? rightComparisonPlayerId
+                : comparisonPlayerIds.find((id) => id !== nextLeft) ?? "";
+
+        if (leftComparisonPlayerId !== nextLeft) {
+            setLeftComparisonPlayerId(nextLeft);
+        }
+
+        if (rightComparisonPlayerId !== nextRight) {
+            setRightComparisonPlayerId(nextRight);
+        }
+    }, [comparisonPlayerIds, leftComparisonPlayerId, rightComparisonPlayerId]);
+
+    useEffect(() => {
+        const fetchComparisonReport = async () => {
+            if (
+                !authChecked ||
+                !activeTeamId ||
+                !selectedSeasonYear ||
+                !leftComparisonPlayerId ||
+                !rightComparisonPlayerId ||
+                leftComparisonPlayerId === rightComparisonPlayerId
+            ) {
+                setComparisonReport(null);
+                return;
+            }
+
+            try {
+                setLoadingComparisonData(true);
+                setComparisonError("");
+
+                const response = await reportAPI.getPlayerComparison({
+                    left_player: leftComparisonPlayerId,
+                    right_player: rightComparisonPlayerId,
+                    team: activeTeamId,
+                    year: selectedSeasonYear,
+                });
+
+                setComparisonReport(unwrapApiData<PlayerComparisonReport>(response));
+            } catch (error) {
+                console.error("Comparison report error:", error);
+                setComparisonReport(null);
+                setComparisonError("Failed to load SQL comparison report.");
+            } finally {
+                setLoadingComparisonData(false);
+            }
+        };
+
+        fetchComparisonReport();
+    }, [
+        authChecked,
+        activeTeamId,
+        selectedSeasonYear,
+        leftComparisonPlayerId,
+        rightComparisonPlayerId,
+    ]);
+
     const fetchDashboardData = useCallback(async () => {
         if (!authChecked) {
             return;
@@ -671,8 +779,6 @@ export default function DashboardPage() {
         try {
             setLoadingDashboardData(true);
             setLoadingSeasonData(true);
-            setLoadingComparisonData(false);
-            setComparisonData([]);
 
             const [seasonListRaw, teamListRaw] = await Promise.all([
                 safeApiCall<unknown[]>(
@@ -706,25 +812,25 @@ export default function DashboardPage() {
                 }
             }
 
-            let selectedSeasonYear = getSeasonYearFromLabel(activeSeason) ?? "";
+            let resolvedSeasonYear = getSeasonYearFromLabel(activeSeason) ?? "";
 
-            if (!selectedSeasonYear && seasonList.length > 0) {
-                selectedSeasonYear = String(seasonList[0].year);
+            if (!resolvedSeasonYear && seasonList.length > 0) {
+                resolvedSeasonYear = String(seasonList[0].year);
             }
 
-            if (!activeSeason && selectedSeasonYear) {
-                setActiveSeason(`${selectedSeasonYear} Season`);
+            if (!activeSeason && resolvedSeasonYear) {
+                setActiveSeason(`${resolvedSeasonYear} Season`);
             }
 
             const sharedParams = {
                 ...(selectedTeamId ? { team: selectedTeamId } : {}),
-                ...(selectedSeasonYear ? { year: selectedSeasonYear } : {}),
+                ...(resolvedSeasonYear ? { year: resolvedSeasonYear } : {}),
             };
 
             const dashboardParams = {
                 ...sharedParams,
-                ...(selectedSeasonYear ? { season: selectedSeasonYear } : {}),
-                ...(selectedSeasonYear ? { season_year: selectedSeasonYear } : {}),
+                ...(resolvedSeasonYear ? { season: resolvedSeasonYear } : {}),
+                ...(resolvedSeasonYear ? { season_year: resolvedSeasonYear } : {}),
             };
 
             const [
@@ -819,7 +925,7 @@ export default function DashboardPage() {
                     return {
                         year,
                         height,
-                        current: selectedSeasonYear ? year === selectedSeasonYear : index === 0,
+                        current: resolvedSeasonYear ? year === resolvedSeasonYear : index === 0,
                     };
                 });
             } else if (normalizedPlayerSeasonStats.length > 0) {
@@ -828,7 +934,7 @@ export default function DashboardPage() {
                 normalizedPlayerSeasonStats
                     .filter((stat) => stat.stat_type_key === "rushing_yards")
                     .forEach((stat) => {
-                        const year = String(stat.season_year ?? selectedSeasonYear ?? "Unknown");
+                        const year = String(stat.season_year ?? resolvedSeasonYear ?? "Unknown");
                         groupedByYear.set(year, (groupedByYear.get(year) ?? 0) + toNumber(stat.value));
                     });
 
@@ -841,7 +947,7 @@ export default function DashboardPage() {
                         maxValue > 0
                             ? Math.max(4, Math.round((value / maxValue) * 80))
                             : 0,
-                    current: selectedSeasonYear ? year === selectedSeasonYear : false,
+                    current: resolvedSeasonYear ? year === resolvedSeasonYear : false,
                 }));
             }
 
@@ -871,13 +977,12 @@ export default function DashboardPage() {
             setDashboardStats(null);
             setLeaderboard([]);
             setSeasonBars([]);
-            setComparisonData([]);
+            setComparisonReport(null);
 
             showTemporaryError("No dashboard data available");
         } finally {
             setLoadingDashboardData(false);
             setLoadingSeasonData(false);
-            setLoadingComparisonData(false);
         }
     }, [activeSeason, activeTeamId, authChecked, showTemporaryError]);
 
@@ -926,10 +1031,6 @@ export default function DashboardPage() {
             const teamId = team.team_id ?? team.id;
             return String(teamId) === activeTeamId;
         }) ?? teams[0];
-
-    const selectedSeasonYear =
-        getSeasonYearFromLabel(activeSeason) ??
-        (seasons[0]?.year ? String(seasons[0].year) : "");
 
     const teamLabel = activeTeam
         ? `${activeTeam.abbreviation || activeTeam.display_name || activeTeam.team_name || "Team"}${
@@ -1295,86 +1396,17 @@ export default function DashboardPage() {
     );
 
     const renderComparisonPanel = () => (
-        <div className="bg-[#1a1a1a] border border-white/8 rounded-lg overflow-hidden">
-            <div className="flex items-center justify-between px-3 py-2 border-b border-white/8">
-                <span className="text-[11px] font-medium uppercase tracking-widest text-gray-300">
-                    Player comparison
-                </span>
-
-                <button
-                    onClick={() => setActiveSection("comparison")}
-                    className="text-[10px] text-gray-400 hover:text-white transition-colors cursor-pointer bg-transparent border-none"
-                >
-                    Change players ↗
-                </button>
-            </div>
-
-            <div className="px-3 py-3">
-                <div className="flex gap-2 mb-3">
-                    <div className="flex-1 text-center">
-                        <p className="text-[11px] font-medium text-[#f0c040]">
-                            {playerList[0] ? displayName(playerList[0]) : "No player selected"}
-                        </p>
-                        <p className="text-[10px] text-gray-500">
-                            {playerList[0]?.position ?? "—"} · #
-                            {playerList[0]?.jersey_number ?? "—"}
-                        </p>
-                    </div>
-
-                    <div className="flex items-center text-[10px] text-gray-500">vs</div>
-
-                    <div className="flex-1 text-center">
-                        <p className="text-[11px] font-medium text-blue-400">
-                            {playerList[1] ? displayName(playerList[1]) : "No player selected"}
-                        </p>
-                        <p className="text-[10px] text-gray-500">
-                            {playerList[1]?.position ?? "—"} · #
-                            {playerList[1]?.jersey_number ?? "—"}
-                        </p>
-                    </div>
-                </div>
-
-                {loadingComparisonData ? (
-                    <div className="flex items-center justify-center h-32">
-                        <p className="text-gray-500 text-sm">Loading comparison data...</p>
-                    </div>
-                ) : comparisonData.length > 0 ? (
-                    comparisonData.map((row) => (
-                        <div key={row.label} className="flex items-center gap-1.5 mb-2">
-                            <span className="text-[11px] font-medium text-white w-8 text-right">
-                                {row.lv}
-                            </span>
-
-                            <div className="flex-1 h-1 bg-white/8 rounded-full overflow-hidden flex justify-end">
-                                <div
-                                    className="h-full bg-[#c49a22] rounded-full"
-                                    style={{ width: `${row.l}%` }}
-                                />
-                            </div>
-
-                            <span className="text-[10px] text-gray-500 w-16 text-center shrink-0">
-                                {row.label}
-                            </span>
-
-                            <div className="flex-1 h-1 bg-white/8 rounded-full overflow-hidden">
-                                <div
-                                    className="h-full bg-blue-500 rounded-full"
-                                    style={{ width: `${row.r}%` }}
-                                />
-                            </div>
-
-                            <span className="text-[11px] font-medium text-white w-8">
-                                {row.rv}
-                            </span>
-                        </div>
-                    ))
-                ) : (
-                    <div className="flex items-center justify-center h-32">
-                        <p className="text-gray-500 text-sm">No comparison data available</p>
-                    </div>
-                )}
-            </div>
-        </div>
+        <PlayerComparisonPanel
+            players={playerList}
+            report={comparisonReport}
+            loading={loadingComparisonData}
+            error={comparisonError}
+            leftPlayerId={leftComparisonPlayerId}
+            rightPlayerId={rightComparisonPlayerId}
+            onLeftPlayerChange={setLeftComparisonPlayerId}
+            onRightPlayerChange={setRightComparisonPlayerId}
+            teamLabel={teamLabel}
+        />
     );
 
     const renderPlayerStatsPanel = (limit?: number) => {
@@ -1629,6 +1661,8 @@ export default function DashboardPage() {
             onSeasonChange={(season) => {
                 setActiveSeason(season);
                 setSelectedPlayer(null);
+                setComparisonReport(null);
+                setComparisonError("");
             }}
             teamLabel={teamLabel}
             theme={activeTeamTheme}
@@ -1637,6 +1671,10 @@ export default function DashboardPage() {
             onTeamChange={(teamId) => {
                 setActiveTeamId(teamId);
                 setSelectedPlayer(null);
+                setComparisonReport(null);
+                setComparisonError("");
+                setLeftComparisonPlayerId("");
+                setRightComparisonPlayerId("");
                 setActiveSection("dashboard");
             }}
         >
