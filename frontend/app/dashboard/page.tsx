@@ -1,17 +1,42 @@
 'use client';
 
-import React, {useCallback, useEffect, useMemo, useState} from "react";
-import {useRouter} from "next/navigation";
-import {dashboardAPI} from "@/src/api";
-import {playerAPI} from "@/src/api/players";
-import {seasonAPI} from "@/src/api/seasons";
-import {teamAPI} from "@/src/api/teams";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { dashboardAPI } from "@/src/api";
+import { playerAPI } from "@/src/api/players";
+import { seasonAPI } from "@/src/api/seasons";
+import { teamAPI } from "@/src/api/teams";
+import { statAPI } from "@/src/api/stats";
+import { coachAPI } from "@/src/api/coaches";
+
+import SeasonSummaryPanel from "@/src/components/dashboard/SeasonSummaryPanel";
 import LoadingSpinner from "@/src/components/LoadingSpinner";
-import PageLayout, {NavSection, LayoutTheme, TeamOption} from "@/src/components/pageLayout";
+import PageLayout, { NavSection, LayoutTheme, TeamOption } from "@/src/components/pageLayout";
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
+
+interface PlayerSeasonStat {
+    player_season_stat_id?: number;
+    player_roster?: number;
+    player_id?: number;
+    player_name?: string;
+    position?: string;
+    team_id?: number;
+    team_name?: string;
+    team_abbreviation?: string;
+    season_id?: number;
+    season_year?: number | string;
+    stat_type?: number;
+    stat_type_key?: string;
+    stat_type_name?: string;
+    stat_type_category?: string;
+    stat_type_unit?: string;
+    value?: number | string;
+    is_primary?: boolean;
+    display_order?: number;
+}
 
 interface Player {
     id?: number;
@@ -21,7 +46,10 @@ interface Player {
     name?: string;
     position?: string;
     jersey_number?: number | string;
+    team?: number | string;
+    team_name?: string;
     is_active?: boolean;
+    season_stats?: PlayerSeasonStat[];
 }
 
 interface Season {
@@ -43,6 +71,35 @@ interface Team {
     primary_color?: string;
     secondary_color?: string;
     text_color?: string;
+}
+
+interface StatType {
+    stat_type_id?: number;
+    key?: string;
+    name?: string;
+    category?: string;
+    unit?: string;
+    description?: string;
+}
+
+interface CoachSeasonAssignment {
+    assignment_id?: number;
+    coach?: number;
+    coach_first_name?: string;
+    coach_last_name?: string;
+    coach_full_name?: string;
+    team_season?: number;
+    team_id?: number;
+    team_name?: string;
+    team_abbreviation?: string;
+    season_id?: number;
+    season_year?: number | string;
+    conference?: string;
+    division?: string;
+    role?: string;
+    is_active?: boolean;
+    start_date?: string | null;
+    end_date?: string | null;
 }
 
 interface DashboardStats {
@@ -80,30 +137,33 @@ interface PlayerComparisonData {
     rv: string;
 }
 
+// ---------------------------------------------------------------------------
 // Nav config
+// ---------------------------------------------------------------------------
+
 const USER_NAV: NavSection[] = [
     {
         heading: "Overview",
         items: [
-            {label: "Dashboard", section: "dashboard"},
-            {label: "Season summary", section: "season-summary"},
+            { label: "Dashboard", section: "dashboard" },
+            { label: "Season summary", section: "season-summary" },
         ],
     },
     {
         heading: "Roster",
         items: [
-            {label: "Players", section: "players"},
-            {label: "Coaches", section: "coaches"},
-            {label: "Team roster", section: "team-roster"},
+            { label: "Players", section: "players" },
+            { label: "Coaches", section: "coaches" },
+            { label: "Team roster", section: "team-roster" },
         ],
     },
     {
         heading: "Stats",
         items: [
-            {label: "Player stats", section: "player-stats"},
-            {label: "Stat types", section: "stat-types"},
-            {label: "Leaderboard", section: "leaderboard"},
-            {label: "Comparison", section: "comparison"},
+            { label: "Player stats", section: "player-stats" },
+            { label: "Stat types", section: "stat-types" },
+            { label: "Leaderboard", section: "leaderboard" },
+            { label: "Comparison", section: "comparison" },
         ],
     },
 ];
@@ -116,7 +176,17 @@ const AVATAR_COLORS = [
     "bg-violet-900/40 text-violet-400",
 ];
 
+const COACH_ROLE_ORDER: Record<string, number> = {
+    "Head Coach": 1,
+    "Offensive Coordinator": 2,
+    "Defensive Coordinator": 3,
+    "Special Teams Coordinator": 4,
+};
+
+// ---------------------------------------------------------------------------
 // Helpers
+// ---------------------------------------------------------------------------
+
 function unwrapApiData<T>(response: unknown): T {
     const maybeResponse = response as { data?: T };
     return maybeResponse?.data ?? (response as T);
@@ -134,6 +204,18 @@ function normalizeApiList<T>(response: unknown): T[] {
     }
 
     return [];
+}
+
+async function safeApiCall<T>(
+    request: () => Promise<unknown>,
+    fallback: T
+): Promise<T> {
+    try {
+        const response = await request();
+        return unwrapApiData<T>(response);
+    } catch {
+        return fallback;
+    }
 }
 
 function displayName(player: Player): string {
@@ -165,10 +247,14 @@ function getLeaderboardId(row: LeaderboardRow, index: number): number | string {
     return row.player_id ?? row.id ?? `${getLeaderboardName(row)}-${index}`;
 }
 
+function toNumber(value: unknown): number {
+    const numericValue = Number(value);
+    return Number.isFinite(numericValue) ? numericValue : 0;
+}
+
 function getStatValue(row: LeaderboardRow): number {
     const rawValue = row.stat_value ?? row.value ?? row.total ?? 0;
-    const numericValue = Number(rawValue);
-    return Number.isFinite(numericValue) ? numericValue : 0;
+    return toNumber(rawValue);
 }
 
 function getSeasonYearFromLabel(label: string): string | undefined {
@@ -181,6 +267,127 @@ function noData(value: unknown): string | number {
     }
 
     return value as string | number;
+}
+
+function formatStatNumber(value: number | undefined): string | number {
+    if (value === undefined) {
+        return "No data";
+    }
+
+    return Number.isInteger(value)
+        ? value.toLocaleString()
+        : value.toLocaleString(undefined, {
+            maximumFractionDigits: 2,
+        });
+}
+
+function sumStats(
+    stats: PlayerSeasonStat[],
+    statKeys: string[]
+): number | undefined {
+    const matchingStats = stats.filter((stat) =>
+        stat.stat_type_key ? statKeys.includes(stat.stat_type_key) : false
+    );
+
+    if (matchingStats.length === 0) {
+        return undefined;
+    }
+
+    return matchingStats.reduce((total, stat) => total + toNumber(stat.value), 0);
+}
+
+function buildLeaderboardRows(
+    stats: PlayerSeasonStat[],
+    statKey: string
+): LeaderboardRow[] {
+    if (!statKey) {
+        return [];
+    }
+
+    return stats
+        .filter((stat) => stat.stat_type_key === statKey)
+        .sort((a, b) => toNumber(b.value) - toNumber(a.value))
+        .map((stat) => ({
+            id: stat.player_season_stat_id,
+            player_id: stat.player_id,
+            player_name: stat.player_name,
+            position: stat.position,
+            stat_type: stat.stat_type_name,
+            stat_value: stat.value,
+            value: stat.value,
+        }));
+}
+
+function getStatsForPlayer(
+    player: Player,
+    allStats: PlayerSeasonStat[]
+): PlayerSeasonStat[] {
+    const playerId = player.player_id ?? player.id;
+
+    const matchedStats = allStats.filter((stat) => {
+        if (playerId === undefined || stat.player_id === undefined) {
+            return false;
+        }
+
+        return String(stat.player_id) === String(playerId);
+    });
+
+    if (matchedStats.length > 0) {
+        return matchedStats;
+    }
+
+    return player.season_stats ?? [];
+}
+
+function sortPlayerStats(stats: PlayerSeasonStat[]): PlayerSeasonStat[] {
+    return [...stats].sort((a, b) => {
+        const categoryCompare = String(a.stat_type_category ?? "").localeCompare(
+            String(b.stat_type_category ?? "")
+        );
+
+        if (categoryCompare !== 0) {
+            return categoryCompare;
+        }
+
+        return (a.display_order ?? 999) - (b.display_order ?? 999);
+    });
+}
+
+function groupStatsByCategory(
+    stats: PlayerSeasonStat[]
+): Record<string, PlayerSeasonStat[]> {
+    return stats.reduce<Record<string, PlayerSeasonStat[]>>((groups, stat) => {
+        const category = stat.stat_type_category || "other";
+
+        if (!groups[category]) {
+            groups[category] = [];
+        }
+
+        groups[category].push(stat);
+        return groups;
+    }, {});
+}
+
+function formatCategoryLabel(category: string): string {
+    return category
+        .split("_")
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(" ");
+}
+
+function sortCoachAssignments(assignments: CoachSeasonAssignment[]) {
+    return [...assignments].sort((a, b) => {
+        const roleA = COACH_ROLE_ORDER[a.role ?? ""] ?? 999;
+        const roleB = COACH_ROLE_ORDER[b.role ?? ""] ?? 999;
+
+        if (roleA !== roleB) {
+            return roleA - roleB;
+        }
+
+        return String(a.coach_full_name ?? "").localeCompare(
+            String(b.coach_full_name ?? "")
+        );
+    });
 }
 
 function getSectionTitle(section: string): string {
@@ -197,18 +404,6 @@ function getSectionTitle(section: string): string {
     };
 
     return titles[section] ?? "Dashboard";
-}
-
-async function safeApiCall<T>(
-    request: () => Promise<unknown>,
-    fallback: T
-): Promise<T> {
-    try {
-        const response = await request();
-        return unwrapApiData<T>(response);
-    } catch {
-        return fallback;
-    }
 }
 
 function buildTeamTheme(team?: Team): Partial<LayoutTheme> {
@@ -243,18 +438,18 @@ function buildTeamTheme(team?: Team): Partial<LayoutTheme> {
 }
 
 // ---------------------------------------------------------------------------
-// Small helper components
+// Small components
 // ---------------------------------------------------------------------------
+
 function EmptySection({
-                          title,
-                          description,
-                      }: {
+    title,
+    description,
+}: {
     title: string;
     description: string;
 }) {
     return (
-        <div
-            className="bg-[#1a1a1a] border border-white/8 rounded-lg p-6 min-h-[220px] flex flex-col items-center justify-center text-center">
+        <div className="bg-[#1a1a1a] border border-white/8 rounded-lg p-6 min-h-[220px] flex flex-col items-center justify-center text-center">
             <p className="text-[14px] font-medium text-white mb-1">{title}</p>
             <p className="text-[12px] text-gray-500 max-w-md">{description}</p>
         </div>
@@ -262,11 +457,11 @@ function EmptySection({
 }
 
 function StatCard({
-                      label,
-                      value,
-                      delta,
-                      positive,
-                  }: {
+    label,
+    value,
+    delta,
+    positive,
+}: {
     label: string;
     value: string | number;
     delta?: string;
@@ -293,7 +488,7 @@ function StatCard({
     );
 }
 
-function PlayerInitials({name}: { name: string }) {
+function PlayerInitials({ name }: { name: string }) {
     const parts = name.trim().split(" ").filter(Boolean);
 
     const initials =
@@ -304,7 +499,95 @@ function PlayerInitials({name}: { name: string }) {
     return <>{initials.toUpperCase()}</>;
 }
 
+function PlayerDetailModal({
+    player,
+    stats,
+    teamLabel,
+    onClose,
+}: {
+    player: Player;
+    stats: PlayerSeasonStat[];
+    teamLabel: string;
+    onClose: () => void;
+}) {
+    const name = displayName(player);
+    const sortedStats = sortPlayerStats(stats);
+    const groupedStats = groupStatsByCategory(sortedStats);
+    const categories = Object.keys(groupedStats);
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
+            <div className="w-full max-w-2xl bg-[#1a1a1a] border border-white/10 rounded-lg shadow-xl overflow-hidden">
+                <div className="px-4 py-3 border-b border-white/8 flex items-start justify-between gap-4">
+                    <div>
+                        <p className="text-lg font-semibold text-white">{name}</p>
+                        <p className="text-[12px] text-gray-500 mt-0.5">
+                            {player.position || "—"} · #{player.jersey_number ?? "—"} · {teamLabel}
+                        </p>
+                    </div>
+
+                    <button
+                        onClick={onClose}
+                        className="text-gray-500 hover:text-white text-xl leading-none bg-transparent border-none cursor-pointer"
+                    >
+                        ✕
+                    </button>
+                </div>
+
+                <div className="p-4">
+                    {categories.length > 0 ? (
+                        <div className="space-y-4">
+                            {categories.map((category) => (
+                                <div key={category}>
+                                    <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-2">
+                                        {formatCategoryLabel(category)}
+                                    </p>
+
+                                    <div className="grid grid-cols-2 gap-2">
+                                        {groupedStats[category].map((stat, index) => (
+                                            <div
+                                                key={
+                                                    stat.player_season_stat_id ??
+                                                    `${stat.stat_type_key}-${index}`
+                                                }
+                                                className="bg-[#111] border border-white/8 rounded-lg px-3 py-2"
+                                            >
+                                                <p className="text-[11px] text-gray-400 mb-1">
+                                                    {stat.stat_type_name ||
+                                                        stat.stat_type_key ||
+                                                        "Unknown stat"}
+                                                </p>
+
+                                                <p className="text-xl font-semibold text-white leading-none">
+                                                    {toNumber(stat.value).toLocaleString()}
+                                                </p>
+
+                                                {stat.stat_type_unit && (
+                                                    <p className="text-[10px] text-gray-600 mt-1">
+                                                        {stat.stat_type_unit}
+                                                    </p>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="py-10 text-center text-sm text-gray-500">
+                            No stats available for this player in the selected team and season.
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// ---------------------------------------------------------------------------
 // Page component
+// ---------------------------------------------------------------------------
+
 export default function DashboardPage() {
     const router = useRouter();
 
@@ -322,26 +605,28 @@ export default function DashboardPage() {
     const [playersLoaded, setPlayersLoaded] = useState(false);
 
     const [seasons, setSeasons] = useState<Season[]>([]);
-    const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(
-        null
-    );
+    const [teams, setTeams] = useState<Team[]>([]);
+    const [activeTeamId, setActiveTeamId] = useState("");
+
+    const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null);
     const [leaderboard, setLeaderboard] = useState<LeaderboardRow[]>([]);
     const [seasonBars, setSeasonBars] = useState<SeasonBarData[]>([]);
 
-    // No real comparison endpoint currently exists in frontend/src/api.
-    // Keep the state empty so the UI displays "No comparison data available".
-    const [comparisonData, setComparisonData] = useState<PlayerComparisonData[]>(
-        []
-    );
+    const [statTypes, setStatTypes] = useState<StatType[]>([]);
+    const [playerSeasonStats, setPlayerSeasonStats] = useState<PlayerSeasonStat[]>([]);
+    const [activeLeaderboardStatKey, setActiveLeaderboardStatKey] =
+        useState("receiving_yards");
 
-    const [teams, setTeams] = useState<Team[]>([]);
-    const [activeTeamId, setActiveTeamId] = useState("");
+    const [coachAssignments, setCoachAssignments] = useState<CoachSeasonAssignment[]>([]);
+
+    const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
+    const [comparisonData, setComparisonData] = useState<PlayerComparisonData[]>([]);
 
     const [loadingDashboardData, setLoadingDashboardData] = useState(true);
     const [loadingSeasonData, setLoadingSeasonData] = useState(true);
     const [loadingComparisonData, setLoadingComparisonData] = useState(false);
 
-    // Auth guard
+
     useEffect(() => {
         const token = localStorage.getItem("token");
         const storedUsername = localStorage.getItem("username");
@@ -377,7 +662,6 @@ export default function DashboardPage() {
     }, [seasons]);
 
     const playerList = players;
-    const rosterPreview = playerList.slice(0, 5);
 
     const fetchDashboardData = useCallback(async () => {
         if (!authChecked) {
@@ -432,25 +716,43 @@ export default function DashboardPage() {
                 setActiveSeason(`${selectedSeasonYear} Season`);
             }
 
-            const dashboardParams = {
-                ...(selectedTeamId ? {team: selectedTeamId} : {}),
-                ...(selectedSeasonYear ? {season: selectedSeasonYear} : {}),
+            const sharedParams = {
+                ...(selectedTeamId ? { team: selectedTeamId } : {}),
+                ...(selectedSeasonYear ? { year: selectedSeasonYear } : {}),
             };
 
-            const playerParams = {
-                ...(selectedTeamId ? {team: selectedTeamId} : {}),
+            const dashboardParams = {
+                ...sharedParams,
+                ...(selectedSeasonYear ? { season: selectedSeasonYear } : {}),
+                ...(selectedSeasonYear ? { season_year: selectedSeasonYear } : {}),
             };
 
             const [
                 playerListResult,
+                statTypeResult,
+                playerSeasonStatsResult,
+                coachAssignmentResult,
                 dashboardStatsResult,
                 leaderboardResult,
                 seasonPerformanceResult,
             ] = await Promise.all([
                 safeApiCall<unknown[]>(
-                    () => playerAPI.getAllPlayers(
-                        activeTeamId ? {team: activeTeamId} : {}
-                    ),
+                    () => playerAPI.getAllPlayers(sharedParams),
+                    []
+                ),
+
+                safeApiCall<unknown[]>(
+                    () => statAPI.getStatTypes(),
+                    []
+                ),
+
+                safeApiCall<unknown[]>(
+                    () => statAPI.getPlayerSeasonStats(sharedParams),
+                    []
+                ),
+
+                safeApiCall<unknown[]>(
+                    () => coachAPI.getCoachSeasonAssignments(sharedParams),
                     []
                 ),
 
@@ -471,6 +773,11 @@ export default function DashboardPage() {
             ]);
 
             const normalizedPlayers = normalizeApiList<Player>(playerListResult);
+            const normalizedStatTypes = normalizeApiList<StatType>(statTypeResult);
+            const normalizedPlayerSeasonStats =
+                normalizeApiList<PlayerSeasonStat>(playerSeasonStatsResult);
+            const normalizedCoachAssignments =
+                normalizeApiList<CoachSeasonAssignment>(coachAssignmentResult);
             const normalizedLeaderboard =
                 normalizeApiList<LeaderboardRow>(leaderboardResult);
             const seasonPerformanceData =
@@ -478,44 +785,72 @@ export default function DashboardPage() {
 
             setPlayers(normalizedPlayers);
             setPlayersLoaded(true);
+            setStatTypes(normalizedStatTypes);
+            setPlayerSeasonStats(normalizedPlayerSeasonStats);
+            setCoachAssignments(normalizedCoachAssignments);
             setDashboardStats(dashboardStatsResult);
             setLeaderboard(normalizedLeaderboard);
 
-            const values = seasonPerformanceData.map((item) => {
-                const rawValue =
-                    item.rushing_yards ??
-                    item.rush_yards ??
-                    item.total_rushing_yards ??
-                    item.value ??
-                    0;
+            let transformedSeasonBars: SeasonBarData[] = [];
 
-                const numericValue = Number(rawValue);
-                return Number.isFinite(numericValue) ? numericValue : 0;
-            });
+            if (seasonPerformanceData.length > 0) {
+                const values = seasonPerformanceData.map((item) => {
+                    const rawValue =
+                        item.rushing_yards ??
+                        item.rush_yards ??
+                        item.total_rushing_yards ??
+                        item.value ??
+                        0;
 
-            const maxValue = Math.max(...values, 0);
+                    return toNumber(rawValue);
+                });
 
-            const transformedSeasonBars = seasonPerformanceData.map((item, index) => {
-                const value = values[index];
+                const maxValue = Math.max(...values, 0);
 
-                const year = String(item.year ?? item.season_year ?? "Unknown");
+                transformedSeasonBars = seasonPerformanceData.map((item, index) => {
+                    const value = values[index];
+                    const year = String(item.year ?? item.season_year ?? "Unknown");
 
-                const height =
-                    maxValue > 0
-                        ? Math.max(4, Math.round((value / maxValue) * 80))
-                        : 0;
+                    const height =
+                        maxValue > 0
+                            ? Math.max(4, Math.round((value / maxValue) * 80))
+                            : 0;
 
-                return {
+                    return {
+                        year,
+                        height,
+                        current: selectedSeasonYear ? year === selectedSeasonYear : index === 0,
+                    };
+                });
+            } else if (normalizedPlayerSeasonStats.length > 0) {
+                const groupedByYear = new Map<string, number>();
+
+                normalizedPlayerSeasonStats
+                    .filter((stat) => stat.stat_type_key === "rushing_yards")
+                    .forEach((stat) => {
+                        const year = String(stat.season_year ?? selectedSeasonYear ?? "Unknown");
+                        groupedByYear.set(year, (groupedByYear.get(year) ?? 0) + toNumber(stat.value));
+                    });
+
+                const values = Array.from(groupedByYear.values());
+                const maxValue = Math.max(...values, 0);
+
+                transformedSeasonBars = Array.from(groupedByYear.entries()).map(([year, value]) => ({
                     year,
-                    height,
-                    current: selectedSeasonYear ? year === selectedSeasonYear : index === 0,
-                };
-            });
+                    height:
+                        maxValue > 0
+                            ? Math.max(4, Math.round((value / maxValue) * 80))
+                            : 0,
+                    current: selectedSeasonYear ? year === selectedSeasonYear : false,
+                }));
+            }
 
             setSeasonBars(transformedSeasonBars);
 
             const noDashboardData =
                 normalizedPlayers.length === 0 &&
+                normalizedPlayerSeasonStats.length === 0 &&
+                normalizedCoachAssignments.length === 0 &&
                 !dashboardStatsResult &&
                 normalizedLeaderboard.length === 0 &&
                 transformedSeasonBars.length === 0;
@@ -529,6 +864,10 @@ export default function DashboardPage() {
             setPlayers([]);
             setPlayersLoaded(false);
             setSeasons([]);
+            setTeams([]);
+            setStatTypes([]);
+            setPlayerSeasonStats([]);
+            setCoachAssignments([]);
             setDashboardStats(null);
             setLeaderboard([]);
             setSeasonBars([]);
@@ -577,19 +916,10 @@ export default function DashboardPage() {
     if (!authChecked || loadingDashboardData) {
         return (
             <div className="flex h-screen items-center justify-center bg-[#111]">
-                <LoadingSpinner/>
+                <LoadingSpinner />
             </div>
         );
     }
-
-    const rosterSizeValue =
-        dashboardStats?.roster_size ??
-        (playersLoaded ? playerList.length : undefined);
-
-    const maxLeaderboardValue = Math.max(
-        ...leaderboard.map((row) => getStatValue(row)),
-        1
-    );
 
     const activeTeam =
         teams.find((team) => {
@@ -627,22 +957,82 @@ export default function DashboardPage() {
 
     const activeTeamTheme = buildTeamTheme(activeTeam);
 
+    const rosterSizeValue =
+        dashboardStats?.roster_size ??
+        (playersLoaded ? playerList.length : undefined);
+
+    const totalTouchdownsValue =
+        dashboardStats?.total_tds ??
+        sumStats(playerSeasonStats, [
+            "passing_touchdowns",
+            "rushing_touchdowns",
+            "receiving_touchdowns",
+        ]);
+
+    const passingYardsValue = sumStats(playerSeasonStats, ["passing_yards"]);
+    const rushingYardsValue = sumStats(playerSeasonStats, ["rushing_yards"]);
+
+    const availableLeaderboardStatTypes = statTypes.filter((statType) =>
+        playerSeasonStats.some((stat) => stat.stat_type_key === statType.key)
+    );
+
+    const resolvedLeaderboardStatKey =
+        availableLeaderboardStatTypes.some(
+            (statType) => statType.key === activeLeaderboardStatKey
+        )
+            ? activeLeaderboardStatKey
+            : availableLeaderboardStatTypes[0]?.key ?? "";
+
+    const selectedLeaderboardStatType = availableLeaderboardStatTypes.find(
+        (statType) => statType.key === resolvedLeaderboardStatKey
+    );
+
+    const dynamicLeaderboard = buildLeaderboardRows(
+        playerSeasonStats,
+        resolvedLeaderboardStatKey
+    );
+
+    const leaderboardRows =
+        dynamicLeaderboard.length > 0 ? dynamicLeaderboard : leaderboard;
+
+    const maxLeaderboardValue = Math.max(
+        ...leaderboardRows.map((row) => getStatValue(row)),
+        1
+    );
+
+    const sortedCoachAssignments = sortCoachAssignments(coachAssignments);
+
     const renderLeaderboardPanel = (limit?: number) => {
-        const rows = typeof limit === "number" ? leaderboard.slice(0, limit) : leaderboard;
+        const rows =
+            typeof limit === "number"
+                ? leaderboardRows.slice(0, limit)
+                : leaderboardRows;
 
         return (
             <div className="bg-[#1a1a1a] border border-white/8 rounded-lg overflow-hidden">
                 <div className="flex items-center justify-between px-3 py-2 border-b border-white/8">
-          <span className="text-[11px] font-medium uppercase tracking-widest text-gray-300">
-            Stat leaderboard
-          </span>
+                    <span className="text-[11px] font-medium uppercase tracking-widest text-gray-300">
+                        {selectedLeaderboardStatType?.name || "Stat leaderboard"}
+                    </span>
 
-                    <button
-                        onClick={() => setActiveSection("leaderboard")}
-                        className="text-[10px] text-gray-400 hover:text-white transition-colors cursor-pointer bg-transparent border-none"
+                    <select
+                        value={resolvedLeaderboardStatKey}
+                        onChange={(event) => {
+                            setActiveLeaderboardStatKey(event.target.value);
+                            setActiveSection("leaderboard");
+                        }}
+                        className="bg-[#111] border border-white/10 rounded px-2 py-1 text-[10px] text-gray-300 outline-none focus:border-white/30"
                     >
-                        Receiving yds ▾
-                    </button>
+                        {availableLeaderboardStatTypes.length > 0 ? (
+                            availableLeaderboardStatTypes.map((statType) => (
+                                <option key={statType.key} value={statType.key}>
+                                    {statType.name}
+                                </option>
+                            ))
+                        ) : (
+                            <option value="">No stats</option>
+                        )}
+                    </select>
                 </div>
 
                 <ul>
@@ -659,35 +1049,35 @@ export default function DashboardPage() {
                                     key={getLeaderboardId(row, index)}
                                     className="flex items-center gap-2.5 px-3 py-1.5 border-b border-white/6 last:border-b-0 text-[12px]"
                                 >
-                  <span
-                      className={`text-[10px] w-4 text-right shrink-0 ${
-                          index < 2
-                              ? "text-[#f0c040] font-medium"
-                              : "text-gray-500"
-                      }`}
-                  >
-                    {index + 1}
-                  </span>
+                                    <span
+                                        className={`text-[10px] w-4 text-right shrink-0 ${
+                                            index < 2
+                                                ? "text-[#f0c040] font-medium"
+                                                : "text-gray-500"
+                                        }`}
+                                    >
+                                        {index + 1}
+                                    </span>
 
                                     <span
                                         className={`w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-medium shrink-0 ${colorClass}`}
                                     >
-                    <PlayerInitials name={name}/>
-                  </span>
+                                        <PlayerInitials name={name} />
+                                    </span>
 
                                     <span className="flex-1 text-white truncate">{name}</span>
                                     <span className="text-[10px] text-gray-500 w-6">{pos}</span>
 
-                                    <div className="w-12 h-0.75 bg-white/8 rounded-full overflow-hidden">
+                                    <div className="w-12 h-[3px] bg-white/8 rounded-full overflow-hidden">
                                         <div
                                             className="h-full bg-[#c49a22] rounded-full"
-                                            style={{width: `${barPct}%`}}
+                                            style={{ width: `${barPct}%` }}
                                         />
                                     </div>
 
                                     <span className="text-[12px] font-medium text-white w-10 text-right">
-                    {val.toLocaleString()}
-                  </span>
+                                        {val.toLocaleString()}
+                                    </span>
                                 </li>
                             );
                         })
@@ -707,9 +1097,9 @@ export default function DashboardPage() {
         return (
             <div className="bg-[#1a1a1a] border border-white/8 rounded-lg overflow-hidden">
                 <div className="flex items-center justify-between px-3 py-2 border-b border-white/8">
-          <span className="text-[11px] font-medium uppercase tracking-widest text-gray-300">
-            {title}
-          </span>
+                    <span className="text-[11px] font-medium uppercase tracking-widest text-gray-300">
+                        {title}
+                    </span>
 
                     {limit && playerList.length > limit && (
                         <button
@@ -732,18 +1122,18 @@ export default function DashboardPage() {
                             return (
                                 <li
                                     key={getPlayerId(player, index)}
+                                    onClick={() => setSelectedPlayer(player)}
                                     className="flex items-center gap-2 px-3 py-1.5 border-b border-white/6 last:border-b-0 text-[12px] hover:bg-white/3 cursor-pointer transition-colors"
                                 >
-                  <span
-                      className="w-5.5 h-5.5 rounded flex items-center justify-center text-[9px] font-medium bg-[#1a3d28] text-[#f0c040] shrink-0">
-                    {num}
-                  </span>
+                                    <span className="w-6 h-6 rounded flex items-center justify-center text-[9px] font-medium bg-[#1a3d28] text-[#f0c040] shrink-0">
+                                        {num}
+                                    </span>
 
                                     <span className="flex-1 text-white truncate">{name}</span>
 
                                     <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/6 text-gray-400">
-                    {pos}
-                  </span>
+                                        {pos}
+                                    </span>
 
                                     <span
                                         className={`w-1.5 h-1.5 rounded-full shrink-0 ${
@@ -763,18 +1153,94 @@ export default function DashboardPage() {
         );
     };
 
+    const renderCoachesPanel = () => (
+        <div className="bg-[#1a1a1a] border border-white/8 rounded-lg overflow-hidden">
+            <div className="flex items-center justify-between px-3 py-2 border-b border-white/8">
+                <span className="text-[11px] font-medium uppercase tracking-widest text-gray-300">
+                    Coaching staff
+                </span>
+
+                <span className="text-[10px] text-gray-500">
+                    {teamLabel}
+                </span>
+            </div>
+
+            <div className="grid grid-cols-[1.4fr_1.2fr_100px_100px] gap-3 px-3 py-2 border-b border-white/8 text-[10px] uppercase tracking-widest text-gray-500">
+                <span>Coach</span>
+                <span>Role</span>
+                <span>Status</span>
+                <span className="text-right">Season</span>
+            </div>
+
+            {sortedCoachAssignments.length > 0 ? (
+                sortedCoachAssignments.map((assignment) => {
+                    const active = assignment.is_active !== false;
+
+                    return (
+                        <div
+                            key={assignment.assignment_id}
+                            className="grid grid-cols-[1.4fr_1.2fr_100px_100px] gap-3 items-center px-3 py-2 border-b border-white/6 last:border-b-0 text-[12px] hover:bg-white/3"
+                        >
+                            <span className="text-white font-medium truncate">
+                                {assignment.coach_full_name ||
+                                    `${assignment.coach_first_name ?? ""} ${assignment.coach_last_name ?? ""}`.trim() ||
+                                    "Unknown coach"}
+                            </span>
+
+                            <span className="text-gray-400 truncate">
+                                {assignment.role || "—"}
+                            </span>
+
+                            <span>
+                                <span
+                                    className={`inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full ${
+                                        active
+                                            ? "bg-emerald-900/40 text-emerald-400"
+                                            : "bg-white/5 text-gray-500"
+                                    }`}
+                                >
+                                    <span
+                                        className={`w-1 h-1 rounded-full inline-block ${
+                                            active ? "bg-emerald-400" : "bg-gray-600"
+                                        }`}
+                                    />
+                                    {active ? "Active" : "Inactive"}
+                                </span>
+                            </span>
+
+                            <span className="text-gray-400 text-right">
+                                {assignment.season_year ?? selectedSeasonYear ?? "—"}
+                            </span>
+                        </div>
+                    );
+                })
+            ) : (
+                <div className="px-3 py-6 text-center text-[12px] text-gray-500">
+                    No coaches found for this team and season.
+                </div>
+            )}
+        </div>
+    );
+
+    const renderTeamRosterPanel = () => (
+        <div className="space-y-3">
+            {renderRosterPanel(undefined, "Team roster")}
+            {renderCoachesPanel()}
+        </div>
+    );
+
     const renderSeasonChart = () => (
         <div className="bg-[#1a1a1a] border border-white/8 rounded-lg overflow-hidden">
             <div className="flex items-center justify-between px-3 py-2 border-b border-white/8">
-        <span className="text-[11px] font-medium uppercase tracking-widest text-gray-300">
-          Rushing yds by season
-        </span>
+                <span className="text-[11px] font-medium uppercase tracking-widest text-gray-300">
+                    Rushing yards by season
+                </span>
 
                 <button
                     onClick={() => setActiveSection("season-summary")}
                     className="text-[10px] text-gray-400 hover:text-white transition-colors cursor-pointer bg-transparent border-none"
                 >
-                    5-yr view
+                    Season view
                 </button>
             </div>
 
@@ -793,7 +1259,7 @@ export default function DashboardPage() {
                                         className={`w-full rounded-t-sm ${
                                             bar.current ? "bg-[#c49a22]" : "bg-white/10"
                                         }`}
-                                        style={{height: `${bar.height}px`}}
+                                        style={{ height: `${bar.height}px` }}
                                     />
 
                                     <span
@@ -803,8 +1269,8 @@ export default function DashboardPage() {
                                                 : "text-gray-500"
                                         }`}
                                     >
-                    {bar.year}
-                  </span>
+                                        {bar.year}
+                                    </span>
                                 </div>
                             ))}
                         </div>
@@ -815,12 +1281,12 @@ export default function DashboardPage() {
 
                 <div className="flex gap-3 mt-auto pt-2">
                     <div className="flex items-center gap-1 text-[10px] text-gray-400">
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#c49a22] inline-block"/>
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#c49a22] inline-block" />
                         Current season
                     </div>
 
                     <div className="flex items-center gap-1 text-[10px] text-gray-400">
-                        <span className="w-1.5 h-1.5 rounded-full bg-white/15 inline-block"/>
+                        <span className="w-1.5 h-1.5 rounded-full bg-white/15 inline-block" />
                         Prior seasons
                     </div>
                 </div>
@@ -831,9 +1297,9 @@ export default function DashboardPage() {
     const renderComparisonPanel = () => (
         <div className="bg-[#1a1a1a] border border-white/8 rounded-lg overflow-hidden">
             <div className="flex items-center justify-between px-3 py-2 border-b border-white/8">
-        <span className="text-[11px] font-medium uppercase tracking-widest text-gray-300">
-          Player comparison
-        </span>
+                <span className="text-[11px] font-medium uppercase tracking-widest text-gray-300">
+                    Player comparison
+                </span>
 
                 <button
                     onClick={() => setActiveSection("comparison")}
@@ -875,31 +1341,31 @@ export default function DashboardPage() {
                 ) : comparisonData.length > 0 ? (
                     comparisonData.map((row) => (
                         <div key={row.label} className="flex items-center gap-1.5 mb-2">
-              <span className="text-[11px] font-medium text-white w-8 text-right">
-                {row.lv}
-              </span>
+                            <span className="text-[11px] font-medium text-white w-8 text-right">
+                                {row.lv}
+                            </span>
 
                             <div className="flex-1 h-1 bg-white/8 rounded-full overflow-hidden flex justify-end">
                                 <div
                                     className="h-full bg-[#c49a22] rounded-full"
-                                    style={{width: `${row.l}%`}}
+                                    style={{ width: `${row.l}%` }}
                                 />
                             </div>
 
                             <span className="text-[10px] text-gray-500 w-16 text-center shrink-0">
-                {row.label}
-              </span>
+                                {row.label}
+                            </span>
 
                             <div className="flex-1 h-1 bg-white/8 rounded-full overflow-hidden">
                                 <div
                                     className="h-full bg-blue-500 rounded-full"
-                                    style={{width: `${row.r}%`}}
+                                    style={{ width: `${row.r}%` }}
                                 />
                             </div>
 
                             <span className="text-[11px] font-medium text-white w-8">
-                {row.rv}
-              </span>
+                                {row.rv}
+                            </span>
                         </div>
                     ))
                 ) : (
@@ -911,18 +1377,179 @@ export default function DashboardPage() {
         </div>
     );
 
+    const renderPlayerStatsPanel = (limit?: number) => {
+        const rows =
+            typeof limit === "number"
+                ? playerList.slice(0, limit)
+                : playerList;
+
+        return (
+            <div className="bg-[#1a1a1a] border border-white/8 rounded-lg overflow-hidden">
+                <div className="flex items-center justify-between px-3 py-2 border-b border-white/8">
+                    <span className="text-[11px] font-medium uppercase tracking-widest text-gray-300">
+                        Player stats
+                    </span>
+
+                    <span className="text-[10px] text-gray-500">
+                        {teamLabel}
+                    </span>
+                </div>
+
+                <div className="grid grid-cols-[1.4fr_80px_80px_2fr_100px] gap-3 px-3 py-2 border-b border-white/8 text-[10px] uppercase tracking-widest text-gray-500">
+                    <span>Player</span>
+                    <span>Position</span>
+                    <span>Number</span>
+                    <span>Stat preview</span>
+                    <span className="text-right">Actions</span>
+                </div>
+
+                {rows.length > 0 ? (
+                    rows.map((player, index) => {
+                        const playerStats = sortPlayerStats(
+                            getStatsForPlayer(player, playerSeasonStats)
+                        );
+
+                        const previewStats = playerStats.slice(0, 3);
+                        const remainingCount = Math.max(playerStats.length - previewStats.length, 0);
+
+                        return (
+                            <div
+                                key={getPlayerId(player, index)}
+                                onClick={() => setSelectedPlayer(player)}
+                                className="grid grid-cols-[1.4fr_80px_80px_2fr_100px] gap-3 items-center px-3 py-2 border-b border-white/6 last:border-b-0 text-[12px] hover:bg-white/3 cursor-pointer transition-colors"
+                            >
+                                <span className="text-white font-medium truncate">
+                                    {displayName(player)}
+                                </span>
+
+                                <span className="text-gray-400">
+                                    {player.position || "—"}
+                                </span>
+
+                                <span className="text-gray-400">
+                                    #{player.jersey_number ?? "—"}
+                                </span>
+
+                                <span className="text-gray-400 truncate">
+                                    {previewStats.length > 0 ? (
+                                        <>
+                                            {previewStats.map((stat, statIndex) => (
+                                                <span
+                                                    key={
+                                                        stat.player_season_stat_id ??
+                                                        `${stat.stat_type_key}-${statIndex}`
+                                                    }
+                                                >
+                                                    {stat.stat_type_name}:{" "}
+                                                    <span className="text-white">
+                                                        {toNumber(stat.value).toLocaleString()}
+                                                    </span>
+                                                    {statIndex < previewStats.length - 1 ? " · " : ""}
+                                                </span>
+                                            ))}
+
+                                            {remainingCount > 0 && (
+                                                <span className="text-gray-500">
+                                                    {" "}· +{remainingCount} more
+                                                </span>
+                                            )}
+                                        </>
+                                    ) : (
+                                        "No stats"
+                                    )}
+                                </span>
+
+                                <div className="flex justify-end">
+                                    <button
+                                        onClick={(event) => {
+                                            event.stopPropagation();
+                                            setSelectedPlayer(player);
+                                        }}
+                                        className="text-[10px] px-2 py-1 rounded border border-white/10 text-gray-300 hover:text-white hover:border-white/30 transition-colors bg-transparent cursor-pointer"
+                                    >
+                                        View details
+                                    </button>
+                                </div>
+                            </div>
+                        );
+                    })
+                ) : (
+                    <div className="px-3 py-6 text-center text-[12px] text-gray-500">
+                        No players available for this team and season.
+                    </div>
+                )}
+            </div>
+        );
+    };
+
+    const renderStatTypesPanel = () => (
+        <div className="bg-[#1a1a1a] border border-white/8 rounded-lg overflow-hidden">
+            <div className="flex items-center justify-between px-3 py-2 border-b border-white/8">
+                <span className="text-[11px] font-medium uppercase tracking-widest text-gray-300">
+                    Stat types
+                </span>
+
+                <span className="text-[10px] text-gray-500">
+                    {statTypes.length} available
+                </span>
+            </div>
+
+            <div className="grid grid-cols-[1fr_1fr_90px_2fr] gap-3 px-3 py-2 border-b border-white/8 text-[10px] uppercase tracking-widest text-gray-500">
+                <span>Key</span>
+                <span>Name</span>
+                <span>Category</span>
+                <span>Description</span>
+            </div>
+
+            {statTypes.length > 0 ? (
+                statTypes.map((statType) => (
+                    <div
+                        key={statType.stat_type_id ?? statType.key}
+                        className="grid grid-cols-[1fr_1fr_90px_2fr] gap-3 items-center px-3 py-2 border-b border-white/6 last:border-b-0 text-[12px] hover:bg-white/3"
+                    >
+                        <span className="text-gray-400 font-mono text-[11px] truncate">
+                            {statType.key || "—"}
+                        </span>
+
+                        <span className="text-white truncate">
+                            {statType.name || "—"}
+                        </span>
+
+                        <span className="text-gray-500">
+                            {statType.category || "—"}
+                        </span>
+
+                        <span className="text-gray-500 truncate">
+                            {statType.description || "No description"}
+                        </span>
+                    </div>
+                ))
+            ) : (
+                <div className="px-3 py-6 text-center text-[12px] text-gray-500">
+                    No stat types available.
+                </div>
+            )}
+        </div>
+    );
+
     const renderDashboardOverview = () => (
         <>
             <div className="grid grid-cols-4 gap-2">
-                <StatCard label="Roster size" value={noData(rosterSizeValue)}/>
-                <StatCard label="Total TDs" value={noData(dashboardStats?.total_tds)}/>
+                <StatCard label="Roster size" value={noData(rosterSizeValue)} />
+
                 <StatCard
-                    label="Pass yds / gm"
-                    value={noData(dashboardStats?.pass_yards_per_game)}
+                    label="Total TDs"
+                    value={formatStatNumber(totalTouchdownsValue)}
                 />
+
                 <StatCard
-                    label="Rush yds / gm"
-                    value={noData(dashboardStats?.rush_yards_per_game)}
+                    label="Pass yards"
+                    value={formatStatNumber(passingYardsValue)}
+                />
+
+                <StatCard
+                    label="Rush yards"
+                    value={formatStatNumber(rushingYardsValue)}
                 />
             </div>
 
@@ -947,9 +1574,12 @@ export default function DashboardPage() {
                 return (
                     <>
                         {renderSeasonChart()}
-                        <EmptySection
-                            title="Season summary"
-                            description="This section should show season-level summaries once the backend summary API is available."
+                        <SeasonSummaryPanel
+                            players={playerList}
+                            stats={playerSeasonStats}
+                            coaches={coachAssignments}
+                            teamLabel={teamLabel}
+                            selectedSeasonYear={selectedSeasonYear}
                         />
                     </>
                 );
@@ -958,36 +1588,16 @@ export default function DashboardPage() {
                 return renderRosterPanel(undefined, "Players");
 
             case "coaches":
-                return (
-                    <EmptySection
-                        title="Coaches"
-                        description="This section should show coaching staff once the coaches API is available."
-                    />
-                );
+                return renderCoachesPanel();
 
             case "team-roster":
-                return (
-                    <EmptySection
-                        title="Team roster"
-                        description="This section should show roster assignments by team and season."
-                    />
-                );
+                return renderTeamRosterPanel();
 
             case "player-stats":
-                return (
-                    <EmptySection
-                        title="Player stats"
-                        description="This section should show player-level statistics once the stats API is available."
-                    />
-                );
+                return renderPlayerStatsPanel();
 
             case "stat-types":
-                return (
-                    <EmptySection
-                        title="Stat types"
-                        description="This section should show the supported stat categories."
-                    />
-                );
+                return renderStatTypesPanel();
 
             case "leaderboard":
                 return renderLeaderboardPanel();
@@ -1016,19 +1626,22 @@ export default function DashboardPage() {
             title={getSectionTitle(activeSection)}
             seasonPills={seasonPills}
             activeSeason={activeSeason}
-            onSeasonChange={setActiveSeason}
+            onSeasonChange={(season) => {
+                setActiveSeason(season);
+                setSelectedPlayer(null);
+            }}
             teamLabel={teamLabel}
             theme={activeTeamTheme}
             teamOptions={teamOptions}
             activeTeamId={activeTeamId}
             onTeamChange={(teamId) => {
                 setActiveTeamId(teamId);
+                setSelectedPlayer(null);
                 setActiveSection("dashboard");
             }}
         >
             {showError && errorMsg && (
-                <div
-                    className="fixed top-5 right-5 z-50 flex items-center gap-3 bg-red-950 border border-red-800 text-red-300 text-sm px-4 py-3 rounded-lg shadow-xl max-w-sm">
+                <div className="fixed top-5 right-5 z-50 flex items-center gap-3 bg-red-950 border border-red-800 text-red-300 text-sm px-4 py-3 rounded-lg shadow-xl max-w-sm">
                     <span className="flex-1">{errorMsg}</span>
                     <button
                         onClick={() => setShowError(false)}
@@ -1040,6 +1653,15 @@ export default function DashboardPage() {
             )}
 
             {renderDashboardContent()}
+
+            {selectedPlayer && (
+                <PlayerDetailModal
+                    player={selectedPlayer}
+                    stats={getStatsForPlayer(selectedPlayer, playerSeasonStats)}
+                    teamLabel={teamLabel}
+                    onClose={() => setSelectedPlayer(null)}
+                />
+            )}
         </PageLayout>
     );
 }
