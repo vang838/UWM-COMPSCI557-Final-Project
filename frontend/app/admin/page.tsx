@@ -8,10 +8,37 @@ import PageLayout, { NavSection, LayoutTheme } from "@/src/components/pageLayout
 import { playerAPI } from "@/src/api/players";
 import { seasonAPI } from "@/src/api/seasons";
 import { teamAPI } from "@/src/api/teams";
+import { statAPI } from "@/src/api/stats";
+import { coachAPI } from "@/src/api/coaches";
+import { reportAPI } from "@/src/api/reports";
+
+import SeasonSummaryPanel from "@/src/components/dashboard/SeasonSummaryPanel";
+import PlayerComparisonPanel from "@/src/components/dashboard/PlayerComparisonPanel";
 
 import { useApiData } from "@/src/hooks/useApiData";
 
 // Types
+interface PlayerSeasonStat {
+    player_season_stat_id?: number;
+    player_roster?: number;
+    player_id?: number;
+    player_name?: string;
+    position?: string;
+    team_id?: number;
+    team_name?: string;
+    team_abbreviation?: string;
+    season_id?: number;
+    season_year?: number | string;
+    stat_type?: number;
+    stat_type_key?: string;
+    stat_type_name?: string;
+    stat_type_category?: string;
+    stat_type_unit?: string;
+    value?: number | string;
+    is_primary?: boolean;
+    display_order?: number;
+}
+
 interface Player {
     id?: number;
     player_id?: number;
@@ -21,7 +48,9 @@ interface Player {
     position?: string;
     jersey_number?: number | string;
     team?: number | string;
+    team_name?: string;
     is_active?: boolean;
+    season_stats?: PlayerSeasonStat[];
 }
 
 interface Season {
@@ -100,6 +129,76 @@ interface RosterFormData {
     is_active: boolean;
 }
 
+interface StatType {
+    stat_type_id?: number;
+    key?: string;
+    name?: string;
+    category?: string;
+    unit?: string;
+    description?: string;
+}
+
+interface CoachSeasonAssignment {
+    assignment_id?: number;
+    coach?: number;
+    coach_first_name?: string;
+    coach_last_name?: string;
+    coach_full_name?: string;
+    team_season?: number;
+    team_id?: number;
+    team_name?: string;
+    team_abbreviation?: string;
+    season_id?: number;
+    season_year?: number | string;
+    conference?: string;
+    division?: string;
+    role?: string;
+    is_active?: boolean;
+    start_date?: string | null;
+    end_date?: string | null;
+}
+
+interface LeaderboardRow {
+    player_id?: number;
+    id?: number;
+    player_name?: string;
+    name?: string;
+    first_name?: string;
+    last_name?: string;
+    position?: string;
+    stat_type?: string;
+    stat_value?: number | string;
+    value?: number | string;
+    total?: number | string;
+}
+
+interface PlayerComparisonReportPlayer {
+    player_id: number;
+    first_name?: string;
+    last_name?: string;
+    full_name?: string;
+    position?: string;
+}
+
+interface PlayerComparisonReportRow {
+    stat_key: string;
+    stat_name: string;
+    stat_category: string;
+    stat_unit?: string;
+    left_value: number;
+    right_value: number;
+    left_percent: number;
+    right_percent: number;
+}
+
+interface PlayerComparisonReport {
+    team_id: number;
+    year: number;
+    left_player: PlayerComparisonReportPlayer;
+    right_player: PlayerComparisonReportPlayer;
+    rows: PlayerComparisonReportRow[];
+}
+
 // Nav config
 const ADMIN_NAV: NavSection[] = [
     {
@@ -148,6 +247,13 @@ const ADMIN_THEME: Partial<LayoutTheme> = {
     dotInactive: "rgba(255, 255, 255, 0.25)",
     roleBadgeBg: "rgba(148, 163, 184, 0.18)",
     roleBadgeText: "#e5e7eb",
+};
+
+const COACH_ROLE_ORDER: Record<string, number> = {
+    "Head Coach": 1,
+    "Offensive Coordinator": 2,
+    "Defensive Coordinator": 3,
+    "Special Teams Coordinator": 4,
 };
 
 // Helpers
@@ -273,6 +379,118 @@ function getSectionTitle(section: string): string {
     };
 
     return titles[section] ?? "Admin Dashboard";
+}
+
+function toNumber(value: unknown): number {
+    const numericValue = Number(value);
+    return Number.isFinite(numericValue) ? numericValue : 0;
+}
+
+function formatStatNumber(value: number | undefined): string | number {
+    if (value === undefined) {
+        return "No data";
+    }
+
+    return Number.isInteger(value)
+        ? value.toLocaleString()
+        : value.toLocaleString(undefined, { maximumFractionDigits: 2 });
+}
+
+function getLeaderboardName(row: LeaderboardRow): string {
+    return (
+        row.player_name ||
+        row.name ||
+        `${row.first_name ?? ""} ${row.last_name ?? ""}`.trim() ||
+        "Unknown player"
+    );
+}
+
+function getLeaderboardId(row: LeaderboardRow, index: number): number | string {
+    return row.player_id ?? row.id ?? `${getLeaderboardName(row)}-${index}`;
+}
+
+function getStatValue(row: LeaderboardRow): number {
+    const rawValue = row.stat_value ?? row.value ?? row.total ?? 0;
+    return toNumber(rawValue);
+}
+
+function buildLeaderboardRows(
+    stats: PlayerSeasonStat[],
+    statKey: string
+): LeaderboardRow[] {
+    if (!statKey) {
+        return [];
+    }
+
+    return stats
+        .filter((stat) => stat.stat_type_key === statKey)
+        .sort((a, b) => toNumber(b.value) - toNumber(a.value))
+        .map((stat) => ({
+            id: stat.player_season_stat_id,
+            player_id: stat.player_id,
+            player_name: stat.player_name,
+            position: stat.position,
+            stat_type: stat.stat_type_name,
+            stat_value: stat.value,
+            value: stat.value,
+        }));
+}
+
+function getStatsForPlayer(
+    player: Player,
+    allStats: PlayerSeasonStat[]
+): PlayerSeasonStat[] {
+    const playerId = player.player_id ?? player.id;
+
+    const matchedStats = allStats.filter((stat) => {
+        if (playerId === undefined || stat.player_id === undefined) {
+            return false;
+        }
+
+        return String(stat.player_id) === String(playerId);
+    });
+
+    if (matchedStats.length > 0) {
+        return matchedStats;
+    }
+
+    return player.season_stats ?? [];
+}
+
+function sortPlayerStats(stats: PlayerSeasonStat[]): PlayerSeasonStat[] {
+    return [...stats].sort((a, b) => {
+        const categoryCompare = String(a.stat_type_category ?? "").localeCompare(
+            String(b.stat_type_category ?? "")
+        );
+
+        if (categoryCompare !== 0) {
+            return categoryCompare;
+        }
+
+        return (a.display_order ?? 999) - (b.display_order ?? 999);
+    });
+}
+
+function formatCategoryLabel(category: string): string {
+    return category
+        .split("_")
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(" ");
+}
+
+function sortCoachAssignments(assignments: CoachSeasonAssignment[]) {
+    return [...assignments].sort((a, b) => {
+        const roleA = COACH_ROLE_ORDER[a.role ?? ""] ?? 999;
+        const roleB = COACH_ROLE_ORDER[b.role ?? ""] ?? 999;
+
+        if (roleA !== roleB) {
+            return roleA - roleB;
+        }
+
+        return String(a.coach_full_name ?? "").localeCompare(
+            String(b.coach_full_name ?? "")
+        );
+    });
 }
 
 // Small components
@@ -669,6 +887,439 @@ function TeamsPanel({
                     </div>
                 )}
             </div>
+        </div>
+    );
+}
+
+function AdminDataFilterPanel({
+    seasons,
+    teams,
+    selectedSeasonYear,
+    selectedTeamId,
+    onSeasonChange,
+    onTeamChange,
+}: {
+    seasons: Season[];
+    teams: Team[];
+    selectedSeasonYear: string;
+    selectedTeamId: string;
+    onSeasonChange: (year: string) => void;
+    onTeamChange: (teamId: string) => void;
+}) {
+    return (
+        <div className="bg-[#1a1a1a] border border-white/8 rounded-lg p-3 mb-3">
+            <div className="flex items-center justify-between gap-3 mb-3">
+                <div>
+                    <p className="text-[13px] font-medium text-white">
+                        Dashboard data filters
+                    </p>
+                    <p className="text-[11px] text-gray-500">
+                        Select the team and season used for admin dashboard reports.
+                    </p>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+                <label className="flex flex-col gap-1">
+                    <span className="text-[10px] uppercase tracking-widest text-gray-500">
+                        Season
+                    </span>
+                    <select
+                        value={selectedSeasonYear}
+                        onChange={(event) => onSeasonChange(event.target.value)}
+                        className="bg-[#111] border border-white/10 rounded px-2 py-1.5 text-sm text-white outline-none focus:border-white/30"
+                    >
+                        <option value="">Select season</option>
+                        {seasons.map((season) => (
+                            <option
+                                key={season.season_id ?? season.id ?? season.year}
+                                value={String(season.year)}
+                            >
+                                {season.year}
+                            </option>
+                        ))}
+                    </select>
+                </label>
+
+                <label className="flex flex-col gap-1">
+                    <span className="text-[10px] uppercase tracking-widest text-gray-500">
+                        Team
+                    </span>
+                    <select
+                        value={selectedTeamId}
+                        onChange={(event) => onTeamChange(event.target.value)}
+                        className="bg-[#111] border border-white/10 rounded px-2 py-1.5 text-sm text-white outline-none focus:border-white/30"
+                    >
+                        <option value="">Select team</option>
+                        {teams.map((team) => {
+                            const teamId = getTeamId(team);
+
+                            if (teamId === undefined) {
+                                return null;
+                            }
+
+                            return (
+                                <option key={teamId} value={String(teamId)}>
+                                    {getTeamDisplayName(team)}
+                                </option>
+                            );
+                        })}
+                    </select>
+                </label>
+            </div>
+        </div>
+    );
+}
+
+function CoachesReadOnlyPanel({
+    assignments,
+    teamLabel,
+    loading,
+}: {
+    assignments: CoachSeasonAssignment[];
+    teamLabel: string;
+    loading: boolean;
+}) {
+    const sortedAssignments = sortCoachAssignments(assignments);
+
+    return (
+        <div className="bg-[#1a1a1a] border border-white/8 rounded-lg overflow-hidden">
+            <div className="flex items-center justify-between px-3 py-2 border-b border-white/8">
+                <span className="text-[11px] font-medium uppercase tracking-widest text-gray-300">
+                    Coaching staff
+                </span>
+                <span className="text-[10px] text-gray-500">{teamLabel}</span>
+            </div>
+
+            <div className="grid grid-cols-[1.4fr_1.2fr_100px_100px] gap-3 px-3 py-2 border-b border-white/8 text-[10px] uppercase tracking-widest text-gray-500">
+                <span>Coach</span>
+                <span>Role</span>
+                <span>Status</span>
+                <span className="text-right">Season</span>
+            </div>
+
+            {loading ? (
+                <div className="px-3 py-6 text-center text-[12px] text-gray-500">
+                    Loading coaches...
+                </div>
+            ) : sortedAssignments.length > 0 ? (
+                sortedAssignments.map((assignment) => {
+                    const active = assignment.is_active !== false;
+
+                    return (
+                        <div
+                            key={assignment.assignment_id}
+                            className="grid grid-cols-[1.4fr_1.2fr_100px_100px] gap-3 items-center px-3 py-2 border-b border-white/6 last:border-b-0 text-[12px] hover:bg-white/3"
+                        >
+                            <span className="text-white font-medium truncate">
+                                {assignment.coach_full_name ||
+                                    `${assignment.coach_first_name ?? ""} ${assignment.coach_last_name ?? ""}`.trim() ||
+                                    "Unknown coach"}
+                            </span>
+
+                            <span className="text-gray-400 truncate">
+                                {assignment.role || "—"}
+                            </span>
+
+                            <span>
+                                <span
+                                    className={`inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full ${
+                                        active
+                                            ? "bg-emerald-900/40 text-emerald-400"
+                                            : "bg-white/5 text-gray-500"
+                                    }`}
+                                >
+                                    <span
+                                        className={`w-1 h-1 rounded-full inline-block ${
+                                            active ? "bg-emerald-400" : "bg-gray-600"
+                                        }`}
+                                    />
+                                    {active ? "Active" : "Inactive"}
+                                </span>
+                            </span>
+
+                            <span className="text-gray-400 text-right">
+                                {assignment.season_year ?? "—"}
+                            </span>
+                        </div>
+                    );
+                })
+            ) : (
+                <div className="px-3 py-6 text-center text-[12px] text-gray-500">
+                    No coaches found for this team and season.
+                </div>
+            )}
+        </div>
+    );
+}
+
+function PlayerStatsReadOnlyPanel({
+    players,
+    stats,
+    teamLabel,
+    loading,
+}: {
+    players: Player[];
+    stats: PlayerSeasonStat[];
+    teamLabel: string;
+    loading: boolean;
+}) {
+    return (
+        <div className="bg-[#1a1a1a] border border-white/8 rounded-lg overflow-hidden">
+            <div className="flex items-center justify-between px-3 py-2 border-b border-white/8">
+                <span className="text-[11px] font-medium uppercase tracking-widest text-gray-300">
+                    Player stats
+                </span>
+                <span className="text-[10px] text-gray-500">{teamLabel}</span>
+            </div>
+
+            <div className="grid grid-cols-[1.4fr_80px_80px_2fr] gap-3 px-3 py-2 border-b border-white/8 text-[10px] uppercase tracking-widest text-gray-500">
+                <span>Player</span>
+                <span>Position</span>
+                <span>Number</span>
+                <span>Stat preview</span>
+            </div>
+
+            {loading ? (
+                <div className="px-3 py-6 text-center text-[12px] text-gray-500">
+                    Loading player stats...
+                </div>
+            ) : players.length > 0 ? (
+                players.map((player) => {
+                    const playerStats = sortPlayerStats(getStatsForPlayer(player, stats));
+                    const previewStats = playerStats.slice(0, 3);
+                    const remainingCount = Math.max(playerStats.length - previewStats.length, 0);
+
+                    return (
+                        <div
+                            key={getPlayerId(player)}
+                            className="grid grid-cols-[1.4fr_80px_80px_2fr] gap-3 items-center px-3 py-2 border-b border-white/6 last:border-b-0 text-[12px] hover:bg-white/3"
+                        >
+                            <span className="text-white font-medium truncate">
+                                {displayPlayerName(player)}
+                            </span>
+
+                            <span className="text-gray-400">{player.position || "—"}</span>
+
+                            <span className="text-gray-400">
+                                #{player.jersey_number ?? "—"}
+                            </span>
+
+                            <span className="text-gray-400 truncate">
+                                {previewStats.length > 0 ? (
+                                    <>
+                                        {previewStats.map((stat, statIndex) => (
+                                            <span
+                                                key={
+                                                    stat.player_season_stat_id ??
+                                                    `${stat.stat_type_key}-${statIndex}`
+                                                }
+                                            >
+                                                {stat.stat_type_name}:{" "}
+                                                <span className="text-white">
+                                                    {toNumber(stat.value).toLocaleString()}
+                                                </span>
+                                                {statIndex < previewStats.length - 1 ? " · " : ""}
+                                            </span>
+                                        ))}
+
+                                        {remainingCount > 0 && (
+                                            <span className="text-gray-500">
+                                                {" "}· +{remainingCount} more
+                                            </span>
+                                        )}
+                                    </>
+                                ) : (
+                                    "No stats"
+                                )}
+                            </span>
+                        </div>
+                    );
+                })
+            ) : (
+                <div className="px-3 py-6 text-center text-[12px] text-gray-500">
+                    No players available for this team and season.
+                </div>
+            )}
+        </div>
+    );
+}
+
+function StatTypesReadOnlyPanel({
+    statTypes,
+    loading,
+}: {
+    statTypes: StatType[];
+    loading: boolean;
+}) {
+    return (
+        <div className="bg-[#1a1a1a] border border-white/8 rounded-lg overflow-hidden">
+            <div className="flex items-center justify-between px-3 py-2 border-b border-white/8">
+                <span className="text-[11px] font-medium uppercase tracking-widest text-gray-300">
+                    Stat types
+                </span>
+                <span className="text-[10px] text-gray-500">
+                    {statTypes.length} available
+                </span>
+            </div>
+
+            <div className="grid grid-cols-[1fr_1fr_90px_90px_2fr] gap-3 px-3 py-2 border-b border-white/8 text-[10px] uppercase tracking-widest text-gray-500">
+                <span>Key</span>
+                <span>Name</span>
+                <span>Category</span>
+                <span>Unit</span>
+                <span>Description</span>
+            </div>
+
+            {loading ? (
+                <div className="px-3 py-6 text-center text-[12px] text-gray-500">
+                    Loading stat types...
+                </div>
+            ) : statTypes.length > 0 ? (
+                statTypes.map((statType) => (
+                    <div
+                        key={statType.stat_type_id ?? statType.key}
+                        className="grid grid-cols-[1fr_1fr_90px_90px_2fr] gap-3 items-center px-3 py-2 border-b border-white/6 last:border-b-0 text-[12px] hover:bg-white/3"
+                    >
+                        <span className="text-gray-400 font-mono text-[11px] truncate">
+                            {statType.key || "—"}
+                        </span>
+
+                        <span className="text-white truncate">
+                            {statType.name || "—"}
+                        </span>
+
+                        <span className="text-gray-500">
+                            {statType.category || "—"}
+                        </span>
+
+                        <span className="text-gray-500">
+                            {statType.unit || "—"}
+                        </span>
+
+                        <span className="text-gray-500 truncate">
+                            {statType.description || "No description"}
+                        </span>
+                    </div>
+                ))
+            ) : (
+                <div className="px-3 py-6 text-center text-[12px] text-gray-500">
+                    No stat types available.
+                </div>
+            )}
+        </div>
+    );
+}
+
+function LeaderboardReadOnlyPanel({
+    statTypes,
+    stats,
+    leaderboard,
+    activeStatKey,
+    onStatKeyChange,
+    loading,
+}: {
+    statTypes: StatType[];
+    stats: PlayerSeasonStat[];
+    leaderboard: LeaderboardRow[];
+    activeStatKey: string;
+    onStatKeyChange: (key: string) => void;
+    loading: boolean;
+}) {
+    const availableLeaderboardStatTypes = statTypes.filter((statType) =>
+        stats.some((stat) => stat.stat_type_key === statType.key)
+    );
+
+    const resolvedStatKey =
+        availableLeaderboardStatTypes.some((statType) => statType.key === activeStatKey)
+            ? activeStatKey
+            : availableLeaderboardStatTypes[0]?.key ?? "";
+
+    const selectedStatType = availableLeaderboardStatTypes.find(
+        (statType) => statType.key === resolvedStatKey
+    );
+
+    const dynamicLeaderboard = buildLeaderboardRows(stats, resolvedStatKey);
+    const rows = dynamicLeaderboard.length > 0 ? dynamicLeaderboard : leaderboard;
+
+    const maxLeaderboardValue = Math.max(
+        ...rows.map((row) => getStatValue(row)),
+        1
+    );
+
+    return (
+        <div className="bg-[#1a1a1a] border border-white/8 rounded-lg overflow-hidden">
+            <div className="flex items-center justify-between px-3 py-2 border-b border-white/8">
+                <span className="text-[11px] font-medium uppercase tracking-widest text-gray-300">
+                    {selectedStatType?.name || "Stat leaderboard"}
+                </span>
+
+                <select
+                    value={resolvedStatKey}
+                    onChange={(event) => onStatKeyChange(event.target.value)}
+                    className="bg-[#111] border border-white/10 rounded px-2 py-1 text-[10px] text-gray-300 outline-none focus:border-white/30"
+                >
+                    {availableLeaderboardStatTypes.length > 0 ? (
+                        availableLeaderboardStatTypes.map((statType) => (
+                            <option key={statType.key} value={statType.key}>
+                                {statType.name}
+                            </option>
+                        ))
+                    ) : (
+                        <option value="">No stats</option>
+                    )}
+                </select>
+            </div>
+
+            {loading ? (
+                <div className="px-3 py-6 text-center text-[12px] text-gray-500">
+                    Loading leaderboard...
+                </div>
+            ) : rows.length > 0 ? (
+                <ul>
+                    {rows.map((row, index) => {
+                        const name = getLeaderboardName(row);
+                        const pos = row.position || "—";
+                        const val = getStatValue(row);
+                        const barPct = Math.round((val / maxLeaderboardValue) * 100);
+
+                        return (
+                            <li
+                                key={getLeaderboardId(row, index)}
+                                className="flex items-center gap-2.5 px-3 py-1.5 border-b border-white/6 last:border-b-0 text-[12px]"
+                            >
+                                <span
+                                    className={`text-[10px] w-4 text-right shrink-0 ${
+                                        index < 2
+                                            ? "text-[#f0c040] font-medium"
+                                            : "text-gray-500"
+                                    }`}
+                                >
+                                    {index + 1}
+                                </span>
+
+                                <span className="flex-1 text-white truncate">{name}</span>
+                                <span className="text-[10px] text-gray-500 w-6">{pos}</span>
+
+                                <div className="w-24 h-[3px] bg-white/8 rounded-full overflow-hidden">
+                                    <div
+                                        className="h-full bg-[#c49a22] rounded-full"
+                                        style={{ width: `${barPct}%` }}
+                                    />
+                                </div>
+
+                                <span className="text-[12px] font-medium text-white w-12 text-right">
+                                    {val.toLocaleString()}
+                                </span>
+                            </li>
+                        );
+                    })}
+                </ul>
+            ) : (
+                <div className="px-3 py-6 text-center text-[12px] text-gray-500">
+                    No leaderboard data available.
+                </div>
+            )}
         </div>
     );
 }
@@ -1337,6 +1988,26 @@ export default function AdminPage() {
     const [savingRoster, setSavingRoster] = useState(false);
     const [deletingRoster, setDeletingRoster] = useState(false);
 
+    // Read-only dashboard parity state
+    const [selectedDashboardSeasonYear, setSelectedDashboardSeasonYear] = useState("");
+    const [selectedDashboardTeamId, setSelectedDashboardTeamId] = useState("");
+    const [dashboardPlayers, setDashboardPlayers] = useState<Player[]>([]);
+    const [dashboardStats, setDashboardStats] = useState<PlayerSeasonStat[]>([]);
+    const [statTypes, setStatTypes] = useState<StatType[]>([]);
+    const [coachAssignments, setCoachAssignments] = useState<CoachSeasonAssignment[]>([]);
+    const [leaderboard, setLeaderboard] = useState<LeaderboardRow[]>([]);
+    const [activeLeaderboardStatKey, setActiveLeaderboardStatKey] =
+        useState("receiving_yards");
+    const [loadingDashboardReports, setLoadingDashboardReports] = useState(false);
+
+    // SQL comparison state
+    const [leftComparisonPlayerId, setLeftComparisonPlayerId] = useState("");
+    const [rightComparisonPlayerId, setRightComparisonPlayerId] = useState("");
+    const [comparisonReport, setComparisonReport] =
+        useState<PlayerComparisonReport | null>(null);
+    const [comparisonError, setComparisonError] = useState("");
+    const [loadingComparisonData, setLoadingComparisonData] = useState(false);
+
     const fetchPlayers = useCallback(() => playerAPI.getAllPlayers(), []);
     const {
         data: playersResponse,
@@ -1348,6 +2019,33 @@ export default function AdminPage() {
         () => normalizeApiList<Player>(playersResponse ?? []),
         [playersResponse]
     );
+
+    const selectedDashboardTeam = useMemo(() => {
+        return teams.find((team) => String(getTeamId(team)) === selectedDashboardTeamId);
+    }, [teams, selectedDashboardTeamId]);
+
+    const dashboardTeamLabel = selectedDashboardTeam
+        ? `${selectedDashboardTeam.abbreviation || getTeamDisplayName(selectedDashboardTeam)}${
+            selectedDashboardSeasonYear ? ` · ${selectedDashboardSeasonYear}` : ""
+        }`
+        : selectedDashboardSeasonYear
+            ? `Team · ${selectedDashboardSeasonYear}`
+            : "Team";
+
+    const comparisonPlayerIds = useMemo(() => {
+        return dashboardPlayers
+            .map((player) => String(player.player_id ?? player.id ?? ""))
+            .filter(Boolean);
+    }, [dashboardPlayers]);
+
+    const selectedTeamSeason = useMemo(() => {
+        return teamSeasons.find((item) => {
+            return (
+                String(item.team) === selectedRosterTeamId &&
+                String(item.season_year) === selectedRosterSeasonYear
+            );
+        });
+    }, [teamSeasons, selectedRosterTeamId, selectedRosterSeasonYear]);
 
     const fetchAdminReferenceData = useCallback(async () => {
         const [seasonData, teamData, teamSeasonData] = await Promise.all([
@@ -1384,14 +2082,57 @@ export default function AdminPage() {
         setTeamSeasons(teamSeasonList);
     }, []);
 
-    const selectedTeamSeason = useMemo(() => {
-        return teamSeasons.find((item) => {
-            return (
-                String(item.team) === selectedRosterTeamId &&
-                String(item.season_year) === selectedRosterSeasonYear
-            );
-        });
-    }, [teamSeasons, selectedRosterTeamId, selectedRosterSeasonYear]);
+    const fetchDashboardReports = useCallback(async () => {
+        if (!selectedDashboardSeasonYear || !selectedDashboardTeamId) {
+            setDashboardPlayers([]);
+            setDashboardStats([]);
+            setCoachAssignments([]);
+            setLeaderboard([]);
+            return;
+        }
+
+        try {
+            setLoadingDashboardReports(true);
+
+            const sharedParams = {
+                team: selectedDashboardTeamId,
+                year: selectedDashboardSeasonYear,
+            };
+
+            const [
+                filteredPlayers,
+                statTypeData,
+                playerSeasonStatData,
+                coachAssignmentData,
+            ] = await Promise.all([
+                safeApiCall<unknown[]>(() => playerAPI.getAllPlayers(sharedParams), []),
+                safeApiCall<unknown[]>(() => statAPI.getStatTypes(), []),
+                safeApiCall<unknown[]>(
+                    () => statAPI.getPlayerSeasonStats(sharedParams),
+                    []
+                ),
+                safeApiCall<unknown[]>(
+                    () => coachAPI.getCoachSeasonAssignments(sharedParams),
+                    []
+                ),
+            ]);
+
+            const normalizedPlayers = normalizeApiList<Player>(filteredPlayers);
+            const normalizedStatTypes = normalizeApiList<StatType>(statTypeData);
+            const normalizedStats =
+                normalizeApiList<PlayerSeasonStat>(playerSeasonStatData);
+            const normalizedCoaches =
+                normalizeApiList<CoachSeasonAssignment>(coachAssignmentData);
+
+            setDashboardPlayers(normalizedPlayers);
+            setStatTypes(normalizedStatTypes);
+            setDashboardStats(normalizedStats);
+            setCoachAssignments(normalizedCoaches);
+            setLeaderboard([]);
+        } finally {
+            setLoadingDashboardReports(false);
+        }
+    }, [selectedDashboardSeasonYear, selectedDashboardTeamId]);
 
     const fetchSelectedRoster = useCallback(async () => {
         if (!selectedRosterSeasonYear || !selectedRosterTeamId) {
@@ -1452,17 +2193,33 @@ export default function AdminPage() {
         if (!selectedRosterSeasonYear && seasons.length > 0) {
             setSelectedRosterSeasonYear(String(seasons[0].year));
         }
-    }, [seasons, selectedRosterSeasonYear]);
+
+        if (!selectedDashboardSeasonYear && seasons.length > 0) {
+            setSelectedDashboardSeasonYear(String(seasons[0].year));
+        }
+    }, [seasons, selectedRosterSeasonYear, selectedDashboardSeasonYear]);
 
     useEffect(() => {
         if (!selectedRosterTeamId && teams.length > 0) {
-            const firstTeamId = getTeamId(teams[0]);
+            const preferredTeam =
+                teams.find((team) => team.abbreviation === "GB") ?? teams[0];
+            const firstTeamId = getTeamId(preferredTeam);
 
             if (firstTeamId !== undefined) {
                 setSelectedRosterTeamId(String(firstTeamId));
             }
         }
-    }, [teams, selectedRosterTeamId]);
+
+        if (!selectedDashboardTeamId && teams.length > 0) {
+            const preferredTeam =
+                teams.find((team) => team.abbreviation === "GB") ?? teams[0];
+            const firstTeamId = getTeamId(preferredTeam);
+
+            if (firstTeamId !== undefined) {
+                setSelectedDashboardTeamId(String(firstTeamId));
+            }
+        }
+    }, [teams, selectedRosterTeamId, selectedDashboardTeamId]);
 
     useEffect(() => {
         if (!authChecked) {
@@ -1471,6 +2228,87 @@ export default function AdminPage() {
 
         fetchSelectedRoster();
     }, [authChecked, fetchSelectedRoster]);
+
+    useEffect(() => {
+        if (!authChecked) {
+            return;
+        }
+
+        fetchDashboardReports();
+    }, [authChecked, fetchDashboardReports]);
+
+    useEffect(() => {
+        if (comparisonPlayerIds.length < 2) {
+            setLeftComparisonPlayerId("");
+            setRightComparisonPlayerId("");
+            setComparisonReport(null);
+            return;
+        }
+
+        const nextLeft =
+            leftComparisonPlayerId && comparisonPlayerIds.includes(leftComparisonPlayerId)
+                ? leftComparisonPlayerId
+                : comparisonPlayerIds[0];
+
+        const nextRight =
+            rightComparisonPlayerId &&
+            comparisonPlayerIds.includes(rightComparisonPlayerId) &&
+            rightComparisonPlayerId !== nextLeft
+                ? rightComparisonPlayerId
+                : comparisonPlayerIds.find((id) => id !== nextLeft) ?? "";
+
+        if (leftComparisonPlayerId !== nextLeft) {
+            setLeftComparisonPlayerId(nextLeft);
+        }
+
+        if (rightComparisonPlayerId !== nextRight) {
+            setRightComparisonPlayerId(nextRight);
+        }
+    }, [comparisonPlayerIds, leftComparisonPlayerId, rightComparisonPlayerId]);
+
+    useEffect(() => {
+        const fetchComparisonReport = async () => {
+            if (
+                !authChecked ||
+                !selectedDashboardTeamId ||
+                !selectedDashboardSeasonYear ||
+                !leftComparisonPlayerId ||
+                !rightComparisonPlayerId ||
+                leftComparisonPlayerId === rightComparisonPlayerId
+            ) {
+                setComparisonReport(null);
+                return;
+            }
+
+            try {
+                setLoadingComparisonData(true);
+                setComparisonError("");
+
+                const response = await reportAPI.getPlayerComparison({
+                    left_player: leftComparisonPlayerId,
+                    right_player: rightComparisonPlayerId,
+                    team: selectedDashboardTeamId,
+                    year: selectedDashboardSeasonYear,
+                });
+
+                setComparisonReport(unwrapApiData<PlayerComparisonReport>(response));
+            } catch (error) {
+                console.error("Comparison report error:", error);
+                setComparisonReport(null);
+                setComparisonError("Failed to load SQL comparison report.");
+            } finally {
+                setLoadingComparisonData(false);
+            }
+        };
+
+        fetchComparisonReport();
+    }, [
+        authChecked,
+        selectedDashboardTeamId,
+        selectedDashboardSeasonYear,
+        leftComparisonPlayerId,
+        rightComparisonPlayerId,
+    ]);
 
     useEffect(() => {
         if (apiError) {
@@ -1798,6 +2636,7 @@ export default function AdminPage() {
             setRosterFormData(null);
 
             await fetchSelectedRoster();
+            await fetchDashboardReports();
 
             showTemporarySuccess("Player assigned to roster successfully");
         } catch (error) {
@@ -1827,6 +2666,7 @@ export default function AdminPage() {
             setRosterPendingDelete(null);
 
             await fetchSelectedRoster();
+            await fetchDashboardReports();
 
             showTemporarySuccess("Player removed from roster successfully");
         } catch (error) {
@@ -1836,6 +2676,27 @@ export default function AdminPage() {
             setDeletingRoster(false);
         }
     };
+
+    const renderReportFilter = () => (
+        <AdminDataFilterPanel
+            seasons={seasons}
+            teams={teams}
+            selectedSeasonYear={selectedDashboardSeasonYear}
+            selectedTeamId={selectedDashboardTeamId}
+            onSeasonChange={(year) => {
+                setSelectedDashboardSeasonYear(year);
+                setComparisonReport(null);
+                setComparisonError("");
+            }}
+            onTeamChange={(teamId) => {
+                setSelectedDashboardTeamId(teamId);
+                setComparisonReport(null);
+                setComparisonError("");
+                setLeftComparisonPlayerId("");
+                setRightComparisonPlayerId("");
+            }}
+        />
+    );
 
     const renderAdminContent = () => {
         switch (activeSection) {
@@ -1873,18 +2734,28 @@ export default function AdminPage() {
 
             case "season-summary":
                 return (
-                    <EmptySection
-                        title="Season summary"
-                        description="This section should summarize season-level performance once the backend season summary API is available."
-                    />
+                    <>
+                        {renderReportFilter()}
+                        <SeasonSummaryPanel
+                            players={dashboardPlayers}
+                            stats={dashboardStats}
+                            coaches={coachAssignments}
+                            teamLabel={dashboardTeamLabel}
+                            selectedSeasonYear={selectedDashboardSeasonYear}
+                        />
+                    </>
                 );
 
             case "coaches":
                 return (
-                    <EmptySection
-                        title="Coaches"
-                        description="This section should list coaching staff and allow admin-only coach management once the coaches API is available."
-                    />
+                    <>
+                        {renderReportFilter()}
+                        <CoachesReadOnlyPanel
+                            assignments={coachAssignments}
+                            teamLabel={dashboardTeamLabel}
+                            loading={loadingDashboardReports}
+                        />
+                    </>
                 );
 
             case "team-roster":
@@ -1907,34 +2778,56 @@ export default function AdminPage() {
 
             case "player-stats":
                 return (
-                    <EmptySection
-                        title="Player stats"
-                        description="This section should let admins review, enter, and correct player statistics."
-                    />
+                    <>
+                        {renderReportFilter()}
+                        <PlayerStatsReadOnlyPanel
+                            players={dashboardPlayers}
+                            stats={dashboardStats}
+                            teamLabel={dashboardTeamLabel}
+                            loading={loadingDashboardReports}
+                        />
+                    </>
                 );
 
             case "stat-types":
                 return (
-                    <EmptySection
-                        title="Stat types"
-                        description="This section should manage the supported statistic categories used by the dashboard and reports."
+                    <StatTypesReadOnlyPanel
+                        statTypes={statTypes}
+                        loading={loadingDashboardReports}
                     />
                 );
 
             case "leaderboard":
                 return (
-                    <EmptySection
-                        title="Leaderboard"
-                        description="This section should show ranked player statistics once the leaderboard API is available."
-                    />
+                    <>
+                        {renderReportFilter()}
+                        <LeaderboardReadOnlyPanel
+                            statTypes={statTypes}
+                            stats={dashboardStats}
+                            leaderboard={leaderboard}
+                            activeStatKey={activeLeaderboardStatKey}
+                            onStatKeyChange={setActiveLeaderboardStatKey}
+                            loading={loadingDashboardReports}
+                        />
+                    </>
                 );
 
             case "comparison":
                 return (
-                    <EmptySection
-                        title="Player comparison"
-                        description="This section should compare two selected players once the comparison API is available."
-                    />
+                    <>
+                        {renderReportFilter()}
+                        <PlayerComparisonPanel
+                            players={dashboardPlayers}
+                            report={comparisonReport}
+                            loading={loadingComparisonData}
+                            error={comparisonError}
+                            leftPlayerId={leftComparisonPlayerId}
+                            rightPlayerId={rightComparisonPlayerId}
+                            onLeftPlayerChange={setLeftComparisonPlayerId}
+                            onRightPlayerChange={setRightComparisonPlayerId}
+                            teamLabel={dashboardTeamLabel}
+                        />
+                    </>
                 );
 
             case "user-roles":
