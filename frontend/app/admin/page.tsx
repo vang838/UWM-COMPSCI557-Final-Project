@@ -14,6 +14,8 @@ import { reportAPI } from "@/src/api/reports";
 
 import SeasonSummaryPanel from "@/src/components/dashboard/SeasonSummaryPanel";
 import PlayerComparisonPanel from "@/src/components/dashboard/PlayerComparisonPanel";
+import AdminPlayerRecords from "@/src/components/admin/AdminPlayerRecords";
+import AdminUserRolesPanel from "@/src/components/admin/AdminUserRolesPanel";
 
 import { useApiData } from "@/src/hooks/useApiData";
 
@@ -51,6 +53,14 @@ interface Player {
     team_name?: string;
     is_active?: boolean;
     season_stats?: PlayerSeasonStat[];
+}
+
+interface PlayerFormData {
+    first_name: string;
+    last_name: string;
+    position: string;
+    team: string;
+    is_active: boolean;
 }
 
 interface Season {
@@ -304,6 +314,16 @@ function getStablePlayerId(player: Player): number | string | undefined {
     return player.player_id ?? player.id;
 }
 
+function playerToFormData(player: Player): PlayerFormData {
+    return {
+        first_name: player.first_name ?? "",
+        last_name: player.last_name ?? "",
+        position: player.position ?? "",
+        team: player.team ? String(player.team) : "",
+        is_active: player.is_active !== false,
+    };
+}
+
 function noData(value: unknown): string | number {
     if (value === null || value === undefined || value === "") {
         return "No data";
@@ -386,16 +406,6 @@ function toNumber(value: unknown): number {
     return Number.isFinite(numericValue) ? numericValue : 0;
 }
 
-function formatStatNumber(value: number | undefined): string | number {
-    if (value === undefined) {
-        return "No data";
-    }
-
-    return Number.isInteger(value)
-        ? value.toLocaleString()
-        : value.toLocaleString(undefined, { maximumFractionDigits: 2 });
-}
-
 function getLeaderboardName(row: LeaderboardRow): string {
     return (
         row.player_name ||
@@ -469,13 +479,6 @@ function sortPlayerStats(stats: PlayerSeasonStat[]): PlayerSeasonStat[] {
 
         return (a.display_order ?? 999) - (b.display_order ?? 999);
     });
-}
-
-function formatCategoryLabel(category: string): string {
-    return category
-        .split("_")
-        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-        .join(" ");
 }
 
 function sortCoachAssignments(assignments: CoachSeasonAssignment[]) {
@@ -563,7 +566,15 @@ function EmptySection({
     );
 }
 
-function PlayerRecordsTable({ players }: { players: Player[] }) {
+function PlayerRecordsTable({
+    players,
+    onEdit,
+    onDelete,
+}: {
+    players: Player[];
+    onEdit: (player: Player) => void;
+    onDelete: (player: Player) => void;
+}) {
     return (
         <div>
             <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-2">
@@ -618,10 +629,17 @@ function PlayerRecordsTable({ players }: { players: Player[] }) {
                                 </span>
 
                                 <div className="flex gap-1.5">
-                                    <button className="text-[10px] px-2 py-0.5 rounded border border-white/10 text-gray-400 hover:text-white hover:border-white/30 transition-colors cursor-pointer bg-transparent">
+                                    <button
+                                        onClick={() => onEdit(player)}
+                                        className="text-[10px] px-2 py-0.5 rounded border border-white/10 text-gray-400 hover:text-white hover:border-white/30 transition-colors cursor-pointer bg-transparent"
+                                    >
                                         Edit
                                     </button>
-                                    <button className="text-[10px] px-2 py-0.5 rounded border border-red-900/50 text-red-500 hover:border-red-700 hover:text-red-300 transition-colors cursor-pointer bg-transparent">
+
+                                    <button
+                                        onClick={() => onDelete(player)}
+                                        className="text-[10px] px-2 py-0.5 rounded border border-red-900/50 text-red-500 hover:border-red-700 hover:text-red-300 transition-colors cursor-pointer bg-transparent"
+                                    >
                                         Delete
                                     </button>
                                 </div>
@@ -643,11 +661,15 @@ function AdminOverview({
     seasons,
     teams,
     onSectionChange,
+    onEditPlayer,
+    onDeletePlayer,
 }: {
     players: Player[];
     seasons: Season[];
     teams: Team[];
     onSectionChange: (section: string) => void;
+    onEditPlayer: (player: Player) => void;
+    onDeletePlayer: (player: Player) => void;
 }) {
     const activePlayers = players.filter((player) => player.is_active !== false);
 
@@ -711,19 +733,15 @@ function AdminOverview({
                 </div>
             </div>
 
-            <PlayerRecordsTable players={players.slice(0, 10)} />
-
-            {players.length > 10 && (
-                <div className="px-3 py-2 border border-white/8 rounded-lg text-[11px] text-gray-500 text-center bg-[#1a1a1a]">
-                    Showing 10 of {players.length} players —{" "}
-                    <button
-                        onClick={() => onSectionChange("players")}
-                        className="text-[#f0c040] hover:underline cursor-pointer bg-transparent border-none"
-                    >
-                        view all
-                    </button>
-                </div>
-            )}
+            <AdminPlayerRecords
+                players={players}
+                teams={teams}
+                onEdit={onEditPlayer}
+                onDelete={onDeletePlayer}
+                title="Player records"
+                description="Filter or group player records before editing."
+                pageSize={10}
+            />
         </>
     );
 }
@@ -1491,6 +1509,175 @@ function TeamRosterPanel({
     );
 }
 
+function EditPlayerModal({
+    player,
+    teams,
+    formData,
+    onChange,
+    onClose,
+    onSave,
+    saving,
+}: {
+    player: Player;
+    teams: Team[];
+    formData: PlayerFormData;
+    onChange: (field: keyof PlayerFormData, value: string | boolean) => void;
+    onClose: () => void;
+    onSave: () => void;
+    saving: boolean;
+}) {
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
+            <div className="w-full max-w-lg bg-[#1a1a1a] border border-white/10 rounded-lg shadow-xl">
+                <div className="px-4 py-3 border-b border-white/8">
+                    <p className="text-sm font-medium text-white">
+                        Edit {displayPlayerName(player)}
+                    </p>
+                    <p className="text-[11px] text-gray-500">
+                        Update player identity, position, team, and active status.
+                    </p>
+                </div>
+
+                <div className="p-4 grid grid-cols-2 gap-3">
+                    <label className="flex flex-col gap-1">
+                        <span className="text-[10px] uppercase tracking-widest text-gray-500">
+                            First name
+                        </span>
+                        <input
+                            value={formData.first_name}
+                            onChange={(event) => onChange("first_name", event.target.value)}
+                            className="bg-[#111] border border-white/10 rounded px-2 py-1.5 text-sm text-white outline-none focus:border-white/30"
+                        />
+                    </label>
+
+                    <label className="flex flex-col gap-1">
+                        <span className="text-[10px] uppercase tracking-widest text-gray-500">
+                            Last name
+                        </span>
+                        <input
+                            value={formData.last_name}
+                            onChange={(event) => onChange("last_name", event.target.value)}
+                            className="bg-[#111] border border-white/10 rounded px-2 py-1.5 text-sm text-white outline-none focus:border-white/30"
+                        />
+                    </label>
+
+                    <label className="flex flex-col gap-1">
+                        <span className="text-[10px] uppercase tracking-widest text-gray-500">
+                            Position
+                        </span>
+                        <input
+                            value={formData.position}
+                            onChange={(event) => onChange("position", event.target.value)}
+                            className="bg-[#111] border border-white/10 rounded px-2 py-1.5 text-sm text-white outline-none focus:border-white/30"
+                            placeholder="QB, RB, WR, LB, DT..."
+                        />
+                    </label>
+
+                    <label className="flex flex-col gap-1">
+                        <span className="text-[10px] uppercase tracking-widest text-gray-500">
+                            Current team
+                        </span>
+                        <select
+                            value={formData.team}
+                            onChange={(event) => onChange("team", event.target.value)}
+                            className="bg-[#111] border border-white/10 rounded px-2 py-1.5 text-sm text-white outline-none focus:border-white/30"
+                        >
+                            <option value="">Select team</option>
+                            {teams.map((team) => {
+                                const teamId = getTeamId(team);
+
+                                if (teamId === undefined) {
+                                    return null;
+                                }
+
+                                return (
+                                    <option key={teamId} value={String(teamId)}>
+                                        {getTeamDisplayName(team)}
+                                    </option>
+                                );
+                            })}
+                        </select>
+                    </label>
+
+                    <label className="col-span-2 flex items-center gap-2 text-[12px] text-gray-300">
+                        <input
+                            type="checkbox"
+                            checked={formData.is_active}
+                            onChange={(event) => onChange("is_active", event.target.checked)}
+                        />
+                        Active player
+                    </label>
+                </div>
+
+                <div className="px-4 py-3 border-t border-white/8 flex justify-end gap-2">
+                    <button
+                        onClick={onClose}
+                        disabled={saving}
+                        className="px-3 py-1.5 rounded border border-white/10 text-gray-300 text-xs hover:text-white hover:border-white/30 disabled:opacity-50 bg-transparent"
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        onClick={onSave}
+                        disabled={saving}
+                        className="px-3 py-1.5 rounded border border-emerald-800 bg-emerald-900/40 text-emerald-300 text-xs hover:bg-emerald-800/60 disabled:opacity-50"
+                    >
+                        {saving ? "Saving..." : "Save changes"}
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function DeletePlayerModal({
+    player,
+    onClose,
+    onConfirm,
+    deleting,
+}: {
+    player: Player;
+    onClose: () => void;
+    onConfirm: () => void;
+    deleting: boolean;
+}) {
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
+            <div className="w-full max-w-md bg-[#1a1a1a] border border-red-900/50 rounded-lg shadow-xl">
+                <div className="px-4 py-3 border-b border-white/8">
+                    <p className="text-sm font-medium text-white">Delete player?</p>
+                    <p className="text-[12px] text-gray-400 mt-1">
+                        Are you sure you want to delete{" "}
+                        <span className="text-red-300 font-medium">
+                            {displayPlayerName(player)}
+                        </span>
+                        ? This may also affect roster and stat records connected to this player.
+                    </p>
+                </div>
+
+                <div className="px-4 py-3 flex justify-end gap-2">
+                    <button
+                        onClick={onClose}
+                        disabled={deleting}
+                        className="px-3 py-1.5 rounded border border-white/10 text-gray-300 text-xs hover:text-white hover:border-white/30 disabled:opacity-50 bg-transparent"
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        onClick={onConfirm}
+                        disabled={deleting}
+                        className="px-3 py-1.5 rounded border border-red-800 bg-red-900/40 text-red-300 text-xs hover:bg-red-800/60 disabled:opacity-50"
+                    >
+                        {deleting ? "Deleting..." : "Delete player"}
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 function EditTeamModal({
     team,
     formData,
@@ -1958,6 +2145,14 @@ export default function AdminPage() {
     const [teams, setTeams] = useState<Team[]>([]);
     const [seasons, setSeasons] = useState<Season[]>([]);
 
+    // Player modals
+    const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
+    const [playerFormData, setPlayerFormData] = useState<PlayerFormData | null>(null);
+    const [playerPendingDelete, setPlayerPendingDelete] = useState<Player | null>(null);
+    const [savingPlayer, setSavingPlayer] = useState(false);
+    const [deletingPlayer, setDeletingPlayer] = useState(false);
+    const [playerOverrides, setPlayerOverrides] = useState<Player[] | null>(null);
+
     // Team modals
     const [editingTeam, setEditingTeam] = useState<Team | null>(null);
     const [teamFormData, setTeamFormData] = useState<TeamFormData | null>(null);
@@ -2015,10 +2210,12 @@ export default function AdminPage() {
         error: apiError,
     } = useApiData(fetchPlayers);
 
-    const playerList = useMemo(
+    const basePlayerList = useMemo(
         () => normalizeApiList<Player>(playersResponse ?? []),
         [playersResponse]
     );
+
+    const playerList = playerOverrides ?? basePlayerList;
 
     const selectedDashboardTeam = useMemo(() => {
         return teams.find((team) => String(getTeamId(team)) === selectedDashboardTeamId);
@@ -2365,6 +2562,147 @@ export default function AdminPage() {
         }
     };
 
+    // Player handlers
+    const handleEditPlayer = (player: Player) => {
+        setEditingPlayer(player);
+        setPlayerFormData(playerToFormData(player));
+    };
+
+    const handlePlayerFormChange = (
+        field: keyof PlayerFormData,
+        value: string | boolean
+    ) => {
+        setPlayerFormData((current) => {
+            if (!current) {
+                return current;
+            }
+
+            return {
+                ...current,
+                [field]: value,
+            };
+        });
+    };
+
+    const handleSavePlayer = async () => {
+        if (!editingPlayer || !playerFormData) {
+            return;
+        }
+
+        const playerId = getStablePlayerId(editingPlayer);
+
+        if (playerId === undefined) {
+            showTemporaryError("Unable to update player because the player ID is missing");
+            return;
+        }
+
+        if (!playerFormData.first_name.trim() || !playerFormData.last_name.trim()) {
+            showTemporaryError("Player first name and last name are required");
+            return;
+        }
+
+        if (!playerFormData.position.trim()) {
+            showTemporaryError("Player position is required");
+            return;
+        }
+
+        if (!playerFormData.team) {
+            showTemporaryError("Player team is required");
+            return;
+        }
+
+        const payload = {
+            first_name: playerFormData.first_name.trim(),
+            last_name: playerFormData.last_name.trim(),
+            position: playerFormData.position.trim(),
+            team: Number(playerFormData.team),
+            is_active: playerFormData.is_active,
+        };
+
+        try {
+            setSavingPlayer(true);
+
+            await playerAPI.updatePlayer(playerId, payload);
+
+            const updatedPlayer: Player = {
+                ...editingPlayer,
+                ...payload,
+            };
+
+            setPlayerOverrides((current) => {
+                const source = current ?? playerList;
+
+                return source.map((player) => {
+                    const currentPlayerId = getStablePlayerId(player);
+
+                    return String(currentPlayerId) === String(playerId)
+                        ? updatedPlayer
+                        : player;
+                });
+            });
+
+            setEditingPlayer(null);
+            setPlayerFormData(null);
+
+            await fetchDashboardReports();
+
+            showTemporarySuccess(`${displayPlayerName(updatedPlayer)} updated successfully`);
+        } catch (error) {
+            console.error("Update player error:", error);
+            showTemporaryError("Failed to update player");
+        } finally {
+            setSavingPlayer(false);
+        }
+    };
+
+    const handleDeletePlayer = (player: Player) => {
+        setPlayerPendingDelete(player);
+    };
+
+    const handleConfirmDeletePlayer = async () => {
+        if (!playerPendingDelete) {
+            return;
+        }
+
+        const playerId = getStablePlayerId(playerPendingDelete);
+
+        if (playerId === undefined) {
+            showTemporaryError("Unable to delete player because the player ID is missing");
+            return;
+        }
+
+        try {
+            setDeletingPlayer(true);
+
+            const playerName = displayPlayerName(playerPendingDelete);
+
+            await playerAPI.deletePlayer(playerId);
+
+            setPlayerOverrides((current) => {
+                const source = current ?? playerList;
+
+                return source.filter((player) => {
+                    const currentPlayerId = getStablePlayerId(player);
+                    return String(currentPlayerId) !== String(playerId);
+                });
+            });
+
+            setPlayerPendingDelete(null);
+
+            await fetchSelectedRoster();
+            await fetchDashboardReports();
+
+            showTemporarySuccess(`${playerName} deleted successfully`);
+        } catch (error) {
+            console.error("Delete player error:", error);
+            showTemporaryError(
+                "Failed to delete player. They may still be connected to roster or stat records."
+            );
+        } finally {
+            setDeletingPlayer(false);
+        }
+    };
+
     // Team handlers
     const handleEditTeam = (team: Team) => {
         setEditingTeam(team);
@@ -2707,11 +3045,23 @@ export default function AdminPage() {
                         teams={teams}
                         seasons={seasons}
                         onSectionChange={setActiveSection}
+                        onEditPlayer={handleEditPlayer}
+                        onDeletePlayer={handleDeletePlayer}
                     />
                 );
 
             case "players":
-                return <PlayerRecordsTable players={playerList} />;
+                return (
+                    <AdminPlayerRecords
+                        players={playerList}
+                        teams={teams}
+                        onEdit={handleEditPlayer}
+                        onDelete={handleDeletePlayer}
+                        title="Player records"
+                        description="Search, filter, group, edit, or delete all player records."
+                        pageSize={25}
+                    />
+                );
 
             case "manage-seasons":
                 return (
@@ -2831,12 +3181,7 @@ export default function AdminPage() {
                 );
 
             case "user-roles":
-                return (
-                    <EmptySection
-                        title="User roles"
-                        description="This section should manage user roles and permissions. Keep this admin-only."
-                    />
-                );
+                return <AdminUserRolesPanel />;
 
             default:
                 return (
@@ -2845,6 +3190,8 @@ export default function AdminPage() {
                         seasons={seasons}
                         teams={teams}
                         onSectionChange={setActiveSection}
+                        onEditPlayer={handleEditPlayer}
+                        onDeletePlayer={handleDeletePlayer}
                     />
                 );
         }
@@ -2895,6 +3242,30 @@ export default function AdminPage() {
             )}
 
             {renderAdminContent()}
+
+            {editingPlayer && playerFormData && (
+                <EditPlayerModal
+                    player={editingPlayer}
+                    teams={teams}
+                    formData={playerFormData}
+                    onChange={handlePlayerFormChange}
+                    onClose={() => {
+                        setEditingPlayer(null);
+                        setPlayerFormData(null);
+                    }}
+                    onSave={handleSavePlayer}
+                    saving={savingPlayer}
+                />
+            )}
+
+            {playerPendingDelete && (
+                <DeletePlayerModal
+                    player={playerPendingDelete}
+                    onClose={() => setPlayerPendingDelete(null)}
+                    onConfirm={handleConfirmDeletePlayer}
+                    deleting={deletingPlayer}
+                />
+            )}
 
             {editingTeam && teamFormData && (
                 <EditTeamModal

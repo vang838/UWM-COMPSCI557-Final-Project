@@ -1,4 +1,6 @@
 import React from "react";
+import Link from "next/link";
+import UserAvatar from "@/src/components/UserAvatar";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -251,6 +253,14 @@ const PageLayout: React.FC<PageLayoutProps> = ({
           >
             Logout
           </button>
+
+          <Link
+              href="/profile"
+              className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors"
+          >
+              <UserAvatar username={username} size="sm" />
+              <span className="hidden md:inline text-xs">{username}</span>
+          </Link>
         </header>
 
         {/* Page-specific content */}

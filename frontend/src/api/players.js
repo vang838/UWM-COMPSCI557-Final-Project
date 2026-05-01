@@ -1,4 +1,3 @@
-// frontend/src/api/players.js
 import apiClient from "./index";
 
 function buildQuery(params = {}) {
@@ -15,9 +14,9 @@ function buildQuery(params = {}) {
 }
 
 export const playerAPI = {
-    // Fetch all players, optionally filtered by team/year
-    // Example: getAllPlayers({ team: 23, year: 2024 })
-    // Result: /players/?team=23&year=2024
+    // Fetch all players, optionally filtered:
+    // /api/players/
+    // /api/players/?team=23&year=2024
     getAllPlayers: (params = {}) =>
         apiClient.get(`/players/${buildQuery(params)}`),
 
@@ -49,11 +48,10 @@ export const playerAPI = {
     deletePlayer: (id) =>
         apiClient.delete(`/players/${id}/`),
 
-    // Dashboard-specific: Get comprehensive player stats with team info
+    // Dashboard endpoints, only use these if backend routes exist
     getPlayerDashboardData: (playerId) =>
         apiClient.get(`/players/${playerId}/dashboard/`),
 
-    // Dashboard-specific: Get player stats with season breakdown
     getPlayerSeasonBreakdown: (playerId) =>
         apiClient.get(`/players/${playerId}/season-breakdown/`),
 };
