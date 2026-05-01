@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -168,6 +169,28 @@ export default function LoginPage() {
         >
             {loading ? "Logging in..." : "Login"}
         </button>
+
+          <div
+              style={{
+                marginTop: "18px",
+                textAlign: "center",
+                fontSize: "13px",
+                color: "#555",
+              }}
+            >
+              <span>Don&apos;t have an account? </span>
+              <Link
+                href="/register"
+                style={{
+                  color: "black",
+                  fontWeight: 600,
+                  textDecoration: "underline",
+                  textUnderlineOffset: "3px",
+                }}
+              >
+                Create one
+              </Link>
+            </div>
         <style jsx>{`
           input::placeholder {
             color: black;

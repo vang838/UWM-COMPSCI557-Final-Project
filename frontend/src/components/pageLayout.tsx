@@ -1,3 +1,5 @@
+'use client';
+
 import React from "react";
 import Link from "next/link";
 import UserAvatar from "@/src/components/UserAvatar";
@@ -40,32 +42,26 @@ export interface LayoutTheme {
 }
 
 interface PageLayoutProps {
-  // Auth / identity
   username: string;
   role: string;
   onLogout: () => void;
 
-  // Navigation
   navSections: NavSection[];
   activeSection: string;
   onSectionChange: (section: string) => void;
 
-  // Topbar
   title: string;
   seasonPills?: SeasonPill[];
   activeSeason?: string;
   onSeasonChange?: (season: string) => void;
 
-  // Branding
   teamLabel?: string;
 
-  // Team selector / theming
   theme?: Partial<LayoutTheme>;
   teamOptions?: TeamOption[];
   activeTeamId?: string;
   onTeamChange?: (teamId: string) => void;
 
-  // Page content
   children: React.ReactNode;
 }
 
@@ -82,10 +78,6 @@ const DEFAULT_LAYOUT_THEME: LayoutTheme = {
   roleBadgeText: "#f0c040",
 };
 
-// ---------------------------------------------------------------------------
-// Small helper components
-// ---------------------------------------------------------------------------
-
 function NavDot({ active }: { active: boolean }) {
   return (
     <span
@@ -97,10 +89,6 @@ function NavDot({ active }: { active: boolean }) {
     />
   );
 }
-
-// ---------------------------------------------------------------------------
-// PageLayout
-// ---------------------------------------------------------------------------
 
 const PageLayout: React.FC<PageLayoutProps> = ({
   username,
@@ -118,7 +106,6 @@ const PageLayout: React.FC<PageLayoutProps> = ({
   teamOptions = [],
   activeTeamId,
   onTeamChange,
-
   children,
 }) => {
   const resolvedTheme: LayoutTheme = {
@@ -144,9 +131,8 @@ const PageLayout: React.FC<PageLayoutProps> = ({
       style={themeVars}
       className="flex h-screen overflow-hidden bg-[#111] font-sans"
     >
-      {/* SIDEBAR */}
+      {/* Sidebar */}
       <aside className="w-44 min-w-[176px] flex flex-col bg-[var(--layout-sidebar-bg)] overflow-hidden">
-        {/* Logo */}
         <div className="px-3.5 py-4 border-b border-white/10">
           <p className="text-[15px] font-medium text-[var(--layout-sidebar-text)] tracking-wide">
             GridTracker
@@ -156,7 +142,6 @@ const PageLayout: React.FC<PageLayoutProps> = ({
           </p>
         </div>
 
-        {/* Nav - hides items from non-admins */}
         <nav className="flex-1 overflow-y-auto py-2">
           {navSections.map(({ heading, items }) => (
             <div key={heading}>
@@ -165,20 +150,22 @@ const PageLayout: React.FC<PageLayoutProps> = ({
               </p>
 
               {items.map((item) => {
-                if (item.adminOnly && role !== "admin") return null;
+                if (item.adminOnly && role !== "admin") {
+                  return null;
+                }
 
                 const active = activeSection === item.section;
 
                 return (
                   <button
                     key={item.section}
+                    type="button"
                     onClick={() => onSectionChange(item.section)}
-                    className={`w-full flex items-center gap-2 py-1.5 text-[12px] transition-colors cursor-pointer border-none bg-transparent text-left
-                      ${
-                        active
-                          ? "bg-[var(--layout-active-bg)] text-[var(--layout-active-text)] border-l-2 border-[var(--layout-accent)] pl-[12px] pr-3.5"
-                          : "text-[var(--layout-sidebar-muted)] hover:text-[var(--layout-sidebar-text)] hover:bg-[var(--layout-sidebar-hover-bg)] px-3.5"
-                      }`}
+                    className={`w-full flex items-center gap-2 py-1.5 text-[12px] transition-colors cursor-pointer border-none bg-transparent text-left ${
+                      active
+                        ? "bg-[var(--layout-active-bg)] text-[var(--layout-active-text)] border-l-2 border-[var(--layout-accent)] pl-[12px] pr-3.5"
+                        : "text-[var(--layout-sidebar-muted)] hover:text-[var(--layout-sidebar-text)] hover:bg-[var(--layout-sidebar-hover-bg)] px-3.5"
+                    }`}
                   >
                     <NavDot active={active} />
                     {item.label}
@@ -189,7 +176,6 @@ const PageLayout: React.FC<PageLayoutProps> = ({
           ))}
         </nav>
 
-        {/* User footer */}
         <div className="px-3.5 py-3 border-t border-white/8">
           <span className="inline-block text-[9px] bg-[var(--layout-role-bg)] text-[var(--layout-role-text)] rounded px-1.5 py-0.5 uppercase tracking-widest mb-1">
             {role || "user"}
@@ -202,13 +188,11 @@ const PageLayout: React.FC<PageLayoutProps> = ({
 
       {/* Main section */}
       <div className="flex flex-1 flex-col overflow-hidden">
-        {/* Topbar */}
         <header className="flex items-center gap-2.5 px-4 py-2.5 bg-[#161616] border-b border-white/8">
           <h1 className="flex-1 text-[13px] font-medium text-white">
             {title}
           </h1>
 
-          {/* Team selector */}
           {teamOptions.length > 0 && (
             <select
               value={activeTeamId}
@@ -227,17 +211,16 @@ const PageLayout: React.FC<PageLayoutProps> = ({
             </select>
           )}
 
-          {/* Season / filter */}
           {seasonPills.map((pill) => (
             <button
               key={pill.label}
+              type="button"
               onClick={() => onSeasonChange?.(pill.label)}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] border transition-colors cursor-pointer bg-transparent
-                ${
-                  activeSeason === pill.label
-                    ? "border-[var(--layout-accent)] text-white"
-                    : "border-white/10 text-gray-400 hover:text-white"
-                }`}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] border transition-colors cursor-pointer bg-transparent ${
+                activeSeason === pill.label
+                  ? "border-[var(--layout-accent)] text-white"
+                  : "border-white/10 text-gray-400 hover:text-white"
+              }`}
             >
               {activeSeason === pill.label && (
                 <span className="w-1.5 h-1.5 rounded-full bg-[var(--layout-accent)] inline-block" />
@@ -246,24 +229,26 @@ const PageLayout: React.FC<PageLayoutProps> = ({
             </button>
           ))}
 
-          {/* Logout */}
-          <button
-            onClick={onLogout}
-            className="ml-2 px-3 py-1 text-[11px] bg-red-900/40 hover:bg-red-800/60 text-red-300 border border-red-800/50 rounded transition-colors cursor-pointer"
-          >
-            Logout
-          </button>
-
-          <Link
+          <div className="ml-2 flex items-center gap-2">
+            <Link
               href="/profile"
-              className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors"
-          >
+              className="flex items-center gap-2 rounded-full border border-white/10 px-2 py-1 text-gray-300 hover:text-white hover:border-white/30 transition-colors"
+              title="Profile"
+            >
               <UserAvatar username={username} size="sm" />
               <span className="hidden md:inline text-xs">{username}</span>
-          </Link>
+            </Link>
+
+            <button
+              type="button"
+              onClick={onLogout}
+              className="px-3 py-1 text-[11px] bg-red-900/40 hover:bg-red-800/60 text-red-300 border border-red-800/50 rounded transition-colors cursor-pointer"
+            >
+              Logout
+            </button>
+          </div>
         </header>
 
-        {/* Page-specific content */}
         <main className="flex-1 overflow-y-auto p-3.5 flex flex-col gap-3 bg-[#111]">
           {children}
         </main>
