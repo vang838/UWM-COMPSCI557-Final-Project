@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from "react";
 import { useRouter } from "next/navigation";
 
 import { playerAPI } from "@/src/api/players";
@@ -116,10 +122,7 @@ const STAT_TYPE_DATA_SECTIONS = new Set([
     "leaderboard",
 ]);
 
-const COMPARISON_DATA_SECTIONS = new Set([
-    "dashboard",
-    "comparison",
-]);
+const COMPARISON_DATA_SECTIONS = new Set(["dashboard", "comparison"]);
 
 const AVATAR_COLORS = [
     "bg-[#c49a22]/20 text-[#f0c040]",
@@ -143,6 +146,10 @@ function getSectionTitle(section: string): string {
     };
 
     return titles[section] ?? "Dashboard";
+}
+
+function getTeamSeasonCacheKey(teamId: string, year: string): string {
+    return `${teamId}:${year}`;
 }
 
 function buildTeamTheme(team?: Team): Partial<LayoutTheme> {
@@ -596,6 +603,13 @@ export default function DashboardPage() {
     const { authChecked, username, role } = useAuthGuard("user");
     const { toast, showSuccess, showError, hideToast } = useToast();
 
+    const referenceLoadedRef = useRef(false);
+    const playersCacheRef = useRef<Record<string, Player[]>>({});
+    const statsCacheRef = useRef<Record<string, PlayerSeasonStat[]>>({});
+    const coachesCacheRef = useRef<Record<string, CoachSeasonAssignment[]>>({});
+    const statTypesCacheRef = useRef<Record<string, StatType[]>>({});
+    const playerDetailStatsCacheRef = useRef<Record<string, PlayerSeasonStat[]>>({});
+
     const [activeSection, setActiveSection] = useState("dashboard");
     const [activeSeason, setActiveSeason] = useState("");
 
@@ -624,7 +638,8 @@ export default function DashboardPage() {
         useState<PlayerComparisonReport | null>(null);
     const [comparisonError, setComparisonError] = useState("");
 
-    const [loadingDashboardData, setLoadingDashboardData] = useState(true);
+    const [initialLoading, setInitialLoading] = useState(true);
+    const [sectionLoading, setSectionLoading] = useState(false);
     const [loadingComparisonData, setLoadingComparisonData] = useState(false);
 
     useEffect(() => {
@@ -640,6 +655,73 @@ export default function DashboardPage() {
         }
     }, [authChecked, showSuccess]);
 
+    useEffect(() => {
+        if (!authChecked || referenceLoadedRef.current) {
+            return;
+        }
+
+        let cancelled = false;
+
+        const fetchReferenceData = async () => {
+            referenceLoadedRef.current = true;
+
+            try {
+                setInitialLoading(true);
+
+                const [seasonListRaw, teamListRaw] = await Promise.all([
+                    safeApiCall<unknown[]>(() => seasonAPI.getAllSeasons(), []),
+                    safeApiCall<unknown[]>(() => teamAPI.getAllTeams(), []),
+                ]);
+
+                if (cancelled) {
+                    return;
+                }
+
+                const seasonList = normalizeApiList<Season>(seasonListRaw)
+                    .filter((season) => season.year !== undefined && season.year !== null)
+                    .sort((a, b) => Number(b.year) - Number(a.year));
+
+                const teamList = normalizeApiList<Team>(teamListRaw).filter(
+                    (team) => team.team_id !== undefined || team.id !== undefined
+                );
+
+                setSeasons(seasonList);
+                setTeams(teamList);
+
+                const preferredTeam =
+                    teamList.find((team) => team.abbreviation === "GB") ?? teamList[0];
+
+                const preferredTeamId = preferredTeam?.team_id ?? preferredTeam?.id;
+
+                if (preferredTeamId !== undefined) {
+                    setActiveTeamId(String(preferredTeamId));
+                }
+
+                if (seasonList[0]?.year !== undefined && seasonList[0]?.year !== null) {
+                    setActiveSeason(`${seasonList[0].year} Season`);
+                }
+            } catch (error) {
+                console.error("Reference data error:", error);
+
+                if (!cancelled) {
+                    setSeasons([]);
+                    setTeams([]);
+                    showError("Failed to load dashboard reference data.");
+                }
+            } finally {
+                if (!cancelled) {
+                    setInitialLoading(false);
+                }
+            }
+        };
+
+        fetchReferenceData();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [authChecked, showError]);
+
     const seasonPills = useMemo(() => {
         return seasons
             .filter((season) => season.year !== undefined && season.year !== null)
@@ -648,11 +730,208 @@ export default function DashboardPage() {
             }));
     }, [seasons]);
 
-    const playerList = players;
-
     const selectedSeasonYear =
         getSeasonYearFromLabel(activeSeason) ??
         (seasons[0]?.year ? String(seasons[0].year) : "");
+
+    useEffect(() => {
+        if (
+            !authChecked ||
+            initialLoading ||
+            !activeTeamId ||
+            !selectedSeasonYear
+        ) {
+            return;
+        }
+
+        let cancelled = false;
+
+        const fetchSectionData = async () => {
+            const cacheKey = getTeamSeasonCacheKey(activeTeamId, selectedSeasonYear);
+
+            const sharedParams = {
+                team: activeTeamId,
+                year: selectedSeasonYear,
+            };
+
+            const shouldLoadPlayers = PLAYER_DATA_SECTIONS.has(activeSection);
+            const shouldLoadStats = STAT_DATA_SECTIONS.has(activeSection);
+            const shouldLoadCoaches = COACH_DATA_SECTIONS.has(activeSection);
+            const shouldLoadStatTypes = STAT_TYPE_DATA_SECTIONS.has(activeSection);
+            const shouldLoadAllStatTypes = activeSection === "stat-types";
+
+            try {
+                setSectionLoading(true);
+
+                const [
+                    playerListResult,
+                    statTypeResult,
+                    playerSeasonStatsResult,
+                    coachAssignmentResult,
+                ] = await Promise.all([
+                    shouldLoadPlayers
+                        ? (async () => {
+                              const cachedPlayers = playersCacheRef.current[cacheKey];
+
+                              if (cachedPlayers) {
+                                  return cachedPlayers;
+                              }
+
+                              const rawPlayers = await safeApiCall<unknown[]>(
+                                  () => playerAPI.getPlayersWithoutStats(sharedParams),
+                                  []
+                              );
+
+                              const normalizedPlayers =
+                                  normalizeApiList<Player>(rawPlayers);
+
+                              playersCacheRef.current[cacheKey] = normalizedPlayers;
+
+                              return normalizedPlayers;
+                          })()
+                        : Promise.resolve(null),
+
+                    shouldLoadStatTypes
+                        ? (async () => {
+                              const statTypeCacheKey = shouldLoadAllStatTypes
+                                  ? "all"
+                                  : "core";
+
+                              const cachedStatTypes =
+                                  statTypesCacheRef.current[statTypeCacheKey];
+
+                              if (cachedStatTypes) {
+                                  return cachedStatTypes;
+                              }
+
+                              const rawStatTypes = await safeApiCall<unknown[]>(
+                                  () =>
+                                      shouldLoadAllStatTypes
+                                          ? statAPI.getAllStatTypes()
+                                          : statAPI.getCoreStatTypes(),
+                                  []
+                              );
+
+                              const normalizedStatTypes =
+                                  normalizeApiList<StatType>(rawStatTypes);
+
+                              statTypesCacheRef.current[statTypeCacheKey] =
+                                  normalizedStatTypes;
+
+                              return normalizedStatTypes;
+                          })()
+                        : Promise.resolve(null),
+
+                    shouldLoadStats
+                        ? (async () => {
+                              const cachedStats = statsCacheRef.current[cacheKey];
+
+                              if (cachedStats) {
+                                  return cachedStats;
+                              }
+
+                              const rawStats = await safeApiCall<unknown[]>(
+                                  () => statAPI.getCorePlayerSeasonStats(sharedParams),
+                                  []
+                              );
+
+                              const normalizedStats =
+                                  normalizeApiList<PlayerSeasonStat>(rawStats);
+
+                              statsCacheRef.current[cacheKey] = normalizedStats;
+
+                              return normalizedStats;
+                          })()
+                        : Promise.resolve(null),
+
+                    shouldLoadCoaches
+                        ? (async () => {
+                              const cachedCoaches = coachesCacheRef.current[cacheKey];
+
+                              if (cachedCoaches) {
+                                  return cachedCoaches;
+                              }
+
+                              const rawCoaches = await safeApiCall<unknown[]>(
+                                  () => coachAPI.getCoachSeasonAssignments(sharedParams),
+                                  []
+                              );
+
+                              const normalizedCoaches =
+                                  normalizeApiList<CoachSeasonAssignment>(rawCoaches);
+
+                              coachesCacheRef.current[cacheKey] = normalizedCoaches;
+
+                              return normalizedCoaches;
+                          })()
+                        : Promise.resolve(null),
+                ]);
+
+                if (cancelled) {
+                    return;
+                }
+
+                if (playerListResult !== null) {
+                    setPlayers(playerListResult);
+                    setPlayersLoaded(true);
+                }
+
+                if (statTypeResult !== null) {
+                    setStatTypes(statTypeResult);
+                }
+
+                if (playerSeasonStatsResult !== null) {
+                    setPlayerSeasonStats(playerSeasonStatsResult);
+                }
+
+                if (coachAssignmentResult !== null) {
+                    setCoachAssignments(coachAssignmentResult);
+                }
+
+                const noDashboardData =
+                    (playerListResult?.length ?? players.length) === 0 &&
+                    (playerSeasonStatsResult?.length ?? playerSeasonStats.length) === 0 &&
+                    (coachAssignmentResult?.length ?? coachAssignments.length) === 0 &&
+                    (statTypeResult?.length ?? statTypes.length) === 0;
+
+                const shouldWarnAboutEmptyDashboard =
+                    activeSection === "dashboard" || activeSection === "season-summary";
+
+                if (shouldWarnAboutEmptyDashboard && noDashboardData) {
+                    showError("No dashboard data available");
+                }
+            } catch (error) {
+                console.error("Section data error:", error);
+
+                if (!cancelled) {
+                    showError("Failed to load section data.");
+                }
+            } finally {
+                if (!cancelled) {
+                    setSectionLoading(false);
+                }
+            }
+        };
+
+        fetchSectionData();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [
+        activeSection,
+        activeTeamId,
+        authChecked,
+        coachAssignments.length,
+        initialLoading,
+        playerSeasonStats.length,
+        players.length,
+        selectedSeasonYear,
+        showError,
+        statTypes.length,
+    ]);
+
+    const playerList = players;
 
     const comparisonPlayerIds = useMemo(() => {
         return players
@@ -729,161 +1008,13 @@ export default function DashboardPage() {
 
         fetchComparisonReport();
     }, [
-        authChecked,
         activeSection,
         activeTeamId,
-        selectedSeasonYear,
+        authChecked,
         leftComparisonPlayerId,
         rightComparisonPlayerId,
+        selectedSeasonYear,
     ]);
-
-    const fetchDashboardData = useCallback(async () => {
-        if (!authChecked) {
-            return;
-        }
-
-        try {
-            setLoadingDashboardData(true);
-
-            const [seasonListRaw, teamListRaw] = await Promise.all([
-                safeApiCall<unknown[]>(() => seasonAPI.getAllSeasons(), []),
-                safeApiCall<unknown[]>(() => teamAPI.getAllTeams(), []),
-            ]);
-
-            const seasonList = normalizeApiList<Season>(seasonListRaw)
-                .filter((season) => season.year !== undefined && season.year !== null)
-                .sort((a, b) => Number(b.year) - Number(a.year));
-
-            const teamList = normalizeApiList<Team>(teamListRaw).filter(
-                (team) => team.team_id !== undefined || team.id !== undefined
-            );
-
-            setSeasons(seasonList);
-            setTeams(teamList);
-
-            let selectedTeamId = activeTeamId;
-
-            if (!selectedTeamId && teamList.length > 0) {
-                const preferredTeam =
-                    teamList.find((team) => team.abbreviation === "GB") ?? teamList[0];
-
-                const firstTeamId = preferredTeam.team_id ?? preferredTeam.id;
-
-                if (firstTeamId !== undefined) {
-                    selectedTeamId = String(firstTeamId);
-                    setActiveTeamId(selectedTeamId);
-                }
-            }
-
-            let resolvedSeasonYear = getSeasonYearFromLabel(activeSeason) ?? "";
-
-            if (!resolvedSeasonYear && seasonList.length > 0) {
-                resolvedSeasonYear = String(seasonList[0].year);
-            }
-
-            if (!activeSeason && resolvedSeasonYear) {
-                setActiveSeason(`${resolvedSeasonYear} Season`);
-            }
-
-            const sharedParams = {
-                ...(selectedTeamId ? { team: selectedTeamId } : {}),
-                ...(resolvedSeasonYear ? { year: resolvedSeasonYear } : {}),
-            };
-
-            const shouldLoadPlayers = PLAYER_DATA_SECTIONS.has(activeSection);
-            const shouldLoadStats = STAT_DATA_SECTIONS.has(activeSection);
-            const shouldLoadCoaches = COACH_DATA_SECTIONS.has(activeSection);
-            const shouldLoadStatTypes = STAT_TYPE_DATA_SECTIONS.has(activeSection);
-            const shouldLoadAllStatTypes = activeSection === "stat-types";
-
-            const [
-                playerListResult,
-                statTypeResult,
-                playerSeasonStatsResult,
-                coachAssignmentResult,
-            ] = await Promise.all([
-                shouldLoadPlayers
-                    ? safeApiCall<unknown[]>(
-                          () => playerAPI.getPlayersWithoutStats(sharedParams),
-                          []
-                      )
-                    : Promise.resolve([]),
-
-                shouldLoadStatTypes
-                    ? safeApiCall<unknown[]>(
-                          () =>
-                              shouldLoadAllStatTypes
-                                  ? statAPI.getAllStatTypes()
-                                  : statAPI.getCoreStatTypes(),
-                          []
-                      )
-                    : Promise.resolve([]),
-
-                shouldLoadStats
-                    ? safeApiCall<unknown[]>(
-                          () => statAPI.getCorePlayerSeasonStats(sharedParams),
-                          []
-                      )
-                    : Promise.resolve([]),
-
-                shouldLoadCoaches
-                    ? safeApiCall<unknown[]>(
-                          () => coachAPI.getCoachSeasonAssignments(sharedParams),
-                          []
-                      )
-                    : Promise.resolve([]),
-            ]);
-
-            const normalizedPlayers = normalizeApiList<Player>(playerListResult);
-            const normalizedStatTypes = normalizeApiList<StatType>(statTypeResult);
-            const normalizedPlayerSeasonStats =
-                normalizeApiList<PlayerSeasonStat>(playerSeasonStatsResult);
-            const normalizedCoachAssignments =
-                normalizeApiList<CoachSeasonAssignment>(coachAssignmentResult);
-
-            setPlayers(normalizedPlayers);
-            setPlayersLoaded(true);
-            setStatTypes(normalizedStatTypes);
-            setPlayerSeasonStats(normalizedPlayerSeasonStats);
-            setCoachAssignments(normalizedCoachAssignments);
-
-            const noDashboardData =
-                normalizedPlayers.length === 0 &&
-                normalizedPlayerSeasonStats.length === 0 &&
-                normalizedCoachAssignments.length === 0 &&
-                normalizedStatTypes.length === 0;
-
-            const shouldWarnAboutEmptyDashboard =
-                activeSection === "dashboard" || activeSection === "season-summary";
-
-            if (shouldWarnAboutEmptyDashboard && noDashboardData) {
-                showError("No dashboard data available");
-            }
-        } catch (error) {
-            console.error("Unexpected dashboard data error:", error);
-
-            setPlayers([]);
-            setPlayersLoaded(false);
-            setSeasons([]);
-            setTeams([]);
-            setStatTypes([]);
-            setPlayerSeasonStats([]);
-            setCoachAssignments([]);
-            setComparisonReport(null);
-
-            showError("No dashboard data available");
-        } finally {
-            setLoadingDashboardData(false);
-        }
-    }, [activeSeason, activeTeamId, activeSection, authChecked, showError]);
-
-    useEffect(() => {
-        if (!authChecked) {
-            return;
-        }
-
-        fetchDashboardData();
-    }, [authChecked, fetchDashboardData]);
 
     const handleOpenPlayerDetails = useCallback(
         async (player: Player) => {
@@ -900,6 +1031,14 @@ export default function DashboardPage() {
                 return;
             }
 
+            const cacheKey = `${playerId}:${activeTeamId}:${selectedSeasonYear}:core`;
+            const cachedStats = playerDetailStatsCacheRef.current[cacheKey];
+
+            if (cachedStats) {
+                setSelectedPlayerStats(cachedStats);
+                return;
+            }
+
             try {
                 setLoadingSelectedPlayerStats(true);
 
@@ -913,9 +1052,13 @@ export default function DashboardPage() {
                     stats?: PlayerSeasonStat[];
                 }>(response);
 
-                setSelectedPlayerStats(
-                    normalizeApiList<PlayerSeasonStat>(data.stats ?? [])
+                const normalizedStats = normalizeApiList<PlayerSeasonStat>(
+                    data.stats ?? []
                 );
+
+                playerDetailStatsCacheRef.current[cacheKey] = normalizedStats;
+
+                setSelectedPlayerStats(normalizedStats);
             } catch (error) {
                 console.error("Player detail stats error:", error);
                 setSelectedPlayerStatsError("Failed to load player stats.");
@@ -972,7 +1115,7 @@ export default function DashboardPage() {
         }
     };
 
-    if (!authChecked || loadingDashboardData) {
+    if (!authChecked || initialLoading) {
         return (
             <div className="flex h-screen items-center justify-center bg-[#111]">
                 <LoadingSpinner />
@@ -1166,7 +1309,6 @@ export default function DashboardPage() {
                         rows.map((player, index) => {
                             const name = displayPlayerName(player);
                             const pos = player.position || "—";
-                            const num = player.jersey_number ?? "—";
                             const active = player.is_active !== false;
 
                             return (
@@ -1573,6 +1715,12 @@ export default function DashboardPage() {
                     onClose={hideToast}
                     offset={toast.type === "success" ? "top" : "lower"}
                 />
+            )}
+
+            {sectionLoading && (
+                <div className="rounded-lg border border-white/8 bg-[#1a1a1a] px-3 py-2 text-[11px] text-gray-400">
+                    Updating {getSectionTitle(activeSection).toLowerCase()} data...
+                </div>
             )}
 
             {renderDashboardContent()}

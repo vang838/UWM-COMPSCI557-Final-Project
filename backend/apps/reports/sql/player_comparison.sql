@@ -18,22 +18,15 @@ SELECT
         END
     ) AS right_value
 
-FROM stats_playerseasonstat pss
+FROM seasons_playerseasonroster psr
+
+JOIN stats_playerseasonstat pss
+    ON pss.player_roster_id = psr.roster_id
 
 JOIN stats_stattype st
     ON pss.stat_type_id = st.stat_type_id
 
-JOIN seasons_playerseasonroster psr
-    ON pss.player_roster_id = psr.roster_id
-
-JOIN seasons_teamseason ts
-    ON psr.team_season_id = ts.team_season_id
-
-JOIN seasons_season s
-    ON ts.season_id = s.season_id
-
-WHERE ts.team_id = %s
-  AND s.year = %s
+WHERE psr.team_season_id = %s
   AND psr.player_id IN (%s, %s)
 
 GROUP BY

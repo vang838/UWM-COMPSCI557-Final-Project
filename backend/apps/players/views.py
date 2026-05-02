@@ -21,28 +21,39 @@ from .serializers import (
 )
 
 
+def get_player_filter_params(request):
+    return {
+        "team_id": request.query_params.get("team")
+        or request.query_params.get("team_id"),
+        "season_id": request.query_params.get("season")
+        or request.query_params.get("season_id"),
+        "season_year": request.query_params.get("year")
+        or request.query_params.get("season_year"),
+    }
+
+
 class PlayerViewSet(viewsets.ModelViewSet):
     queryset = Player.objects.all()
     serializer_class = PlayerDashboardSerializer
     lookup_field = "player_id"
 
     def get_queryset(self):
+        """
+        List/retrieve endpoint:
+        - include_stats=none keeps /api/players/ lightweight.
+        - include_stats=core/advanced/all prefetches only matching roster stats.
+        - Custom stat actions use their own targeted queries, so they get a lightweight
+          player queryset here.
+        """
         queryset = Player.objects.select_related("team").all()
 
-        team_id = (
-            self.request.query_params.get("team")
-            or self.request.query_params.get("team_id")
-        )
+        if self.action in {"season_stats", "player_season_stats"}:
+            return queryset.order_by("last_name", "first_name")
 
-        season_id = (
-            self.request.query_params.get("season")
-            or self.request.query_params.get("season_id")
-        )
-
-        season_year = (
-            self.request.query_params.get("year")
-            or self.request.query_params.get("season_year")
-        )
+        params = get_player_filter_params(self.request)
+        team_id = params["team_id"]
+        season_id = params["season_id"]
+        season_year = params["season_year"]
 
         include_stats = normalize_include_stats(
             self.request.query_params.get("include_stats"),
@@ -77,7 +88,9 @@ class PlayerViewSet(viewsets.ModelViewSet):
             ).distinct()
 
         elif team_id:
-            queryset = queryset.filter(team_id=team_id)
+            queryset = queryset.filter(
+                season_rosters__team_season__team_id=team_id,
+            ).distinct()
 
         roster_queryset = PlayerSeasonRoster.objects.select_related(
             "team_season",
@@ -130,36 +143,48 @@ class PlayerViewSet(viewsets.ModelViewSet):
 
         return queryset.order_by("last_name", "first_name")
 
+    def get_lightweight_player(self):
+        return (
+            Player.objects.select_related("team")
+            .only(
+                "player_id",
+                "first_name",
+                "last_name",
+                "position",
+                "team_id",
+            )
+            .get(player_id=self.kwargs.get(self.lookup_field))
+        )
+
     @action(detail=True, methods=["get"], url_path="season-stats")
     def season_stats(self, request, player_id=None):
         """
         Get a player's stats across seasons using the current PlayerSeasonRoster schema.
+        Used by the player detail modal.
         """
         try:
-            player = self.get_object()
+            player = self.get_lightweight_player()
 
             stat_scope = normalize_stat_scope(
                 request.query_params.get("stat_scope"),
                 default="core",
             )
 
-            stats = (
-                PlayerSeasonStat.objects.filter(
-                    player_roster__player=player,
-                )
-                .select_related(
-                    "player_roster",
-                    "player_roster__player",
-                    "player_roster__team_season",
-                    "player_roster__team_season__team",
-                    "player_roster__team_season__season",
-                    "stat_type",
-                )
-            )
+            params = get_player_filter_params(request)
+            team_id = params["team_id"]
+            year = params["season_year"]
+            season_id = params["season_id"]
 
-            team_id = request.query_params.get("team") or request.query_params.get("team_id")
-            year = request.query_params.get("year") or request.query_params.get("season_year")
-            season_id = request.query_params.get("season") or request.query_params.get("season_id")
+            stats = PlayerSeasonStat.objects.filter(
+                player_roster__player_id=player.player_id,
+            ).select_related(
+                "player_roster",
+                "player_roster__player",
+                "player_roster__team_season",
+                "player_roster__team_season__team",
+                "player_roster__team_season__season",
+                "stat_type",
+            )
 
             if team_id:
                 stats = stats.filter(player_roster__team_season__team_id=team_id)
@@ -191,6 +216,12 @@ class PlayerViewSet(viewsets.ModelViewSet):
                 }
             )
 
+        except Player.DoesNotExist:
+            return Response(
+                {"error": "Player not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
         except Exception as error:
             return Response(
                 {"error": str(error)},
@@ -203,27 +234,29 @@ class PlayerViewSet(viewsets.ModelViewSet):
         Get a specific player's stats for a specific season using PlayerSeasonRoster.
         """
         try:
-            player = self.get_object()
-            Season.objects.get(season_id=season_id)
+            player = self.get_lightweight_player()
+
+            if not Season.objects.filter(season_id=season_id).exists():
+                return Response(
+                    {"error": "Season not found"},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
 
             stat_scope = normalize_stat_scope(
                 request.query_params.get("stat_scope"),
                 default="core",
             )
 
-            stats = (
-                PlayerSeasonStat.objects.filter(
-                    player_roster__player=player,
-                    player_roster__team_season__season_id=season_id,
-                )
-                .select_related(
-                    "player_roster",
-                    "player_roster__player",
-                    "player_roster__team_season",
-                    "player_roster__team_season__team",
-                    "player_roster__team_season__season",
-                    "stat_type",
-                )
+            stats = PlayerSeasonStat.objects.filter(
+                player_roster__player_id=player.player_id,
+                player_roster__team_season__season_id=season_id,
+            ).select_related(
+                "player_roster",
+                "player_roster__player",
+                "player_roster__team_season",
+                "player_roster__team_season__team",
+                "player_roster__team_season__season",
+                "stat_type",
             )
 
             stats = apply_stat_scope_filter(
@@ -244,9 +277,9 @@ class PlayerViewSet(viewsets.ModelViewSet):
                 }
             )
 
-        except Season.DoesNotExist:
+        except Player.DoesNotExist:
             return Response(
-                {"error": "Season not found"},
+                {"error": "Player not found"},
                 status=status.HTTP_404_NOT_FOUND,
             )
 

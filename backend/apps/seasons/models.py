@@ -1,16 +1,21 @@
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-# Create your models here.
+
 class Season(models.Model):
     season_id = models.AutoField(primary_key=True)
-    year = models.PositiveIntegerField(unique=True, validators=[MinValueValidator(1920), MaxValueValidator(2030)])
+    year = models.PositiveIntegerField(
+        unique=True,
+        validators=[MinValueValidator(1920), MaxValueValidator(2030)],
+    )
 
     class Meta:
         ordering = ["-year"]
 
     def __str__(self):
         return str(self.year)
+
+
 class TeamSeason(models.Model):
     team_season_id = models.AutoField(primary_key=True)
 
@@ -36,10 +41,26 @@ class TeamSeason(models.Model):
                 name="unique_team_per_season",
             )
         ]
-        ordering = ["season__year", "conference", "division", "team__team_name"]
+        indexes = [
+            models.Index(
+                fields=["season", "team"],
+                name="idx_teamseason_season_team",
+            ),
+            models.Index(
+                fields=["conference", "division"],
+                name="idx_teamseason_conf_div",
+            ),
+        ]
+        ordering = [
+            "season__year",
+            "conference",
+            "division",
+            "team__team_name",
+        ]
 
     def __str__(self):
         return f"{self.team} - {self.season.year}"
+
 
 class PlayerSeasonRoster(models.Model):
     roster_id = models.AutoField(primary_key=True)
@@ -66,6 +87,20 @@ class PlayerSeasonRoster(models.Model):
                 fields=["player", "team_season"],
                 name="unique_player_per_team_season",
             )
+        ]
+        indexes = [
+            models.Index(
+                fields=["team_season", "is_active"],
+                name="idx_roster_teamseason_active",
+            ),
+            models.Index(
+                fields=["player", "is_active"],
+                name="idx_roster_player_active",
+            ),
+            models.Index(
+                fields=["roster_status"],
+                name="idx_roster_status",
+            ),
         ]
         ordering = [
             "team_season__season__year",

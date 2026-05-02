@@ -21,7 +21,10 @@ class StatTypeSerializer(serializers.ModelSerializer):
 class PositionStatTypeSerializer(serializers.ModelSerializer):
     stat_type_key = serializers.CharField(source="stat_type.key", read_only=True)
     stat_type_name = serializers.CharField(source="stat_type.name", read_only=True)
-    stat_type_category = serializers.CharField(source="stat_type.category", read_only=True)
+    stat_type_category = serializers.CharField(
+        source="stat_type.category",
+        read_only=True,
+    )
 
     class Meta:
         model = PositionStatType
@@ -42,14 +45,26 @@ class PlayerSeasonStatSerializer(serializers.ModelSerializer):
 
     stat_type_key = serializers.CharField(source="stat_type.key", read_only=True)
     stat_type_name = serializers.CharField(source="stat_type.name", read_only=True)
-    stat_type_category = serializers.CharField(source="stat_type.category", read_only=True)
+    stat_type_category = serializers.CharField(
+        source="stat_type.category",
+        read_only=True,
+    )
     stat_type_unit = serializers.CharField(source="stat_type.unit", read_only=True)
 
-    player_id = serializers.IntegerField(source="player_roster.player.player_id", read_only=True)
+    player_id = serializers.IntegerField(
+        source="player_roster.player.player_id",
+        read_only=True,
+    )
     player_name = serializers.SerializerMethodField()
-    position = serializers.CharField(source="player_roster.player.position", read_only=True)
+    position = serializers.CharField(
+        source="player_roster.player.position",
+        read_only=True,
+    )
 
-    team_id = serializers.IntegerField(source="player_roster.team_season.team.team_id", read_only=True)
+    team_id = serializers.IntegerField(
+        source="player_roster.team_season.team.team_id",
+        read_only=True,
+    )
     team_name = serializers.SerializerMethodField()
     team_abbreviation = serializers.CharField(
         source="player_roster.team_season.team.abbreviation",
@@ -88,8 +103,16 @@ class PlayerSeasonStatSerializer(serializers.ModelSerializer):
 
     def get_player_name(self, obj):
         player = obj.player_roster.player
-        return f"{player.first_name} {player.last_name}".strip()
+
+        first_name = player.first_name or ""
+        last_name = player.last_name or ""
+
+        return f"{first_name} {last_name}".strip()
 
     def get_team_name(self, obj):
         team = obj.player_roster.team_season.team
-        return f"{team.city} {team.team_name}".strip() or team.team_name
+
+        city = team.city or ""
+        team_name = team.team_name or ""
+
+        return f"{city} {team_name}".strip() or team_name

@@ -1,3 +1,5 @@
+# backend/apps/reports/views.py
+
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -5,6 +7,27 @@ from rest_framework.views import APIView
 from apps.players.models import Player
 from apps.seasons.models import TeamSeason
 from apps.reports.services import get_player_comparison_report
+
+
+def get_required_query_params(request, required_params):
+    missing_params = []
+    values = {}
+
+    for param_name, aliases in required_params.items():
+        value = None
+
+        for alias in aliases:
+            value = request.query_params.get(alias)
+
+            if value:
+                break
+
+        if not value:
+            missing_params.append(param_name)
+        else:
+            values[param_name] = value
+
+    return values, missing_params
 
 
 class PlayerComparisonReportView(APIView):
@@ -16,24 +39,15 @@ class PlayerComparisonReportView(APIView):
     """
 
     def get(self, request):
-        left_player = request.query_params.get("left_player")
-        right_player = request.query_params.get("right_player")
-        team = request.query_params.get("team") or request.query_params.get("team_id")
-        year = request.query_params.get("year") or request.query_params.get("season_year")
-
-        missing_params = []
-
-        if not left_player:
-            missing_params.append("left_player")
-
-        if not right_player:
-            missing_params.append("right_player")
-
-        if not team:
-            missing_params.append("team")
-
-        if not year:
-            missing_params.append("year")
+        query_values, missing_params = get_required_query_params(
+            request,
+            {
+                "left_player": ["left_player"],
+                "right_player": ["right_player"],
+                "team": ["team", "team_id"],
+                "year": ["year", "season_year"],
+            },
+        )
 
         if missing_params:
             return Response(
@@ -46,10 +60,10 @@ class PlayerComparisonReportView(APIView):
             )
 
         try:
-            left_player_id = int(left_player)
-            right_player_id = int(right_player)
-            team_id = int(team)
-            season_year = int(year)
+            left_player_id = int(query_values["left_player"])
+            right_player_id = int(query_values["right_player"])
+            team_id = int(query_values["team"])
+            season_year = int(query_values["year"])
         except ValueError:
             return Response(
                 {
@@ -66,7 +80,13 @@ class PlayerComparisonReportView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        if not Player.objects.filter(player_id=left_player_id).exists():
+        existing_player_ids = set(
+            Player.objects.filter(
+                player_id__in=[left_player_id, right_player_id]
+            ).values_list("player_id", flat=True)
+        )
+
+        if left_player_id not in existing_player_ids:
             return Response(
                 {
                     "error": f"Left player with id {left_player_id} was not found."
@@ -74,7 +94,7 @@ class PlayerComparisonReportView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        if not Player.objects.filter(player_id=right_player_id).exists():
+        if right_player_id not in existing_player_ids:
             return Response(
                 {
                     "error": f"Right player with id {right_player_id} was not found."
@@ -82,10 +102,12 @@ class PlayerComparisonReportView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        if not TeamSeason.objects.filter(
+        team_season_exists = TeamSeason.objects.filter(
             team_id=team_id,
             season__year=season_year,
-        ).exists():
+        ).exists()
+
+        if not team_season_exists:
             return Response(
                 {
                     "error": f"No team-season record found for team {team_id} and year {season_year}."
