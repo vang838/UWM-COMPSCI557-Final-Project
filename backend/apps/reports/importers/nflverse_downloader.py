@@ -1,7 +1,6 @@
 # backend/apps/reports/importers/nflverse_downloader.py
 
 from pathlib import Path
-from typing import Optional
 import requests
 
 
