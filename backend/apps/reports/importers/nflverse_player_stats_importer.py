@@ -254,6 +254,12 @@ def import_nflverse_player_stats(
 
     summary = ImportSummary()
     team = get_required_team(team_abbreviation)
+    team_abbreviation = team_abbreviation.upper()
+
+    source_team_abbreviation = NFLVERSE_TEAM_ALIASES.get(
+        team_abbreviation,
+        team_abbreviation,
+    )
 
     with transaction.atomic():
         season, _ = Season.objects.get_or_create(year=year)
@@ -280,7 +286,7 @@ def import_nflverse_player_stats(
                 row_year = row.get("season")
                 row_season_type = (row.get("season_type") or "").strip()
 
-                if row_team != team_abbreviation:
+                if row_team != source_team_abbreviation:
                     summary.rows_skipped += 1
                     continue
 
@@ -383,6 +389,7 @@ def import_nflverse_player_stats(
     result = summary.to_dict()
     result["dry_run"] = dry_run
     result["team"] = team_abbreviation
+    result["source_team"] = source_team_abbreviation
     result["year"] = year
     result["season_type"] = season_type
     result["file"] = str(path)
