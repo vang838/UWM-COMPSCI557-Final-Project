@@ -40,6 +40,9 @@ class ImportSummary:
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
 
+NFLVERSE_TEAM_ALIASES = {
+    "LAR": "LA",
+}
 
 NFLVERSE_STAT_MAP = {
     "passing_yards": {
