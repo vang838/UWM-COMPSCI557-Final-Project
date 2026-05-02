@@ -2383,6 +2383,26 @@ export default function AdminPage() {
             return;
         }
 
+        const loginMessage = sessionStorage.getItem("loginSuccess");
+
+        if (loginMessage) {
+            setSuccessMsg(loginMessage);
+            setShowSuccess(true);
+            sessionStorage.removeItem("loginSuccess");
+
+            const timeout = setTimeout(() => {
+                setShowSuccess(false);
+            }, 5000);
+
+            return () => clearTimeout(timeout);
+        }
+    }, [authChecked]);
+
+    useEffect(() => {
+        if (!authChecked) {
+            return;
+        }
+
         fetchAdminReferenceData();
     }, [authChecked, fetchAdminReferenceData]);
 
@@ -2551,8 +2571,18 @@ export default function AdminPage() {
                 showTemporaryError(data.error || "Logout failed, please try again");
                 return;
             }
+
+            sessionStorage.setItem(
+                "logoutSuccess",
+                "You have been logged out successfully."
+            );
         } catch (err) {
             console.error("Logout error:", err);
+
+            sessionStorage.setItem(
+                "logoutSuccess",
+                "You have been logged out locally."
+            );
         } finally {
             ["token", "user_id", "username", "role"].forEach((key) =>
                 localStorage.removeItem(key)
