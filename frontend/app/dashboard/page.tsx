@@ -85,6 +85,41 @@ const USER_NAV: NavSection[] = [
     },
 ];
 
+const PLAYER_DATA_SECTIONS = new Set([
+    "dashboard",
+    "season-summary",
+    "players",
+    "team-roster",
+    "player-stats",
+    "leaderboard",
+    "comparison",
+]);
+
+const STAT_DATA_SECTIONS = new Set([
+    "dashboard",
+    "season-summary",
+    "player-stats",
+    "leaderboard",
+]);
+
+const COACH_DATA_SECTIONS = new Set([
+    "dashboard",
+    "season-summary",
+    "coaches",
+    "team-roster",
+]);
+
+const STAT_TYPE_DATA_SECTIONS = new Set([
+    "dashboard",
+    "stat-types",
+    "leaderboard",
+]);
+
+const COMPARISON_DATA_SECTIONS = new Set([
+    "dashboard",
+    "comparison",
+]);
+
 const AVATAR_COLORS = [
     "bg-[#c49a22]/20 text-[#f0c040]",
     "bg-emerald-900/40 text-emerald-400",
@@ -601,6 +636,7 @@ export default function DashboardPage() {
         const fetchComparisonReport = async () => {
             if (
                 !authChecked ||
+                !COMPARISON_DATA_SECTIONS.has(activeSection) ||
                 !activeTeamId ||
                 !selectedSeasonYear ||
                 !leftComparisonPlayerId ||
@@ -635,6 +671,7 @@ export default function DashboardPage() {
         fetchComparisonReport();
     }, [
         authChecked,
+        activeSection,
         activeTeamId,
         selectedSeasonYear,
         leftComparisonPlayerId,
@@ -696,31 +733,48 @@ export default function DashboardPage() {
 
             const shouldShowAllStatTypes = activeSection === "stat-types";
 
+            const shouldLoadPlayers = PLAYER_DATA_SECTIONS.has(activeSection);
+            const shouldLoadStats = STAT_DATA_SECTIONS.has(activeSection);
+            const shouldLoadCoaches = COACH_DATA_SECTIONS.has(activeSection);
+            const shouldLoadStatTypes = STAT_TYPE_DATA_SECTIONS.has(activeSection);
+            const shouldLoadAllStatTypes = activeSection === "stat-types";
+
             const [
                 playerListResult,
                 statTypeResult,
                 playerSeasonStatsResult,
                 coachAssignmentResult,
             ] = await Promise.all([
-                safeApiCall<unknown[]>(
-                    () => playerAPI.getPlayersWithoutStats(sharedParams),
-                    []
-                ),
-                safeApiCall<unknown[]>(
-                    () =>
-                        shouldShowAllStatTypes
-                            ? statAPI.getAllStatTypes()
-                            : statAPI.getCoreStatTypes(),
-                    []
-                ),
-                safeApiCall<unknown[]>(
-                    () => statAPI.getCorePlayerSeasonStats(sharedParams),
-                    []
-                ),
-                safeApiCall<unknown[]>(
-                    () => coachAPI.getCoachSeasonAssignments(sharedParams),
-                    []
-                ),
+                shouldLoadPlayers
+                    ? safeApiCall<unknown[]>(
+                          () => playerAPI.getPlayersWithoutStats(sharedParams),
+                          []
+                      )
+                    : Promise.resolve([]),
+
+                shouldLoadStatTypes
+                    ? safeApiCall<unknown[]>(
+                          () =>
+                              shouldLoadAllStatTypes
+                                  ? statAPI.getAllStatTypes()
+                                  : statAPI.getCoreStatTypes(),
+                          []
+                      )
+                    : Promise.resolve([]),
+
+                shouldLoadStats
+                    ? safeApiCall<unknown[]>(
+                          () => statAPI.getCorePlayerSeasonStats(sharedParams),
+                          []
+                      )
+                    : Promise.resolve([]),
+
+                shouldLoadCoaches
+                    ? safeApiCall<unknown[]>(
+                          () => coachAPI.getCoachSeasonAssignments(sharedParams),
+                          []
+                      )
+                    : Promise.resolve([]),
             ]);
 
             const normalizedPlayers = normalizeApiList<Player>(playerListResult);
