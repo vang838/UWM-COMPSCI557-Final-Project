@@ -40,6 +40,7 @@ import {
     RosterFormData,
     SeasonFormData,
     SeasonModalMode,
+    StatTypeFormData,
     TeamFormData,
     TeamSeason,
 } from "@/src/types/admin";
@@ -119,7 +120,6 @@ const ADMIN_THEME: Partial<LayoutTheme> = {
 // ---------------------------------------------------------------------------
 // Admin-specific helpers
 // ---------------------------------------------------------------------------
-
 function getAdminPlayerKey(player: Player): number | string {
     return (
         getStablePlayerId(player) ??
@@ -204,6 +204,44 @@ function getSectionTitle(section: string): string {
     };
 
     return titles[section] ?? "Admin Dashboard";
+}
+
+const STAT_TYPE_CATEGORY_OPTIONS = [
+    "passing",
+    "rushing",
+    "receiving",
+    "defense",
+    "kicking",
+    "other",
+];
+
+const STAT_TYPE_UNIT_OPTIONS = [
+    "yards",
+    "count",
+    "percentage",
+    "rating",
+    "seconds",
+    "attempts",
+    "other",
+];
+
+function getStatTypeId(statType: StatType): number | string | undefined {
+    const statTypeWithId = statType as StatType & { id?: number };
+    return statTypeWithId.stat_type_id ?? statTypeWithId.id;
+}
+
+function statTypeToFormData(statType: StatType): StatTypeFormData {
+    return {
+        key: statType.key ?? "",
+        name: statType.name ?? "",
+        category: statType.category ?? "",
+        unit: statType.unit ?? "",
+        description: statType.description ?? "",
+    };
+}
+
+function isValidStatTypeKey(value: string): boolean {
+    return /^[a-z][a-z0-9_]*$/.test(value);
 }
 
 // ---------------------------------------------------------------------------
@@ -771,30 +809,52 @@ function PlayerStatsReadOnlyPanel({
     );
 }
 
-function StatTypesReadOnlyPanel({
+function AdminStatTypesPanel({
     statTypes,
     loading,
+    onAdd,
+    onEdit,
+    onDelete,
 }: {
     statTypes: StatType[];
     loading: boolean;
+    onAdd: () => void;
+    onEdit: (statType: StatType) => void;
+    onDelete: (statType: StatType) => void;
 }) {
     return (
         <div className="bg-[#1a1a1a] border border-white/8 rounded-lg overflow-hidden">
             <div className="flex items-center justify-between px-3 py-2 border-b border-white/8">
-                <span className="text-[11px] font-medium uppercase tracking-widest text-gray-300">
-                    Stat types
-                </span>
-                <span className="text-[10px] text-gray-500">
-                    {statTypes.length} available
-                </span>
+                <div>
+                    <span className="text-[11px] font-medium uppercase tracking-widest text-gray-300">
+                        Stat types
+                    </span>
+                    <p className="text-[11px] text-gray-500 mt-0.5">
+                        Create, edit, or remove tracked statistic definitions.
+                    </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                    <span className="text-[10px] text-gray-500">
+                        {statTypes.length} available
+                    </span>
+
+                    <button
+                        onClick={onAdd}
+                        className="text-[10px] px-2.5 py-1 rounded border border-white/10 text-gray-300 hover:text-white hover:border-white/30 transition-colors cursor-pointer bg-transparent"
+                    >
+                        Add stat type
+                    </button>
+                </div>
             </div>
 
-            <div className="grid grid-cols-[1fr_1fr_90px_90px_2fr] gap-3 px-3 py-2 border-b border-white/8 text-[10px] uppercase tracking-widest text-gray-500">
+            <div className="grid grid-cols-[1fr_1fr_90px_90px_2fr_120px] gap-3 px-3 py-2 border-b border-white/8 text-[10px] uppercase tracking-widest text-gray-500">
                 <span>Key</span>
                 <span>Name</span>
                 <span>Category</span>
                 <span>Unit</span>
                 <span>Description</span>
+                <span className="text-right">Actions</span>
             </div>
 
             {loading ? (
@@ -804,8 +864,8 @@ function StatTypesReadOnlyPanel({
             ) : statTypes.length > 0 ? (
                 statTypes.map((statType) => (
                     <div
-                        key={statType.stat_type_id ?? statType.key}
-                        className="grid grid-cols-[1fr_1fr_90px_90px_2fr] gap-3 items-center px-3 py-2 border-b border-white/6 last:border-b-0 text-[12px] hover:bg-white/3"
+                        key={getStatTypeId(statType) ?? statType.key}
+                        className="grid grid-cols-[1fr_1fr_90px_90px_2fr_120px] gap-3 items-center px-3 py-2 border-b border-white/6 last:border-b-0 text-[12px] hover:bg-white/3"
                     >
                         <span className="text-gray-400 font-mono text-[11px] truncate">
                             {statType.key || "—"}
@@ -826,6 +886,22 @@ function StatTypesReadOnlyPanel({
                         <span className="text-gray-500 truncate">
                             {statType.description || "No description"}
                         </span>
+
+                        <div className="flex justify-end gap-1.5">
+                            <button
+                                onClick={() => onEdit(statType)}
+                                className="text-[10px] px-2 py-0.5 rounded border border-white/10 text-gray-400 hover:text-white hover:border-white/30 transition-colors cursor-pointer bg-transparent"
+                            >
+                                Edit
+                            </button>
+
+                            <button
+                                onClick={() => onDelete(statType)}
+                                className="text-[10px] px-2 py-0.5 rounded border border-red-900/50 text-red-500 hover:border-red-700 hover:text-red-300 transition-colors cursor-pointer bg-transparent"
+                            >
+                                Delete
+                            </button>
+                        </div>
                     </div>
                 ))
             ) : (
@@ -1739,6 +1815,184 @@ function DeleteRosterModal({
     );
 }
 
+function StatTypeModal({
+        mode,
+        formData,
+        onChange,
+        onClose,
+        onSave,
+        saving,
+    }: {
+        mode: "create" | "edit";
+        formData: StatTypeFormData;
+        onChange: (field: keyof StatTypeFormData, value: string) => void;
+        onClose: () => void;
+        onSave: () => void;
+        saving: boolean;
+    }) {
+        return (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
+                <div className="w-full max-w-lg bg-[#1a1a1a] border border-white/10 rounded-lg shadow-xl">
+                    <div className="px-4 py-3 border-b border-white/8">
+                        <p className="text-sm font-medium text-white">
+                            {mode === "create" ? "Add stat type" : "Edit stat type"}
+                        </p>
+                        <p className="text-[11px] text-gray-500">
+                            Define a tracked statistic that can be assigned to player season records.
+                        </p>
+                    </div>
+
+                    <div className="p-4 grid grid-cols-2 gap-3">
+                        <label className="flex flex-col gap-1">
+                            <span className="text-[10px] uppercase tracking-widest text-gray-500">
+                                Key
+                            </span>
+                            <input
+                                value={formData.key}
+                                onChange={(event) => onChange("key", event.target.value)}
+                                disabled={mode === "edit"}
+                                className="bg-[#111] border border-white/10 rounded px-2 py-1.5 text-sm text-white outline-none focus:border-white/30 disabled:opacity-60 disabled:cursor-not-allowed"
+                                placeholder="passing_yards"
+                            />
+                            <span className="text-[10px] text-gray-600">
+                                Lowercase snake_case. Used by queries and dashboard logic.
+                            </span>
+                        </label>
+
+                        <label className="flex flex-col gap-1">
+                            <span className="text-[10px] uppercase tracking-widest text-gray-500">
+                                Name
+                            </span>
+                            <input
+                                value={formData.name}
+                                onChange={(event) => onChange("name", event.target.value)}
+                                className="bg-[#111] border border-white/10 rounded px-2 py-1.5 text-sm text-white outline-none focus:border-white/30"
+                                placeholder="Passing Yards"
+                            />
+                        </label>
+
+                        <label className="flex flex-col gap-1">
+                            <span className="text-[10px] uppercase tracking-widest text-gray-500">
+                                Category
+                            </span>
+                            <select
+                                value={formData.category}
+                                onChange={(event) => onChange("category", event.target.value)}
+                                className="bg-[#111] border border-white/10 rounded px-2 py-1.5 text-sm text-white outline-none focus:border-white/30"
+                            >
+                                <option value="">Select category</option>
+                                {STAT_TYPE_CATEGORY_OPTIONS.map((category) => (
+                                    <option key={category} value={category}>
+                                        {category}
+                                    </option>
+                                ))}
+                            </select>
+                        </label>
+
+                        <label className="flex flex-col gap-1">
+                            <span className="text-[10px] uppercase tracking-widest text-gray-500">
+                                Unit
+                            </span>
+                            <select
+                                value={formData.unit}
+                                onChange={(event) => onChange("unit", event.target.value)}
+                                className="bg-[#111] border border-white/10 rounded px-2 py-1.5 text-sm text-white outline-none focus:border-white/30"
+                            >
+                                <option value="">Select unit</option>
+                                {STAT_TYPE_UNIT_OPTIONS.map((unit) => (
+                                    <option key={unit} value={unit}>
+                                        {unit}
+                                    </option>
+                                ))}
+                            </select>
+                        </label>
+
+                        <label className="col-span-2 flex flex-col gap-1">
+                            <span className="text-[10px] uppercase tracking-widest text-gray-500">
+                                Description
+                            </span>
+                            <textarea
+                                value={formData.description}
+                                onChange={(event) => onChange("description", event.target.value)}
+                                className="bg-[#111] border border-white/10 rounded px-2 py-1.5 text-sm text-white outline-none focus:border-white/30 min-h-[80px] resize-none"
+                                placeholder="Total yards gained through passing."
+                            />
+                        </label>
+                    </div>
+
+                    <div className="px-4 py-3 border-t border-white/8 flex justify-end gap-2">
+                        <button
+                            onClick={onClose}
+                            disabled={saving}
+                            className="px-3 py-1.5 rounded border border-white/10 text-gray-300 text-xs hover:text-white hover:border-white/30 disabled:opacity-50 bg-transparent"
+                        >
+                            Cancel
+                        </button>
+
+                        <button
+                            onClick={onSave}
+                            disabled={saving}
+                            className="px-3 py-1.5 rounded border border-emerald-800 bg-emerald-900/40 text-emerald-300 text-xs hover:bg-emerald-800/60 disabled:opacity-50"
+                        >
+                            {saving
+                                ? "Saving..."
+                                : mode === "create"
+                                    ? "Create stat type"
+                                    : "Save changes"}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+function DeleteStatTypeModal({
+        statType,
+        onClose,
+        onConfirm,
+        deleting,
+    }: {
+        statType: StatType;
+        onClose: () => void;
+        onConfirm: () => void;
+        deleting: boolean;
+    }) {
+        return (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
+                <div className="w-full max-w-md bg-[#1a1a1a] border border-red-900/50 rounded-lg shadow-xl">
+                    <div className="px-4 py-3 border-b border-white/8">
+                        <p className="text-sm font-medium text-white">Delete stat type?</p>
+                        <p className="text-[12px] text-gray-400 mt-1">
+                            Are you sure you want to delete{" "}
+                            <span className="text-red-300 font-medium">
+                                {statType.name || statType.key || "this stat type"}
+                            </span>
+                            ? If player stats already reference it, the backend should reject the delete.
+                        </p>
+                    </div>
+
+                    <div className="px-4 py-3 flex justify-end gap-2">
+                        <button
+                            onClick={onClose}
+                            disabled={deleting}
+                            className="px-3 py-1.5 rounded border border-white/10 text-gray-300 text-xs hover:text-white hover:border-white/30 disabled:opacity-50 bg-transparent"
+                        >
+                            Cancel
+                        </button>
+
+                        <button
+                            onClick={onConfirm}
+                            disabled={deleting}
+                            className="px-3 py-1.5 rounded border border-red-800 bg-red-900/40 text-red-300 text-xs hover:bg-red-800/60 disabled:opacity-50"
+                        >
+                            {deleting ? "Deleting..." : "Delete stat type"}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
 // ---------------------------------------------------------------------------
 // Page component
 // ---------------------------------------------------------------------------
@@ -1772,6 +2026,13 @@ export default function AdminPage() {
     const [savingSeason, setSavingSeason] = useState(false);
     const [deletingSeason, setDeletingSeason] = useState(false);
     const [creatingSeason, setCreatingSeason] = useState(false);
+
+    const [editingStatType, setEditingStatType] = useState<StatType | null>(null);
+    const [statTypeFormData, setStatTypeFormData] = useState<StatTypeFormData | null>(null);
+    const [statTypePendingDelete, setStatTypePendingDelete] = useState<StatType | null>(null);
+    const [savingStatType, setSavingStatType] = useState(false);
+    const [creatingStatType, setCreatingStatType] = useState(false);
+    const [deletingStatType, setDeletingStatType] = useState(false);
 
     const [teamSeasons, setTeamSeasons] = useState<TeamSeason[]>([]);
     const [rosters, setRosters] = useState<PlayerSeasonRoster[]>([]);
@@ -2615,6 +2876,158 @@ export default function AdminPage() {
         }
     };
 
+    const handleAddStatType = () => {
+        setEditingStatType(null);
+        setStatTypeFormData({
+            key: "",
+            name: "",
+            category: "",
+            unit: "",
+            description: "",
+        });
+    };
+
+const handleEditStatType = (statType: StatType) => {
+        setEditingStatType(statType);
+        setStatTypeFormData(statTypeToFormData(statType));
+    };
+
+const handleStatTypeFormChange = (
+        field: keyof StatTypeFormData,
+        value: string
+    ) => {
+        setStatTypeFormData((current) => {
+            if (!current) {
+                return current;
+            }
+
+            return {
+                ...current,
+                [field]: value,
+            };
+        });
+    };
+
+const handleSaveStatType = async () => {
+        if (!statTypeFormData) {
+            return;
+        }
+
+        if (!statTypeFormData.key.trim()) {
+            showTemporaryError("Stat type key is required");
+            return;
+        }
+
+        if (!isValidStatTypeKey(statTypeFormData.key.trim())) {
+            showTemporaryError("Stat type key must be lowercase snake_case, such as passing_yards");
+            return;
+        }
+
+        if (!statTypeFormData.name.trim()) {
+            showTemporaryError("Stat type name is required");
+            return;
+        }
+
+        if (!statTypeFormData.category) {
+            showTemporaryError("Stat type category is required");
+            return;
+        }
+
+        if (!statTypeFormData.unit) {
+            showTemporaryError("Stat type unit is required");
+            return;
+        }
+
+        const payload = {
+            key: statTypeFormData.key.trim(),
+            name: statTypeFormData.name.trim(),
+            category: statTypeFormData.category,
+            unit: statTypeFormData.unit,
+            description: statTypeFormData.description.trim(),
+        };
+
+        try {
+            if (editingStatType) {
+                const statTypeId = getStatTypeId(editingStatType);
+
+                if (statTypeId === undefined) {
+                    showTemporaryError("Unable to update stat type because the stat type ID is missing");
+                    return;
+                }
+
+                setSavingStatType(true);
+
+                const updatePayload = {
+                    name: payload.name,
+                    category: payload.category,
+                    unit: payload.unit,
+                    description: payload.description,
+                };
+
+                await statAPI.updateStatType(statTypeId, updatePayload);
+                showTemporarySuccess(`${payload.name} updated successfully`);
+            } else {
+                setCreatingStatType(true);
+                await statAPI.createStatType(payload);
+                showTemporarySuccess(`${payload.name} created successfully`);
+            }
+
+            setEditingStatType(null);
+            setStatTypeFormData(null);
+
+            await fetchDashboardReports();
+        } catch (error) {
+            console.error("Save stat type error:", error);
+            showTemporaryError(
+                editingStatType
+                    ? "Failed to update stat type"
+                    : "Failed to create stat type"
+            );
+        } finally {
+            setSavingStatType(false);
+            setCreatingStatType(false);
+        }
+    };
+
+    const handleDeleteStatType = (statType: StatType) => {
+        setStatTypePendingDelete(statType);
+    };
+
+    const handleConfirmDeleteStatType = async () => {
+        if (!statTypePendingDelete) {
+            return;
+        }
+
+        const statTypeId = getStatTypeId(statTypePendingDelete);
+
+        if (statTypeId === undefined) {
+            showTemporaryError("Unable to delete stat type because the stat type ID is missing");
+            return;
+        }
+
+        try {
+            setDeletingStatType(true);
+
+            const statTypeName =
+                statTypePendingDelete.name || statTypePendingDelete.key || "Stat type";
+
+            await statAPI.deleteStatType(statTypeId);
+
+            setStatTypePendingDelete(null);
+
+            await fetchDashboardReports();
+
+            showTemporarySuccess(`${statTypeName} deleted successfully`);
+        } catch (error) {
+            console.error("Delete stat type error:", error);
+            showTemporaryError(
+                "Failed to delete stat type. It may still be referenced by player season stats."
+            );
+        } finally {
+            setDeletingStatType(false);
+        }
+    };
+
     const renderReportFilter = () => (
         <AdminDataFilterPanel
             seasons={seasons}
@@ -2741,9 +3154,12 @@ export default function AdminPage() {
 
             case "stat-types":
                 return (
-                    <StatTypesReadOnlyPanel
+                    <AdminStatTypesPanel
                         statTypes={statTypes}
                         loading={loadingDashboardReports}
+                        onAdd={handleAddStatType}
+                        onEdit={handleEditStatType}
+                        onDelete={handleDeleteStatType}
                     />
                 );
 
@@ -2916,6 +3332,29 @@ export default function AdminPage() {
                     onClose={() => setRosterPendingDelete(null)}
                     onConfirm={handleConfirmDeleteRoster}
                     deleting={deletingRoster}
+                />
+            )}
+
+            {statTypeFormData && (
+                <StatTypeModal
+                    mode={editingStatType ? "edit" : "create"}
+                    formData={statTypeFormData}
+                    onChange={handleStatTypeFormChange}
+                    onClose={() => {
+                        setEditingStatType(null);
+                        setStatTypeFormData(null);
+                    }}
+                    onSave={handleSaveStatType}
+                    saving={savingStatType || creatingStatType}
+                />
+            )}
+
+            {statTypePendingDelete && (
+                <DeleteStatTypeModal
+                    statType={statTypePendingDelete}
+                    onClose={() => setStatTypePendingDelete(null)}
+                    onConfirm={handleConfirmDeleteStatType}
+                    deleting={deletingStatType}
                 />
             )}
         </PageLayout>
