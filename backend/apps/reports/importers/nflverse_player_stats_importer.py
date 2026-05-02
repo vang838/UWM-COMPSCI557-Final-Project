@@ -246,6 +246,7 @@ def import_nflverse_player_stats(
     season_type: str = "REG",
     skip_zero_values: bool = True,
     dry_run: bool = False,
+import_all_numeric: bool = False,
 ) -> dict[str, Any]:
     path = Path(file_path)
 
