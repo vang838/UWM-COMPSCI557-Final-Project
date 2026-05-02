@@ -644,6 +644,8 @@ export default function DashboardPage() {
                 leftComparisonPlayerId === rightComparisonPlayerId
             ) {
                 setComparisonReport(null);
+                setComparisonError("");
+                setLoadingComparisonData(false);
                 return;
             }
 
@@ -731,8 +733,6 @@ export default function DashboardPage() {
                 ...(resolvedSeasonYear ? { year: resolvedSeasonYear } : {}),
             };
 
-            const shouldShowAllStatTypes = activeSection === "stat-types";
-
             const shouldLoadPlayers = PLAYER_DATA_SECTIONS.has(activeSection);
             const shouldLoadStats = STAT_DATA_SECTIONS.has(activeSection);
             const shouldLoadCoaches = COACH_DATA_SECTIONS.has(activeSection);
@@ -793,9 +793,13 @@ export default function DashboardPage() {
             const noDashboardData =
                 normalizedPlayers.length === 0 &&
                 normalizedPlayerSeasonStats.length === 0 &&
-                normalizedCoachAssignments.length === 0;
+                normalizedCoachAssignments.length === 0 &&
+                normalizedStatTypes.length === 0;
 
-            if (noDashboardData) {
+            const shouldWarnAboutEmptyDashboard =
+                activeSection === "dashboard" || activeSection === "season-summary";
+
+            if (shouldWarnAboutEmptyDashboard && noDashboardData) {
                 showError("No dashboard data available");
             }
         } catch (error) {
@@ -815,6 +819,14 @@ export default function DashboardPage() {
             setLoadingDashboardData(false);
         }
     }, [activeSeason, activeTeamId, activeSection, authChecked, showError]);
+
+    useEffect(() => {
+        if (!authChecked) {
+            return;
+        }
+
+        fetchDashboardData();
+    }, [authChecked, fetchDashboardData]);
 
     const handleLogout = async () => {
         try {
