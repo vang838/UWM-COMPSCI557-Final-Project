@@ -1,5 +1,3 @@
-# backend/apps/reports/management/commands/import_nflverse_player_stats.py
-
 from pathlib import Path
 
 from django.conf import settings
