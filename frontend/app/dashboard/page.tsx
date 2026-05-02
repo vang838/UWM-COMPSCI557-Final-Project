@@ -509,18 +509,25 @@ function PlayerDetailModal({
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
             <div className="w-full max-w-2xl bg-[#1a1a1a] border border-white/10 rounded-lg shadow-xl overflow-hidden">
-                <div className="px-4 py-3 border-b border-white/8 flex items-start justify-between gap-4">
-                    <div>
-                        <p className="text-lg font-semibold text-white">{name}</p>
-                        <p className="text-[12px] text-gray-500 mt-0.5">
-                            {player.position || "—"} · #{player.jersey_number ?? "—"} ·{" "}
-                            {teamLabel}
-                        </p>
+                <div className="px-4 py-4 border-b border-white/8 flex items-start justify-between gap-4">
+                    <div className="flex items-center gap-3 min-w-0">
+                        <PlayerAvatar player={player} size="lg" />
+
+                        <div className="min-w-0">
+                            <p className="text-lg font-semibold text-white truncate">
+                                {name}
+                            </p>
+
+                            <p className="text-[12px] text-gray-500 mt-0.5">
+                                {player.position || "—"} · #{player.jersey_number ?? "—"} ·{" "}
+                                {teamLabel}
+                            </p>
+                        </div>
                     </div>
 
                     <button
                         onClick={onClose}
-                        className="text-gray-500 hover:text-white text-xl leading-none bg-transparent border-none cursor-pointer"
+                        className="text-gray-500 hover:text-white text-xl leading-none bg-transparent border-none cursor-pointer shrink-0"
                     >
                         ✕
                     </button>
