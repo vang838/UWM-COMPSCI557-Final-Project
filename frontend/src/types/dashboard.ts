@@ -29,6 +29,7 @@ export interface Player {
     jersey_number?: number | string;
     team?: number | string;
     team_name?: string;
+    headshot_url?: string;
     is_active?: boolean;
     season_stats?: PlayerSeasonStat[];
 }

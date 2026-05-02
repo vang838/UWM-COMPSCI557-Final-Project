@@ -12,6 +12,7 @@ class Player(models.Model):
     age = models.IntegerField(null=True, blank=True)
     height = models.DecimalField(max_digits=4, decimal_places=1, null=True, blank=True)
     weight = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True)
+    headshot_url = models.URLField(blank=True)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):

@@ -80,6 +80,7 @@ class PlayerDashboardSerializer(serializers.ModelSerializer):
             "age",
             "height",
             "weight",
+            "headshot_url",
             "is_active",
             "season_stats",
         ]

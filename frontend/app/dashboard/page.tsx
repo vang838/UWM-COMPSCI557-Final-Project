@@ -47,6 +47,7 @@ import {
     getLeaderboardId,
     getLeaderboardName,
     getSeasonYearFromLabel,
+    getStablePlayerId,
     getStatValue,
     getStatsForPlayer,
     getTopPerformer,
@@ -263,6 +264,40 @@ function PlayerInitials({ name }: { name: string }) {
     return <>{initials.toUpperCase()}</>;
 }
 
+function PlayerAvatar({
+    player,
+    size = "sm",
+}: {
+    player: Player;
+    size?: "sm" | "md" | "lg";
+}) {
+    const name = displayPlayerName(player);
+
+    const sizeClasses = {
+        sm: "w-7 h-7 text-[9px]",
+        md: "w-10 h-10 text-xs",
+        lg: "w-16 h-16 text-sm",
+    };
+
+    if (player.headshot_url) {
+        return (
+            <img
+                src={player.headshot_url}
+                alt={name}
+                className={`${sizeClasses[size]} rounded-full object-cover border border-white/10 bg-[#111] shrink-0`}
+            />
+        );
+    }
+
+    return (
+        <span
+            className={`${sizeClasses[size]} rounded-full flex items-center justify-center bg-[#1a3d28] text-[#f0c040] font-medium shrink-0`}
+        >
+            <PlayerInitials name={name} />
+        </span>
+    );
+}
+
 function CompactSeasonSummaryCard({
     players,
     stats,
@@ -455,11 +490,15 @@ function PlayerDetailModal({
     player,
     stats,
     teamLabel,
+    loading,
+    error,
     onClose,
 }: {
     player: Player;
     stats: PlayerSeasonStat[];
     teamLabel: string;
+    loading: boolean;
+    error: string;
     onClose: () => void;
 }) {
     const name = displayPlayerName(player);
@@ -488,7 +527,15 @@ function PlayerDetailModal({
                 </div>
 
                 <div className="p-4">
-                    {categories.length > 0 ? (
+                    {loading ? (
+                        <div className="py-10 text-center text-sm text-gray-500">
+                            Loading player stats...
+                        </div>
+                    ) : error ? (
+                        <div className="py-10 text-center text-sm text-red-400">
+                            {error}
+                        </div>
+                    ) : categories.length > 0 ? (
                         <div className="space-y-4">
                             {categories.map((category) => (
                                 <div key={category}>
@@ -548,6 +595,11 @@ export default function DashboardPage() {
     const [players, setPlayers] = useState<Player[]>([]);
     const [playersLoaded, setPlayersLoaded] = useState(false);
 
+    const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
+    const [selectedPlayerStats, setSelectedPlayerStats] = useState<PlayerSeasonStat[]>([]);
+    const [loadingSelectedPlayerStats, setLoadingSelectedPlayerStats] = useState(false);
+    const [selectedPlayerStatsError, setSelectedPlayerStatsError] = useState("");
+
     const [seasons, setSeasons] = useState<Season[]>([]);
     const [teams, setTeams] = useState<Team[]>([]);
     const [activeTeamId, setActiveTeamId] = useState("");
@@ -558,8 +610,6 @@ export default function DashboardPage() {
         useState("receiving_yards");
 
     const [coachAssignments, setCoachAssignments] = useState<CoachSeasonAssignment[]>([]);
-
-    const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
 
     const [leftComparisonPlayerId, setLeftComparisonPlayerId] = useState("");
     const [rightComparisonPlayerId, setRightComparisonPlayerId] = useState("");
@@ -828,6 +878,54 @@ export default function DashboardPage() {
         fetchDashboardData();
     }, [authChecked, fetchDashboardData]);
 
+    const handleOpenPlayerDetails = useCallback(
+        async (player: Player) => {
+            const playerId = getStablePlayerId(player);
+
+            setSelectedPlayer(player);
+            setSelectedPlayerStats([]);
+            setSelectedPlayerStatsError("");
+
+            if (playerId === undefined) {
+                setSelectedPlayerStatsError(
+                    "Unable to load stats because the player ID is missing."
+                );
+                return;
+            }
+
+            try {
+                setLoadingSelectedPlayerStats(true);
+
+                const response = await playerAPI.getPlayerSeasonStats(playerId, {
+                    team: activeTeamId,
+                    year: selectedSeasonYear,
+                    stat_scope: "core",
+                });
+
+                const data = unwrapApiData<{
+                    stats?: PlayerSeasonStat[];
+                }>(response);
+
+                setSelectedPlayerStats(
+                    normalizeApiList<PlayerSeasonStat>(data.stats ?? [])
+                );
+            } catch (error) {
+                console.error("Player detail stats error:", error);
+                setSelectedPlayerStatsError("Failed to load player stats.");
+            } finally {
+                setLoadingSelectedPlayerStats(false);
+            }
+        },
+        [activeTeamId, selectedSeasonYear]
+    );
+
+    const closePlayerDetails = useCallback(() => {
+        setSelectedPlayer(null);
+        setSelectedPlayerStats([]);
+        setSelectedPlayerStatsError("");
+        setLoadingSelectedPlayerStats(false);
+    }, []);
+
     const handleLogout = async () => {
         try {
             const token = localStorage.getItem("token");
@@ -1067,12 +1165,10 @@ export default function DashboardPage() {
                             return (
                                 <li
                                     key={getPlayerId(player, index)}
-                                    onClick={() => setSelectedPlayer(player)}
+                                    onClick={() => handleOpenPlayerDetails(player)}
                                     className="flex items-center gap-2 px-3 py-1.5 border-b border-white/6 last:border-b-0 text-[12px] hover:bg-white/3 cursor-pointer transition-colors"
                                 >
-                                    <span className="w-6 h-6 rounded flex items-center justify-center text-[9px] font-medium bg-[#1a3d28] text-[#f0c040] shrink-0">
-                                        {num}
-                                    </span>
+                                    <PlayerAvatar player={player} size="sm" />
 
                                     <span className="flex-1 text-white truncate">{name}</span>
 
@@ -1225,7 +1321,7 @@ export default function DashboardPage() {
                         return (
                             <div
                                 key={getPlayerId(player, index)}
-                                onClick={() => setSelectedPlayer(player)}
+                                onClick={() => handleOpenPlayerDetails(player)}
                                 className="grid grid-cols-[1.4fr_80px_80px_2fr_100px] gap-3 items-center px-3 py-2 border-b border-white/6 last:border-b-0 text-[12px] hover:bg-white/3 cursor-pointer transition-colors"
                             >
                                 <span className="text-white font-medium truncate">
@@ -1276,7 +1372,7 @@ export default function DashboardPage() {
                                     <button
                                         onClick={(event) => {
                                             event.stopPropagation();
-                                            setSelectedPlayer(player);
+                                            handleOpenPlayerDetails(player);
                                         }}
                                         className="text-[10px] px-2 py-1 rounded border border-white/10 text-gray-300 hover:text-white hover:border-white/30 transition-colors bg-transparent cursor-pointer"
                                     >
@@ -1445,7 +1541,7 @@ export default function DashboardPage() {
             activeSeason={activeSeason}
             onSeasonChange={(season) => {
                 setActiveSeason(season);
-                setSelectedPlayer(null);
+                closePlayerDetails();
                 setComparisonReport(null);
                 setComparisonError("");
             }}
@@ -1455,7 +1551,7 @@ export default function DashboardPage() {
             activeTeamId={activeTeamId}
             onTeamChange={(teamId) => {
                 setActiveTeamId(teamId);
-                setSelectedPlayer(null);
+                closePlayerDetails();
                 setComparisonReport(null);
                 setComparisonError("");
                 setLeftComparisonPlayerId("");
@@ -1477,9 +1573,11 @@ export default function DashboardPage() {
             {selectedPlayer && (
                 <PlayerDetailModal
                     player={selectedPlayer}
-                    stats={getStatsForPlayer(selectedPlayer, playerSeasonStats)}
+                    stats={selectedPlayerStats}
                     teamLabel={teamLabel}
-                    onClose={() => setSelectedPlayer(null)}
+                    loading={loadingSelectedPlayerStats}
+                    error={selectedPlayerStatsError}
+                    onClose={closePlayerDetails}
                 />
             )}
         </PageLayout>

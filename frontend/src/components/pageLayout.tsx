@@ -211,23 +211,25 @@ const PageLayout: React.FC<PageLayoutProps> = ({
             </select>
           )}
 
-          {seasonPills.map((pill) => (
-            <button
-              key={pill.label}
-              type="button"
-              onClick={() => onSeasonChange?.(pill.label)}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] border transition-colors cursor-pointer bg-transparent ${
-                activeSeason === pill.label
-                  ? "border-[var(--layout-accent)] text-white"
-                  : "border-white/10 text-gray-400 hover:text-white"
-              }`}
+          {seasonPills.length > 0 && (
+            <select
+              value={activeSeason || seasonPills[0]?.label || ""}
+              onChange={(event) => onSeasonChange?.(event.target.value)}
+              disabled={!onSeasonChange}
+              className="px-2.5 py-1 rounded-full text-[11px] border border-[var(--layout-accent)] bg-transparent text-white hover:text-white cursor-pointer outline-none focus:border-[var(--layout-accent)] disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Select season"
             >
-              {activeSeason === pill.label && (
-                <span className="w-1.5 h-1.5 rounded-full bg-[var(--layout-accent)] inline-block" />
-              )}
-              {pill.label}
-            </button>
-          ))}
+              {seasonPills.map((pill) => (
+                <option
+                  key={pill.label}
+                  value={pill.label}
+                  className="bg-[#161616] text-white"
+                >
+                  {pill.label}
+                </option>
+              ))}
+            </select>
+          )}
 
           <div className="ml-2 flex items-center gap-2">
             <Link
