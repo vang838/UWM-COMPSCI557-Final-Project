@@ -2,7 +2,7 @@ import axios from "axios";
 
 // default config of instance
 const apiClient = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api",
+    baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000/api",
     timeout: 30000,
     headers: {
         "Content-Type": "application/json",
