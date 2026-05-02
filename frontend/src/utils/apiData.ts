@@ -24,7 +24,15 @@ export async function safeApiCall<T>(
     try {
         const response = await request();
         return unwrapApiData<T>(response);
-    } catch {
-        return fallback;
+    } catch (error: any) {
+      console.error("API fetch failed:", {
+        message: error?.message,
+        code: error?.code,
+        url: error?.config?.url,
+        baseURL: error?.config?.baseURL,
+        method: error?.config?.method,
+      });
+
+      setError(error?.message || "Failed to fetch data");
     }
 }

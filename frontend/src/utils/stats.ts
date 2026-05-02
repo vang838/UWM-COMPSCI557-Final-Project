@@ -193,3 +193,45 @@ export function sortCoachAssignments(
 export function getSeasonYearFromLabel(label: string): string | undefined {
     return label.match(/\d{4}/)?.[0];
 }
+
+export const CORE_STAT_KEYS = new Set([
+    "passing_yards",
+    "passing_touchdowns",
+    "interceptions_thrown",
+    "rushing_yards",
+    "rushing_touchdowns",
+    "receptions",
+    "receiving_yards",
+    "receiving_touchdowns",
+    "forced_fumbles",
+    "interceptions",
+    "sacks",
+    "tackles",
+    "field_goals_made",
+    "extra_points_made",
+]);
+
+export function isCoreStatKey(key?: string | null): boolean {
+    return !!key && CORE_STAT_KEYS.has(key);
+}
+
+export function isAdvancedStatKey(key?: string | null): boolean {
+    return !!key && key.startsWith("nflverse_");
+}
+
+export type StatScope = "core" | "advanced" | "all";
+
+export function matchesStatScope(
+    statKey: string | undefined | null,
+    scope: StatScope
+): boolean {
+    if (scope === "core") {
+        return isCoreStatKey(statKey);
+    }
+
+    if (scope === "advanced") {
+        return isAdvancedStatKey(statKey);
+    }
+
+    return true;
+}

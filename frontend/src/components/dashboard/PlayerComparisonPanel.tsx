@@ -1,6 +1,7 @@
-'use client';
+"use client";
 
-import React from "react";
+import React, { useMemo, useState } from "react";
+import { isAdvancedStatKey, isCoreStatKey } from "@/src/utils/stats";
 
 interface ComparisonPlayerOption {
     id?: number;
@@ -51,6 +52,14 @@ interface PlayerComparisonPanelProps {
     teamLabel: string;
 }
 
+type StatScope = "core" | "advanced" | "all";
+
+const STAT_SCOPE_OPTIONS: { value: StatScope; label: string }[] = [
+    { value: "core", label: "Core Stats" },
+    { value: "advanced", label: "Advanced Stats" },
+    { value: "all", label: "All Stats" },
+];
+
 function getPlayerId(player: ComparisonPlayerOption): string {
     return String(player.player_id ?? player.id ?? "");
 }
@@ -76,6 +85,21 @@ function formatCategoryLabel(category: string): string {
         .split("_")
         .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
         .join(" ");
+}
+
+function getFilteredRows(
+    rows: ComparisonReportRow[],
+    statScope: StatScope
+): ComparisonReportRow[] {
+    if (statScope === "core") {
+        return rows.filter((row) => isCoreStatKey(row.stat_key));
+    }
+
+    if (statScope === "advanced") {
+        return rows.filter((row) => isAdvancedStatKey(row.stat_key));
+    }
+
+    return rows;
 }
 
 function PlayerSelect({
@@ -123,6 +147,47 @@ function PlayerSelect({
     );
 }
 
+function StatScopeToggle({
+    value,
+    onChange,
+    totalRows,
+    visibleRows,
+}: {
+    value: StatScope;
+    onChange: (value: StatScope) => void;
+    totalRows: number;
+    visibleRows: number;
+}) {
+    return (
+        <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-1.5">
+                {STAT_SCOPE_OPTIONS.map((option) => {
+                    const active = option.value === value;
+
+                    return (
+                        <button
+                            key={option.value}
+                            type="button"
+                            onClick={() => onChange(option.value)}
+                            className={`text-[10px] px-2.5 py-1 rounded-full border transition-colors ${
+                                active
+                                    ? "border-[#c49a22] text-[#f0c040] bg-[#c49a22]/10"
+                                    : "border-white/10 text-gray-400 bg-transparent hover:text-white hover:border-white/30"
+                            }`}
+                        >
+                            {option.label}
+                        </button>
+                    );
+                })}
+            </div>
+
+            <span className="text-[10px] text-gray-500">
+                Showing {visibleRows} of {totalRows} stats
+            </span>
+        </div>
+    );
+}
+
 export default function PlayerComparisonPanel({
     players,
     report,
@@ -134,8 +199,17 @@ export default function PlayerComparisonPanel({
     onRightPlayerChange,
     teamLabel,
 }: PlayerComparisonPanelProps) {
+    const [statScope, setStatScope] = useState<StatScope>("core");
+
     const leftPlayer = report?.left_player;
     const rightPlayer = report?.right_player;
+
+    const allRows = report?.rows ?? [];
+
+    const visibleRows = useMemo(
+        () => getFilteredRows(allRows, statScope),
+        [allRows, statScope]
+    );
 
     return (
         <div className="bg-[#1a1a1a] border border-white/8 rounded-lg overflow-hidden">
@@ -188,6 +262,15 @@ export default function PlayerComparisonPanel({
                     </div>
                 </div>
 
+                {report?.rows?.length ? (
+                    <StatScopeToggle
+                        value={statScope}
+                        onChange={setStatScope}
+                        totalRows={allRows.length}
+                        visibleRows={visibleRows.length}
+                    />
+                ) : null}
+
                 {loading ? (
                     <div className="py-10 text-center text-sm text-gray-500">
                         Loading SQL comparison report...
@@ -201,50 +284,57 @@ export default function PlayerComparisonPanel({
                         Select two players to compare.
                     </div>
                 ) : report?.rows?.length ? (
-                    <div className="space-y-2">
-                        {report.rows.map((row) => (
-                            <div
-                                key={row.stat_key}
-                                className="border border-white/8 bg-[#111] rounded-lg px-3 py-3"
-                            >
-                                <div className="mb-2">
-                                    <p className="text-[12px] font-medium text-white">
-                                        {row.stat_name}
-                                    </p>
-                                    <p className="text-[10px] text-gray-500">
-                                        {formatCategoryLabel(row.stat_category)}
-                                        {row.stat_unit ? ` · ${row.stat_unit}` : ""}
-                                    </p>
-                                </div>
-
-                                <div className="flex items-center justify-center gap-2 mb-3 text-[12px]">
-                                    <span className="font-medium text-[#f0c040]">
-                                        {formatNumber(row.left_value)}
-                                    </span>
-                                    <span className="text-gray-500">vs</span>
-                                    <span className="font-medium text-blue-400">
-                                        {formatNumber(row.right_value)}
-                                    </span>
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-4 items-center">
-                                    <div className="h-[5px] bg-white/8 rounded-full overflow-hidden flex justify-end">
-                                        <div
-                                            className="h-full bg-[#c49a22] rounded-full"
-                                            style={{ width: `${row.left_percent}%` }}
-                                        />
+                    visibleRows.length > 0 ? (
+                        <div className="space-y-2">
+                            {visibleRows.map((row) => (
+                                <div
+                                    key={row.stat_key}
+                                    className="border border-white/8 bg-[#111] rounded-lg px-3 py-3"
+                                >
+                                    <div className="mb-2">
+                                        <p className="text-[12px] font-medium text-white">
+                                            {row.stat_name}
+                                        </p>
+                                        <p className="text-[10px] text-gray-500">
+                                            {formatCategoryLabel(row.stat_category)}
+                                            {row.stat_unit ? ` · ${row.stat_unit}` : ""}
+                                        </p>
                                     </div>
 
-                                    <div className="h-[5px] bg-white/8 rounded-full overflow-hidden">
-                                        <div
-                                            className="h-full bg-blue-500 rounded-full"
-                                            style={{ width: `${row.right_percent}%` }}
-                                        />
+                                    <div className="flex items-center justify-center gap-2 mb-3 text-[12px]">
+                                        <span className="font-medium text-[#f0c040]">
+                                            {formatNumber(row.left_value)}
+                                        </span>
+                                        <span className="text-gray-500">vs</span>
+                                        <span className="font-medium text-blue-400">
+                                            {formatNumber(row.right_value)}
+                                        </span>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4 items-center">
+                                        <div className="h-[5px] bg-white/8 rounded-full overflow-hidden flex justify-end">
+                                            <div
+                                                className="h-full bg-[#c49a22] rounded-full"
+                                                style={{ width: `${row.left_percent}%` }}
+                                            />
+                                        </div>
+
+                                        <div className="h-[5px] bg-white/8 rounded-full overflow-hidden">
+                                            <div
+                                                className="h-full bg-blue-500 rounded-full"
+                                                style={{ width: `${row.right_percent}%` }}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="py-10 text-center text-sm text-gray-500">
+                            No {statScope === "core" ? "core" : "advanced"} comparison stats
+                            available for the selected players.
+                        </div>
+                    )
                 ) : (
                     <div className="py-10 text-center text-sm text-gray-500">
                         No comparison data available for the selected players.

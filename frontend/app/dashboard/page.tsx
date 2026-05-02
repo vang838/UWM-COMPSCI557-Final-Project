@@ -50,6 +50,7 @@ import {
     getStatValue,
     getStatsForPlayer,
     getTopPerformer,
+    isCoreStatKey,
     noData,
     sortCoachAssignments,
     sortPlayerStats,
@@ -693,6 +694,8 @@ export default function DashboardPage() {
                 ...(resolvedSeasonYear ? { year: resolvedSeasonYear } : {}),
             };
 
+            const shouldShowAllStatTypes = activeSection === "stat-types";
+
             const [
                 playerListResult,
                 statTypeResult,
@@ -700,12 +703,18 @@ export default function DashboardPage() {
                 coachAssignmentResult,
             ] = await Promise.all([
                 safeApiCall<unknown[]>(
-                    () => playerAPI.getAllPlayers(sharedParams),
+                    () => playerAPI.getPlayersWithoutStats(sharedParams),
                     []
                 ),
-                safeApiCall<unknown[]>(() => statAPI.getStatTypes(), []),
                 safeApiCall<unknown[]>(
-                    () => statAPI.getPlayerSeasonStats(sharedParams),
+                    () =>
+                        shouldShowAllStatTypes
+                            ? statAPI.getAllStatTypes()
+                            : statAPI.getCoreStatTypes(),
+                    []
+                ),
+                safeApiCall<unknown[]>(
+                    () => statAPI.getCorePlayerSeasonStats(sharedParams),
                     []
                 ),
                 safeApiCall<unknown[]>(
@@ -751,11 +760,7 @@ export default function DashboardPage() {
         } finally {
             setLoadingDashboardData(false);
         }
-    }, [activeSeason, activeTeamId, authChecked, showError]);
-
-    useEffect(() => {
-        fetchDashboardData();
-    }, [fetchDashboardData]);
+    }, [activeSeason, activeTeamId, activeSection, authChecked, showError]);
 
     const handleLogout = async () => {
         try {
@@ -847,8 +852,10 @@ export default function DashboardPage() {
     const passingYardsValue = sumStats(playerSeasonStats, ["passing_yards"]);
     const rushingYardsValue = sumStats(playerSeasonStats, ["rushing_yards"]);
 
-    const availableLeaderboardStatTypes = statTypes.filter((statType) =>
-        playerSeasonStats.some((stat) => stat.stat_type_key === statType.key)
+    const availableLeaderboardStatTypes = statTypes.filter(
+        (statType) =>
+            isCoreStatKey(statType.key) &&
+            playerSeasonStats.some((stat) => stat.stat_type_key === statType.key)
     );
 
     const resolvedLeaderboardStatKey =

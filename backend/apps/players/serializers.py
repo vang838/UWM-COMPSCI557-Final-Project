@@ -3,8 +3,14 @@ from rest_framework import serializers
 from .models import Player
 from apps.stats.models import PlayerSeasonStat, PositionStatType
 
+from apps.stats.stat_scope import (
+    matches_stat_scope,
+    normalize_include_stats,
+    normalize_stat_scope,
+)
 
 class PlayerSeasonStatSerializer(serializers.ModelSerializer):
+    player_season_stat_id = serializers.IntegerField(source="id", read_only=True)
     stat_type_id = serializers.IntegerField(source="stat_type.stat_type_id", read_only=True)
     stat_type_key = serializers.CharField(source="stat_type.key", read_only=True)
     stat_type_name = serializers.CharField(source="stat_type.name", read_only=True)
@@ -103,19 +109,42 @@ class PlayerDashboardSerializer(serializers.ModelSerializer):
         if not request:
             return roster_queryset
 
+    def get_matching_rosters(self, obj):
+        """
+        Returns this player's roster rows, optionally filtered by the request's
+        selected team and season/year.
+
+        Uses prefetched rows from PlayerViewSet when available.
+        """
+        prefetched_rosters = getattr(obj, "prefetched_matching_rosters", None)
+
+        if prefetched_rosters is not None:
+            return list(prefetched_rosters)
+
+        request = self.context.get("request")
+
+        roster_queryset = obj.season_rosters.select_related(
+            "team_season",
+            "team_season__team",
+            "team_season__season",
+        )
+
+        if not request:
+            return list(roster_queryset)
+
         team_id = (
-            request.query_params.get("team")
-            or request.query_params.get("team_id")
+                request.query_params.get("team")
+                or request.query_params.get("team_id")
         )
 
         season_year = (
-            request.query_params.get("year")
-            or request.query_params.get("season_year")
+                request.query_params.get("year")
+                or request.query_params.get("season_year")
         )
 
         season_id = (
-            request.query_params.get("season")
-            or request.query_params.get("season_id")
+                request.query_params.get("season")
+                or request.query_params.get("season_id")
         )
 
         if team_id:
@@ -133,48 +162,94 @@ class PlayerDashboardSerializer(serializers.ModelSerializer):
                 team_season__season_id=season_id
             )
 
-        return roster_queryset
+        return list(roster_queryset)
 
     def get_jersey_number(self, obj):
         """
         Jersey number is historical roster data, not a direct Player field.
         """
-        roster = (
-            self.get_matching_roster_queryset(obj)
-            .order_by("-team_season__season__year")
-            .first()
-        )
+        rosters = self.get_matching_rosters(obj)
 
-        if not roster:
+        if not rosters:
             return None
 
-        return roster.jersey_number
+        latest_roster = sorted(
+            rosters,
+            key=lambda roster: roster.team_season.season.year,
+            reverse=True,
+        )[0]
+
+        return latest_roster.jersey_number
 
     def get_season_stats(self, obj):
         """
         Return flexible StatType + value records.
 
-        This intentionally does not hardcode passing_yards, rushing_yards,
-        tackles, interceptions, etc. Any player can have any stat if it exists
-        as a PlayerSeasonStat row.
+        Controlled by:
+        include_stats=none/core/advanced/all
+        stat_scope=core/advanced/all
         """
-        roster_ids = self.get_matching_roster_queryset(obj).values_list(
-            "roster_id",
-            flat=True,
+        request = self.context.get("request")
+
+        include_stats = normalize_include_stats(
+            request.query_params.get("include_stats") if request else None,
+            default="core",
         )
 
-        stats = (
-            PlayerSeasonStat.objects.filter(player_roster_id__in=roster_ids)
-            .select_related(
-                "player_roster",
-                "player_roster__player",
-                "player_roster__team_season",
-                "player_roster__team_season__team",
-                "player_roster__team_season__season",
-                "stat_type",
+        if include_stats == "none":
+            return []
+
+        stat_scope = normalize_stat_scope(
+            (
+                request.query_params.get("stat_scope")
+                if request
+                else None
             )
+            or include_stats,
+            default="core",
         )
 
+        rosters = self.get_matching_rosters(obj)
+
+        if not rosters:
+            return []
+
+        stats = []
+        rosters_without_prefetched_stats = []
+
+        for roster in rosters:
+            prefetched_cache = getattr(roster, "_prefetched_objects_cache", {})
+            prefetched_stats = prefetched_cache.get("stats")
+
+            if prefetched_stats is not None:
+                stats.extend(prefetched_stats)
+            else:
+                rosters_without_prefetched_stats.append(roster)
+
+        if rosters_without_prefetched_stats:
+            fallback_stats = (
+                PlayerSeasonStat.objects.filter(
+                    player_roster__in=rosters_without_prefetched_stats
+                )
+                .select_related(
+                    "player_roster",
+                    "player_roster__player",
+                    "player_roster__team_season",
+                    "player_roster__team_season__team",
+                    "player_roster__team_season__season",
+                    "stat_type",
+                )
+            )
+
+            stats.extend(list(fallback_stats))
+
+        filtered_stats = [
+            stat
+            for stat in stats
+            if matches_stat_scope(stat.stat_type.key, stat_scope)
+        ]
+
+        stat_type_ids = [stat.stat_type_id for stat in filtered_stats]
         position = obj.position
 
         primary_stat_map = {
@@ -182,12 +257,15 @@ class PlayerDashboardSerializer(serializers.ModelSerializer):
                 "is_primary": mapping.is_primary,
                 "display_order": mapping.display_order,
             }
-            for mapping in PositionStatType.objects.filter(position=position)
+            for mapping in PositionStatType.objects.filter(
+                position=position,
+                stat_type_id__in=stat_type_ids,
+            )
         }
 
         serialized_stats = []
 
-        for stat in stats:
+        for stat in filtered_stats:
             display_config = primary_stat_map.get(
                 stat.stat_type_id,
                 {
@@ -226,6 +304,7 @@ class PlayerDashboardSerializer(serializers.ModelSerializer):
 
 
 class PlayerSeasonBreakdownSerializer(serializers.ModelSerializer):
+    player_season_stat_id = serializers.IntegerField(source="id", read_only=True)
     stat_type_key = serializers.CharField(source="stat_type.key", read_only=True)
     stat_type_name = serializers.CharField(source="stat_type.name", read_only=True)
     stat_type_category = serializers.CharField(source="stat_type.category", read_only=True)

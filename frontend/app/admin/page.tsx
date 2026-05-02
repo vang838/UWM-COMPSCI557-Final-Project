@@ -65,6 +65,15 @@ import {
     toNumber,
 } from "@/src/utils/stats";
 
+const REPORT_DATA_SECTIONS = new Set([
+    "season-summary",
+    "coaches",
+    "player-stats",
+    "leaderboard",
+    "comparison",
+    "stat-types",
+]);
+
 // ---------------------------------------------------------------------------
 // Nav config
 // ---------------------------------------------------------------------------
@@ -2066,7 +2075,8 @@ export default function AdminPage() {
     const [comparisonError, setComparisonError] = useState("");
     const [loadingComparisonData, setLoadingComparisonData] = useState(false);
 
-    const fetchPlayers = useCallback(() => playerAPI.getAllPlayers(), []);
+    const fetchPlayers = useCallback(() => playerAPI.getPlayersWithoutStats(), []);
+
     const {
         data: playersResponse,
         loading,
@@ -2157,11 +2167,33 @@ export default function AdminPage() {
     }, []);
 
     const fetchDashboardReports = useCallback(async () => {
+        const shouldLoadReports = REPORT_DATA_SECTIONS.has(activeSection);
+        const shouldLoadAllStatTypes = activeSection === "stat-types";
+
         if (!selectedDashboardSeasonYear || !selectedDashboardTeamId) {
             setDashboardPlayers([]);
             setDashboardStats([]);
             setCoachAssignments([]);
-            setLeaderboard([]);
+
+            if (shouldLoadAllStatTypes) {
+                try {
+                    setLoadingDashboardReports(true);
+
+                    const statTypeData = await safeApiCall<unknown[]>(
+                        () => statAPI.getAllStatTypes(),
+                        []
+                    );
+
+                    setStatTypes(normalizeApiList<StatType>(statTypeData));
+                } finally {
+                    setLoadingDashboardReports(false);
+                }
+            }
+
+            return;
+        }
+
+        if (!shouldLoadReports) {
             return;
         }
 
@@ -2173,22 +2205,58 @@ export default function AdminPage() {
                 year: selectedDashboardSeasonYear,
             };
 
+            const shouldLoadCoachAssignments = [
+                "season-summary",
+                "coaches",
+            ].includes(activeSection);
+
+            const shouldLoadStats = [
+                "season-summary",
+                "player-stats",
+                "leaderboard",
+            ].includes(activeSection);
+
+            const shouldLoadPlayers = [
+                "season-summary",
+                "player-stats",
+                "leaderboard",
+                "comparison",
+            ].includes(activeSection);
+
             const [
                 filteredPlayers,
                 statTypeData,
                 playerSeasonStatData,
                 coachAssignmentData,
             ] = await Promise.all([
-                safeApiCall<unknown[]>(() => playerAPI.getAllPlayers(sharedParams), []),
-                safeApiCall<unknown[]>(() => statAPI.getStatTypes(), []),
+                shouldLoadPlayers
+                    ? safeApiCall<unknown[]>(
+                          () => playerAPI.getPlayersWithoutStats(sharedParams),
+                          []
+                      )
+                    : Promise.resolve([]),
+
                 safeApiCall<unknown[]>(
-                    () => statAPI.getPlayerSeasonStats(sharedParams),
+                    () =>
+                        shouldLoadAllStatTypes
+                            ? statAPI.getAllStatTypes()
+                            : statAPI.getCoreStatTypes(),
                     []
                 ),
-                safeApiCall<unknown[]>(
-                    () => coachAPI.getCoachSeasonAssignments(sharedParams),
-                    []
-                ),
+
+                shouldLoadStats
+                    ? safeApiCall<unknown[]>(
+                          () => statAPI.getCorePlayerSeasonStats(sharedParams),
+                          []
+                      )
+                    : Promise.resolve([]),
+
+                shouldLoadCoachAssignments
+                    ? safeApiCall<unknown[]>(
+                          () => coachAPI.getCoachSeasonAssignments(sharedParams),
+                          []
+                      )
+                    : Promise.resolve([]),
             ]);
 
             const normalizedPlayers = normalizeApiList<Player>(filteredPlayers);
@@ -2206,7 +2274,11 @@ export default function AdminPage() {
         } finally {
             setLoadingDashboardReports(false);
         }
-    }, [selectedDashboardSeasonYear, selectedDashboardTeamId]);
+    }, [
+        activeSection,
+        selectedDashboardSeasonYear,
+        selectedDashboardTeamId,
+    ]);
 
     const fetchSelectedRoster = useCallback(async () => {
         if (!selectedRosterSeasonYear || !selectedRosterTeamId) {
@@ -2302,12 +2374,12 @@ export default function AdminPage() {
     }, [authChecked, fetchSelectedRoster]);
 
     useEffect(() => {
-        if (!authChecked) {
+        if (!authChecked || !REPORT_DATA_SECTIONS.has(activeSection)) {
             return;
         }
 
         fetchDashboardReports();
-    }, [authChecked, fetchDashboardReports]);
+    }, [activeSection, authChecked, fetchDashboardReports]);
 
     useEffect(() => {
         if (comparisonPlayerIds.length < 2) {
