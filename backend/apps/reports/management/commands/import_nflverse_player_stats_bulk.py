@@ -88,6 +88,12 @@ class Command(BaseCommand):
             help="Stop the bulk import immediately if one team/year fails.",
         )
 
+        parser.add_argument(
+            "--import-all-numeric",
+            action="store_true",
+            help="Import all numeric nflverse stat columns instead of only the curated stat map.",
+        )
+
     def get_requested_teams(self, options) -> list[str]:
         if options.get("team"):
             return [options["team"].strip().upper()]
