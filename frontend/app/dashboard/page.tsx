@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -13,150 +13,49 @@ import { reportAPI } from "@/src/api/reports";
 import SeasonSummaryPanel from "@/src/components/dashboard/SeasonSummaryPanel";
 import PlayerComparisonPanel from "@/src/components/dashboard/PlayerComparisonPanel";
 import LoadingSpinner from "@/src/components/LoadingSpinner";
-import PageLayout, { NavSection, LayoutTheme, TeamOption } from "@/src/components/pageLayout";
+import PageLayout, {
+    LayoutTheme,
+    NavSection,
+    TeamOption,
+} from "@/src/components/pageLayout";
+import Toast from "@/src/components/ui/Toast";
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
+import { useAuthGuard } from "@/src/hooks/useAuthGuard";
+import { useToast } from "@/src/hooks/useToast";
 
-interface PlayerSeasonStat {
-    player_season_stat_id?: number;
-    player_roster?: number;
-    player_id?: number;
-    player_name?: string;
-    position?: string;
-    team_id?: number;
-    team_name?: string;
-    team_abbreviation?: string;
-    season_id?: number;
-    season_year?: number | string;
-    stat_type?: number;
-    stat_type_key?: string;
-    stat_type_name?: string;
-    stat_type_category?: string;
-    stat_type_unit?: string;
-    value?: number | string;
-    is_primary?: boolean;
-    display_order?: number;
-}
+import {
+    CoachSeasonAssignment,
+    Player,
+    PlayerComparisonReport,
+    PlayerSeasonStat,
+    Season,
+    StatType,
+    Team,
+    TopPerformer,
+} from "@/src/types/dashboard";
 
-interface Player {
-    id?: number;
-    player_id?: number;
-    first_name?: string;
-    last_name?: string;
-    name?: string;
-    position?: string;
-    jersey_number?: number | string;
-    team?: number | string;
-    team_name?: string;
-    is_active?: boolean;
-    season_stats?: PlayerSeasonStat[];
-}
+import {
+    normalizeApiList,
+    safeApiCall,
+    unwrapApiData,
+} from "@/src/utils/apiData";
 
-interface Season {
-    id?: number;
-    season_id?: number;
-    year?: number | string;
-}
-
-interface Team {
-    id?: number;
-    team_id?: number;
-    city?: string;
-    state?: string;
-    team_name?: string;
-    display_name?: string;
-    conference?: string;
-    division?: string;
-    abbreviation?: string;
-    primary_color?: string;
-    secondary_color?: string;
-    text_color?: string;
-}
-
-interface StatType {
-    stat_type_id?: number;
-    key?: string;
-    name?: string;
-    category?: string;
-    unit?: string;
-    description?: string;
-}
-
-interface CoachSeasonAssignment {
-    assignment_id?: number;
-    coach?: number;
-    coach_first_name?: string;
-    coach_last_name?: string;
-    coach_full_name?: string;
-    team_season?: number;
-    team_id?: number;
-    team_name?: string;
-    team_abbreviation?: string;
-    season_id?: number;
-    season_year?: number | string;
-    conference?: string;
-    division?: string;
-    role?: string;
-    is_active?: boolean;
-    start_date?: string | null;
-    end_date?: string | null;
-}
-
-interface LeaderboardRow {
-    player_id?: number;
-    id?: number;
-    player_name?: string;
-    name?: string;
-    first_name?: string;
-    last_name?: string;
-    position?: string;
-    stat_type?: string;
-    stat_value?: number | string;
-    value?: number | string;
-    total?: number | string;
-}
-
-interface PlayerComparisonReportPlayer {
-    player_id: number;
-    first_name?: string;
-    last_name?: string;
-    full_name?: string;
-    position?: string;
-}
-
-interface PlayerComparisonReportRow {
-    stat_key: string;
-    stat_name: string;
-    stat_category: string;
-    stat_unit?: string;
-    left_value: number;
-    right_value: number;
-    left_percent: number;
-    right_percent: number;
-}
-
-interface PlayerComparisonReport {
-    team_id: number;
-    year: number;
-    left_player: PlayerComparisonReportPlayer;
-    right_player: PlayerComparisonReportPlayer;
-    rows: PlayerComparisonReportRow[];
-}
-
-interface TopPerformer {
-    label: string;
-    playerName: string;
-    position?: string;
-    statName: string;
-    value: number;
-    unit?: string;
-}
-
-// ---------------------------------------------------------------------------
-// Nav config
-// ---------------------------------------------------------------------------
+import {
+    buildLeaderboardRows,
+    displayPlayerName,
+    formatStatNumber,
+    getLeaderboardId,
+    getLeaderboardName,
+    getSeasonYearFromLabel,
+    getStatValue,
+    getStatsForPlayer,
+    getTopPerformer,
+    noData,
+    sortCoachAssignments,
+    sortPlayerStats,
+    sumStats,
+    toNumber,
+} from "@/src/utils/stats";
 
 const USER_NAV: NavSection[] = [
     {
@@ -192,245 +91,6 @@ const AVATAR_COLORS = [
     "bg-rose-900/40 text-rose-400",
     "bg-violet-900/40 text-violet-400",
 ];
-
-const COACH_ROLE_ORDER: Record<string, number> = {
-    "Head Coach": 1,
-    "Offensive Coordinator": 2,
-    "Defensive Coordinator": 3,
-    "Special Teams Coordinator": 4,
-};
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function unwrapApiData<T>(response: unknown): T {
-    const maybeResponse = response as { data?: T };
-    return maybeResponse?.data ?? (response as T);
-}
-
-function normalizeApiList<T>(response: unknown): T[] {
-    const data = unwrapApiData<any>(response);
-
-    if (Array.isArray(data)) {
-        return data;
-    }
-
-    if (Array.isArray(data?.results)) {
-        return data.results;
-    }
-
-    return [];
-}
-
-async function safeApiCall<T>(
-    request: () => Promise<unknown>,
-    fallback: T
-): Promise<T> {
-    try {
-        const response = await request();
-        return unwrapApiData<T>(response);
-    } catch {
-        return fallback;
-    }
-}
-
-function displayName(player: Player): string {
-    return (
-        player.name ||
-        `${player.first_name ?? ""} ${player.last_name ?? ""}`.trim() ||
-        "Unknown player"
-    );
-}
-
-function getPlayerId(player: Player, index?: number): number | string {
-    return (
-        player.id ??
-        player.player_id ??
-        `${displayName(player)}-${player.jersey_number ?? index ?? "unknown"}`
-    );
-}
-
-function getLeaderboardName(row: LeaderboardRow): string {
-    return (
-        row.player_name ||
-        row.name ||
-        `${row.first_name ?? ""} ${row.last_name ?? ""}`.trim() ||
-        "Unknown player"
-    );
-}
-
-function getLeaderboardId(row: LeaderboardRow, index: number): number | string {
-    return row.player_id ?? row.id ?? `${getLeaderboardName(row)}-${index}`;
-}
-
-function toNumber(value: unknown): number {
-    const numericValue = Number(value);
-    return Number.isFinite(numericValue) ? numericValue : 0;
-}
-
-function getStatValue(row: LeaderboardRow): number {
-    const rawValue = row.stat_value ?? row.value ?? row.total ?? 0;
-    return toNumber(rawValue);
-}
-
-function getSeasonYearFromLabel(label: string): string | undefined {
-    return label.match(/\d{4}/)?.[0];
-}
-
-function noData(value: unknown): string | number {
-    if (value === null || value === undefined || value === "") {
-        return "No data";
-    }
-
-    return value as string | number;
-}
-
-function formatStatNumber(value: number | undefined): string | number {
-    if (value === undefined) {
-        return "No data";
-    }
-
-    return Number.isInteger(value)
-        ? value.toLocaleString()
-        : value.toLocaleString(undefined, {
-              maximumFractionDigits: 2,
-          });
-}
-
-function sumStats(
-    stats: PlayerSeasonStat[],
-    statKeys: string[]
-): number | undefined {
-    const matchingStats = stats.filter((stat) =>
-        stat.stat_type_key ? statKeys.includes(stat.stat_type_key) : false
-    );
-
-    if (matchingStats.length === 0) {
-        return undefined;
-    }
-
-    return matchingStats.reduce((total, stat) => total + toNumber(stat.value), 0);
-}
-
-function buildLeaderboardRows(
-    stats: PlayerSeasonStat[],
-    statKey: string
-): LeaderboardRow[] {
-    if (!statKey) {
-        return [];
-    }
-
-    return stats
-        .filter((stat) => stat.stat_type_key === statKey)
-        .sort((a, b) => toNumber(b.value) - toNumber(a.value))
-        .map((stat) => ({
-            id: stat.player_season_stat_id,
-            player_id: stat.player_id,
-            player_name: stat.player_name,
-            position: stat.position,
-            stat_type: stat.stat_type_name,
-            stat_value: stat.value,
-            value: stat.value,
-        }));
-}
-
-function getTopPerformer(
-    stats: PlayerSeasonStat[],
-    statKey: string,
-    label: string
-): TopPerformer | null {
-    const sorted = stats
-        .filter((stat) => stat.stat_type_key === statKey)
-        .sort((a, b) => toNumber(b.value) - toNumber(a.value));
-
-    const top = sorted[0];
-
-    if (!top) {
-        return null;
-    }
-
-    return {
-        label,
-        playerName: top.player_name || "Unknown player",
-        position: top.position,
-        statName: top.stat_type_name || top.stat_type_key || statKey,
-        value: toNumber(top.value),
-        unit: top.stat_type_unit,
-    };
-}
-
-function getStatsForPlayer(
-    player: Player,
-    allStats: PlayerSeasonStat[]
-): PlayerSeasonStat[] {
-    const playerId = player.player_id ?? player.id;
-
-    const matchedStats = allStats.filter((stat) => {
-        if (playerId === undefined || stat.player_id === undefined) {
-            return false;
-        }
-
-        return String(stat.player_id) === String(playerId);
-    });
-
-    if (matchedStats.length > 0) {
-        return matchedStats;
-    }
-
-    return player.season_stats ?? [];
-}
-
-function sortPlayerStats(stats: PlayerSeasonStat[]): PlayerSeasonStat[] {
-    return [...stats].sort((a, b) => {
-        const categoryCompare = String(a.stat_type_category ?? "").localeCompare(
-            String(b.stat_type_category ?? "")
-        );
-
-        if (categoryCompare !== 0) {
-            return categoryCompare;
-        }
-
-        return (a.display_order ?? 999) - (b.display_order ?? 999);
-    });
-}
-
-function groupStatsByCategory(
-    stats: PlayerSeasonStat[]
-): Record<string, PlayerSeasonStat[]> {
-    return stats.reduce<Record<string, PlayerSeasonStat[]>>((groups, stat) => {
-        const category = stat.stat_type_category || "other";
-
-        if (!groups[category]) {
-            groups[category] = [];
-        }
-
-        groups[category].push(stat);
-        return groups;
-    }, {});
-}
-
-function formatCategoryLabel(category: string): string {
-    return category
-        .split("_")
-        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-        .join(" ");
-}
-
-function sortCoachAssignments(assignments: CoachSeasonAssignment[]) {
-    return [...assignments].sort((a, b) => {
-        const roleA = COACH_ROLE_ORDER[a.role ?? ""] ?? 999;
-        const roleB = COACH_ROLE_ORDER[b.role ?? ""] ?? 999;
-
-        if (roleA !== roleB) {
-            return roleA - roleB;
-        }
-
-        return String(a.coach_full_name ?? "").localeCompare(
-            String(b.coach_full_name ?? "")
-        );
-    });
-}
 
 function getSectionTitle(section: string): string {
     const titles: Record<string, string> = {
@@ -479,9 +139,35 @@ function buildTeamTheme(team?: Team): Partial<LayoutTheme> {
     };
 }
 
-// ---------------------------------------------------------------------------
-// Small components
-// ---------------------------------------------------------------------------
+function getPlayerId(player: Player, index?: number): number | string {
+    return (
+        player.id ??
+        player.player_id ??
+        `${displayPlayerName(player)}-${player.jersey_number ?? index ?? "unknown"}`
+    );
+}
+
+function groupStatsByCategory(
+    stats: PlayerSeasonStat[]
+): Record<string, PlayerSeasonStat[]> {
+    return stats.reduce<Record<string, PlayerSeasonStat[]>>((groups, stat) => {
+        const category = stat.stat_type_category || "other";
+
+        if (!groups[category]) {
+            groups[category] = [];
+        }
+
+        groups[category].push(stat);
+        return groups;
+    }, {});
+}
+
+function formatCategoryLabel(category: string): string {
+    return category
+        .split("_")
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(" ");
+}
 
 function EmptySection({
     title,
@@ -706,7 +392,11 @@ function CompactSeasonSummaryCard({
 
                         <div className="flex flex-wrap gap-1">
                             {Array.from(
-                                new Set(players.map((player) => player.position).filter(Boolean))
+                                new Set(
+                                    players
+                                        .map((player) => player.position)
+                                        .filter(Boolean)
+                                )
                             )
                                 .sort()
                                 .map((position) => (
@@ -736,7 +426,7 @@ function PlayerDetailModal({
     teamLabel: string;
     onClose: () => void;
 }) {
-    const name = displayName(player);
+    const name = displayPlayerName(player);
     const sortedStats = sortPlayerStats(stats);
     const groupedStats = groupStatsByCategory(sortedStats);
     const categories = Object.keys(groupedStats);
@@ -748,7 +438,8 @@ function PlayerDetailModal({
                     <div>
                         <p className="text-lg font-semibold text-white">{name}</p>
                         <p className="text-[12px] text-gray-500 mt-0.5">
-                            {player.position || "—"} · #{player.jersey_number ?? "—"} · {teamLabel}
+                            {player.position || "—"} · #{player.jersey_number ?? "—"} ·{" "}
+                            {teamLabel}
                         </p>
                     </div>
 
@@ -810,25 +501,13 @@ function PlayerDetailModal({
     );
 }
 
-// ---------------------------------------------------------------------------
-// Page component
-// ---------------------------------------------------------------------------
-
 export default function DashboardPage() {
     const router = useRouter();
-
-    const [authChecked, setAuthChecked] = useState(false);
-    const [username, setUsername] = useState("");
-    const [role, setRole] = useState("");
+    const { authChecked, username, role } = useAuthGuard("user");
+    const { toast, showSuccess, showError, hideToast } = useToast();
 
     const [activeSection, setActiveSection] = useState("dashboard");
     const [activeSeason, setActiveSeason] = useState("");
-
-    const [showError, setShowError] = useState(false);
-    const [errorMsg, setErrorMsg] = useState("");
-
-    const [showSuccess, setShowSuccess] = useState(false);
-    const [successMsg, setSuccessMsg] = useState("");
 
     const [players, setPlayers] = useState<Player[]>([]);
     const [playersLoaded, setPlayersLoaded] = useState(false);
@@ -856,21 +535,6 @@ export default function DashboardPage() {
     const [loadingComparisonData, setLoadingComparisonData] = useState(false);
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        const storedUsername = localStorage.getItem("username");
-        const storedRole = localStorage.getItem("role");
-
-        if (!token || storedRole !== "user") {
-            router.push("/login");
-            return;
-        }
-
-        setUsername(storedUsername || "User");
-        setRole(storedRole || "");
-        setAuthChecked(true);
-    }, [router]);
-
-    useEffect(() => {
         if (!authChecked) {
             return;
         }
@@ -878,28 +542,10 @@ export default function DashboardPage() {
         const loginMessage = sessionStorage.getItem("loginSuccess");
 
         if (loginMessage) {
-            setSuccessMsg(loginMessage);
-            setShowSuccess(true);
+            showSuccess(loginMessage);
             sessionStorage.removeItem("loginSuccess");
-
-            const timeout = setTimeout(() => {
-                setShowSuccess(false);
-            }, 5000);
-
-            return () => clearTimeout(timeout);
         }
-    }, [authChecked]);
-
-    const showTemporaryError = useCallback((message: string) => {
-        setErrorMsg(message);
-        setShowError(true);
-
-        const timeout = setTimeout(() => {
-            setShowError(false);
-        }, 5000);
-
-        return () => clearTimeout(timeout);
-    }, []);
+    }, [authChecked, showSuccess]);
 
     const seasonPills = useMemo(() => {
         return seasons
@@ -1011,8 +657,9 @@ export default function DashboardPage() {
                 .filter((season) => season.year !== undefined && season.year !== null)
                 .sort((a, b) => Number(b.year) - Number(a.year));
 
-            const teamList = normalizeApiList<Team>(teamListRaw)
-                .filter((team) => team.team_id !== undefined || team.id !== undefined);
+            const teamList = normalizeApiList<Team>(teamListRaw).filter(
+                (team) => team.team_id !== undefined || team.id !== undefined
+            );
 
             setSeasons(seasonList);
             setTeams(teamList);
@@ -1056,17 +703,11 @@ export default function DashboardPage() {
                     () => playerAPI.getAllPlayers(sharedParams),
                     []
                 ),
-
-                safeApiCall<unknown[]>(
-                    () => statAPI.getStatTypes(),
-                    []
-                ),
-
+                safeApiCall<unknown[]>(() => statAPI.getStatTypes(), []),
                 safeApiCall<unknown[]>(
                     () => statAPI.getPlayerSeasonStats(sharedParams),
                     []
                 ),
-
                 safeApiCall<unknown[]>(
                     () => coachAPI.getCoachSeasonAssignments(sharedParams),
                     []
@@ -1092,7 +733,7 @@ export default function DashboardPage() {
                 normalizedCoachAssignments.length === 0;
 
             if (noDashboardData) {
-                showTemporaryError("No dashboard data available");
+                showError("No dashboard data available");
             }
         } catch (error) {
             console.error("Unexpected dashboard data error:", error);
@@ -1106,11 +747,11 @@ export default function DashboardPage() {
             setCoachAssignments([]);
             setComparisonReport(null);
 
-            showTemporaryError("No dashboard data available");
+            showError("No dashboard data available");
         } finally {
             setLoadingDashboardData(false);
         }
-    }, [activeSeason, activeTeamId, authChecked, showTemporaryError]);
+    }, [activeSeason, activeTeamId, authChecked, showError]);
 
     useEffect(() => {
         fetchDashboardData();
@@ -1128,16 +769,17 @@ export default function DashboardPage() {
                 },
             });
 
-            if (!response.ok) {
-                const data = await response.json();
-                showTemporaryError(data.error || "Logout failed, please try again");
-                return;
+            if (response.ok) {
+                sessionStorage.setItem(
+                    "logoutSuccess",
+                    "You have been logged out successfully."
+                );
+            } else {
+                sessionStorage.setItem(
+                    "logoutSuccess",
+                    "You have been logged out locally."
+                );
             }
-
-            sessionStorage.setItem(
-                "logoutSuccess",
-                "You have been logged out successfully."
-            );
         } catch (err) {
             console.error("Logout error:", err);
 
@@ -1344,7 +986,7 @@ export default function DashboardPage() {
                 <ul>
                     {rows.length > 0 ? (
                         rows.map((player, index) => {
-                            const name = displayName(player);
+                            const name = displayPlayerName(player);
                             const pos = player.position || "—";
                             const num = player.jersey_number ?? "—";
                             const active = player.is_active !== false;
@@ -1390,9 +1032,7 @@ export default function DashboardPage() {
                     Coaching staff
                 </span>
 
-                <span className="text-[10px] text-gray-500">
-                    {teamLabel}
-                </span>
+                <span className="text-[10px] text-gray-500">{teamLabel}</span>
             </div>
 
             <div className="grid grid-cols-[1.4fr_1.2fr_100px_100px] gap-3 px-3 py-2 border-b border-white/8 text-[10px] uppercase tracking-widest text-gray-500">
@@ -1486,9 +1126,7 @@ export default function DashboardPage() {
                         Player stats
                     </span>
 
-                    <span className="text-[10px] text-gray-500">
-                        {teamLabel}
-                    </span>
+                    <span className="text-[10px] text-gray-500">{teamLabel}</span>
                 </div>
 
                 <div className="grid grid-cols-[1.4fr_80px_80px_2fr_100px] gap-3 px-3 py-2 border-b border-white/8 text-[10px] uppercase tracking-widest text-gray-500">
@@ -1506,7 +1144,10 @@ export default function DashboardPage() {
                         );
 
                         const previewStats = playerStats.slice(0, 3);
-                        const remainingCount = Math.max(playerStats.length - previewStats.length, 0);
+                        const remainingCount = Math.max(
+                            playerStats.length - previewStats.length,
+                            0
+                        );
 
                         return (
                             <div
@@ -1515,7 +1156,7 @@ export default function DashboardPage() {
                                 className="grid grid-cols-[1.4fr_80px_80px_2fr_100px] gap-3 items-center px-3 py-2 border-b border-white/6 last:border-b-0 text-[12px] hover:bg-white/3 cursor-pointer transition-colors"
                             >
                                 <span className="text-white font-medium truncate">
-                                    {displayName(player)}
+                                    {displayPlayerName(player)}
                                 </span>
 
                                 <span className="text-gray-400">
@@ -1540,13 +1181,16 @@ export default function DashboardPage() {
                                                     <span className="text-white">
                                                         {toNumber(stat.value).toLocaleString()}
                                                     </span>
-                                                    {statIndex < previewStats.length - 1 ? " · " : ""}
+                                                    {statIndex < previewStats.length - 1
+                                                        ? " · "
+                                                        : ""}
                                                 </span>
                                             ))}
 
                                             {remainingCount > 0 && (
                                                 <span className="text-gray-500">
-                                                    {" "}· +{remainingCount} more
+                                                    {" "}
+                                                    · +{remainingCount} more
                                                 </span>
                                             )}
                                         </>
@@ -1746,28 +1390,13 @@ export default function DashboardPage() {
                 setActiveSection("dashboard");
             }}
         >
-            {showSuccess && successMsg && (
-                <div className="fixed top-5 right-5 z-50 flex items-center gap-3 bg-emerald-950 border border-emerald-800 text-emerald-300 text-sm px-4 py-3 rounded-lg shadow-xl max-w-sm">
-                    <span className="flex-1">{successMsg}</span>
-                    <button
-                        onClick={() => setShowSuccess(false)}
-                        className="text-emerald-400 hover:text-emerald-200 text-lg leading-none cursor-pointer bg-transparent border-none"
-                    >
-                        ✕
-                    </button>
-                </div>
-            )}
-
-            {showError && errorMsg && (
-                <div className="fixed top-20 right-5 z-50 flex items-center gap-3 bg-red-950 border border-red-800 text-red-300 text-sm px-4 py-3 rounded-lg shadow-xl max-w-sm">
-                    <span className="flex-1">{errorMsg}</span>
-                    <button
-                        onClick={() => setShowError(false)}
-                        className="text-red-400 hover:text-red-200 text-lg leading-none cursor-pointer bg-transparent border-none"
-                    >
-                        ✕
-                    </button>
-                </div>
+            {toast.show && toast.message && (
+                <Toast
+                    type={toast.type}
+                    message={toast.message}
+                    onClose={hideToast}
+                    offset={toast.type === "success" ? "top" : "lower"}
+                />
             )}
 
             {renderDashboardContent()}
