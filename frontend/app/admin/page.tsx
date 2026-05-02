@@ -1,9 +1,11 @@
-'use client';
+"use client";
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+
 import LoadingSpinner from "@/src/components/LoadingSpinner";
-import PageLayout, { NavSection, LayoutTheme } from "@/src/components/pageLayout";
+import PageLayout, { LayoutTheme, NavSection } from "@/src/components/pageLayout";
+import Toast from "@/src/components/ui/Toast";
 
 import { playerAPI } from "@/src/api/players";
 import { seasonAPI } from "@/src/api/seasons";
@@ -18,198 +20,54 @@ import AdminPlayerRecords from "@/src/components/admin/AdminPlayerRecords";
 import AdminUserRolesPanel from "@/src/components/admin/AdminUserRolesPanel";
 
 import { useApiData } from "@/src/hooks/useApiData";
+import { useAuthGuard } from "@/src/hooks/useAuthGuard";
+import { useToast } from "@/src/hooks/useToast";
 
-// Types
-interface PlayerSeasonStat {
-    player_season_stat_id?: number;
-    player_roster?: number;
-    player_id?: number;
-    player_name?: string;
-    position?: string;
-    team_id?: number;
-    team_name?: string;
-    team_abbreviation?: string;
-    season_id?: number;
-    season_year?: number | string;
-    stat_type?: number;
-    stat_type_key?: string;
-    stat_type_name?: string;
-    stat_type_category?: string;
-    stat_type_unit?: string;
-    value?: number | string;
-    is_primary?: boolean;
-    display_order?: number;
-}
+import {
+    CoachSeasonAssignment,
+    LeaderboardRow,
+    Player,
+    PlayerComparisonReport,
+    PlayerSeasonStat,
+    Season,
+    StatType,
+    Team,
+} from "@/src/types/dashboard";
 
-interface Player {
-    id?: number;
-    player_id?: number;
-    first_name?: string;
-    last_name?: string;
-    name?: string;
-    position?: string;
-    jersey_number?: number | string;
-    team?: number | string;
-    team_name?: string;
-    is_active?: boolean;
-    season_stats?: PlayerSeasonStat[];
-}
+import {
+    PlayerFormData,
+    PlayerSeasonRoster,
+    RosterFormData,
+    SeasonFormData,
+    SeasonModalMode,
+    TeamFormData,
+    TeamSeason,
+} from "@/src/types/admin";
 
-interface PlayerFormData {
-    first_name: string;
-    last_name: string;
-    position: string;
-    team: string;
-    is_active: boolean;
-}
+import {
+    normalizeApiList,
+    safeApiCall,
+    unwrapApiData,
+} from "@/src/utils/apiData";
 
-interface Season {
-    id?: number;
-    season_id?: number;
-    year?: number | string;
-}
+import {
+    buildLeaderboardRows,
+    displayPlayerName,
+    getLeaderboardId,
+    getLeaderboardName,
+    getStablePlayerId,
+    getStatValue,
+    getStatsForPlayer,
+    noData,
+    sortCoachAssignments,
+    sortPlayerStats,
+    toNumber,
+} from "@/src/utils/stats";
 
-interface Team {
-    id?: number;
-    team_id?: number;
-    city?: string;
-    state?: string;
-    team_name?: string;
-    display_name?: string;
-    conference?: string;
-    division?: string;
-    abbreviation?: string;
-    primary_color?: string;
-    secondary_color?: string;
-    text_color?: string;
-}
-
-interface TeamFormData {
-    city: string;
-    state: string;
-    team_name: string;
-    conference: string;
-    division: string;
-    abbreviation: string;
-    primary_color: string;
-    secondary_color: string;
-    text_color: string;
-}
-
-interface SeasonFormData {
-    year: string;
-}
-
-interface TeamSeason {
-    team_season_id: number;
-    team: number;
-    season: number;
-    season_year?: number;
-    team_name?: string;
-    team_city?: string;
-    team_display_name?: string;
-    team_abbreviation?: string;
-    conference?: string;
-    division?: string;
-}
-
-interface PlayerSeasonRoster {
-    roster_id: number;
-    player: number;
-    player_name?: string;
-    player_position?: string;
-    team_season: number;
-    team_season_id?: number;
-    team_id?: number;
-    team_display_name?: string;
-    team_abbreviation?: string;
-    season_id?: number;
-    season_year?: number;
-    conference?: string;
-    division?: string;
-    jersey_number?: number | null;
-    roster_status?: string;
-    is_active?: boolean;
-}
-
-interface RosterFormData {
-    player: string;
-    jersey_number: string;
-    roster_status: string;
-    is_active: boolean;
-}
-
-interface StatType {
-    stat_type_id?: number;
-    key?: string;
-    name?: string;
-    category?: string;
-    unit?: string;
-    description?: string;
-}
-
-interface CoachSeasonAssignment {
-    assignment_id?: number;
-    coach?: number;
-    coach_first_name?: string;
-    coach_last_name?: string;
-    coach_full_name?: string;
-    team_season?: number;
-    team_id?: number;
-    team_name?: string;
-    team_abbreviation?: string;
-    season_id?: number;
-    season_year?: number | string;
-    conference?: string;
-    division?: string;
-    role?: string;
-    is_active?: boolean;
-    start_date?: string | null;
-    end_date?: string | null;
-}
-
-interface LeaderboardRow {
-    player_id?: number;
-    id?: number;
-    player_name?: string;
-    name?: string;
-    first_name?: string;
-    last_name?: string;
-    position?: string;
-    stat_type?: string;
-    stat_value?: number | string;
-    value?: number | string;
-    total?: number | string;
-}
-
-interface PlayerComparisonReportPlayer {
-    player_id: number;
-    first_name?: string;
-    last_name?: string;
-    full_name?: string;
-    position?: string;
-}
-
-interface PlayerComparisonReportRow {
-    stat_key: string;
-    stat_name: string;
-    stat_category: string;
-    stat_unit?: string;
-    left_value: number;
-    right_value: number;
-    left_percent: number;
-    right_percent: number;
-}
-
-interface PlayerComparisonReport {
-    team_id: number;
-    year: number;
-    left_player: PlayerComparisonReportPlayer;
-    right_player: PlayerComparisonReportPlayer;
-    rows: PlayerComparisonReportRow[];
-}
-
+// ---------------------------------------------------------------------------
 // Nav config
+// ---------------------------------------------------------------------------
+
 const ADMIN_NAV: NavSection[] = [
     {
         heading: "Overview",
@@ -245,7 +103,6 @@ const ADMIN_NAV: NavSection[] = [
     },
 ];
 
-// UI customization
 const ADMIN_THEME: Partial<LayoutTheme> = {
     sidebarBg: "#111827",
     sidebarText: "#ffffff",
@@ -259,59 +116,15 @@ const ADMIN_THEME: Partial<LayoutTheme> = {
     roleBadgeText: "#e5e7eb",
 };
 
-const COACH_ROLE_ORDER: Record<string, number> = {
-    "Head Coach": 1,
-    "Offensive Coordinator": 2,
-    "Defensive Coordinator": 3,
-    "Special Teams Coordinator": 4,
-};
+// ---------------------------------------------------------------------------
+// Admin-specific helpers
+// ---------------------------------------------------------------------------
 
-// Helpers
-function unwrapApiData<T>(response: unknown): T {
-    const maybeResponse = response as { data?: T };
-    return maybeResponse?.data ?? (response as T);
-}
-
-function normalizeApiList<T>(response: unknown): T[] {
-    const data = unwrapApiData<any>(response);
-
-    if (Array.isArray(data)) {
-        return data;
-    }
-
-    if (Array.isArray(data?.results)) {
-        return data.results;
-    }
-
-    return [];
-}
-
-async function safeApiCall<T>(
-    request: () => Promise<unknown>,
-    fallback: T
-): Promise<T> {
-    try {
-        const response = await request();
-        return unwrapApiData<T>(response);
-    } catch {
-        return fallback;
-    }
-}
-
-function displayPlayerName(player: Player): string {
+function getAdminPlayerKey(player: Player): number | string {
     return (
-        player.name ||
-        `${player.first_name ?? ""} ${player.last_name ?? ""}`.trim() ||
-        "Unknown player"
+        getStablePlayerId(player) ??
+        `${displayPlayerName(player)}-${player.team ?? "unknown"}-${player.position ?? "unknown"}`
     );
-}
-
-function getPlayerId(player: Player): number | string {
-    return player.id ?? player.player_id ?? crypto.randomUUID();
-}
-
-function getStablePlayerId(player: Player): number | string | undefined {
-    return player.player_id ?? player.id;
 }
 
 function playerToFormData(player: Player): PlayerFormData {
@@ -322,14 +135,6 @@ function playerToFormData(player: Player): PlayerFormData {
         team: player.team ? String(player.team) : "",
         is_active: player.is_active !== false,
     };
-}
-
-function noData(value: unknown): string | number {
-    if (value === null || value === undefined || value === "") {
-        return "No data";
-    }
-
-    return value as string | number;
 }
 
 function getTeamId(team: Team): number | string | undefined {
@@ -401,102 +206,10 @@ function getSectionTitle(section: string): string {
     return titles[section] ?? "Admin Dashboard";
 }
 
-function toNumber(value: unknown): number {
-    const numericValue = Number(value);
-    return Number.isFinite(numericValue) ? numericValue : 0;
-}
-
-function getLeaderboardName(row: LeaderboardRow): string {
-    return (
-        row.player_name ||
-        row.name ||
-        `${row.first_name ?? ""} ${row.last_name ?? ""}`.trim() ||
-        "Unknown player"
-    );
-}
-
-function getLeaderboardId(row: LeaderboardRow, index: number): number | string {
-    return row.player_id ?? row.id ?? `${getLeaderboardName(row)}-${index}`;
-}
-
-function getStatValue(row: LeaderboardRow): number {
-    const rawValue = row.stat_value ?? row.value ?? row.total ?? 0;
-    return toNumber(rawValue);
-}
-
-function buildLeaderboardRows(
-    stats: PlayerSeasonStat[],
-    statKey: string
-): LeaderboardRow[] {
-    if (!statKey) {
-        return [];
-    }
-
-    return stats
-        .filter((stat) => stat.stat_type_key === statKey)
-        .sort((a, b) => toNumber(b.value) - toNumber(a.value))
-        .map((stat) => ({
-            id: stat.player_season_stat_id,
-            player_id: stat.player_id,
-            player_name: stat.player_name,
-            position: stat.position,
-            stat_type: stat.stat_type_name,
-            stat_value: stat.value,
-            value: stat.value,
-        }));
-}
-
-function getStatsForPlayer(
-    player: Player,
-    allStats: PlayerSeasonStat[]
-): PlayerSeasonStat[] {
-    const playerId = player.player_id ?? player.id;
-
-    const matchedStats = allStats.filter((stat) => {
-        if (playerId === undefined || stat.player_id === undefined) {
-            return false;
-        }
-
-        return String(stat.player_id) === String(playerId);
-    });
-
-    if (matchedStats.length > 0) {
-        return matchedStats;
-    }
-
-    return player.season_stats ?? [];
-}
-
-function sortPlayerStats(stats: PlayerSeasonStat[]): PlayerSeasonStat[] {
-    return [...stats].sort((a, b) => {
-        const categoryCompare = String(a.stat_type_category ?? "").localeCompare(
-            String(b.stat_type_category ?? "")
-        );
-
-        if (categoryCompare !== 0) {
-            return categoryCompare;
-        }
-
-        return (a.display_order ?? 999) - (b.display_order ?? 999);
-    });
-}
-
-function sortCoachAssignments(assignments: CoachSeasonAssignment[]) {
-    return [...assignments].sort((a, b) => {
-        const roleA = COACH_ROLE_ORDER[a.role ?? ""] ?? 999;
-        const roleB = COACH_ROLE_ORDER[b.role ?? ""] ?? 999;
-
-        if (roleA !== roleB) {
-            return roleA - roleB;
-        }
-
-        return String(a.coach_full_name ?? "").localeCompare(
-            String(b.coach_full_name ?? "")
-        );
-    });
-}
-
+// ---------------------------------------------------------------------------
 // Small components
+// ---------------------------------------------------------------------------
+
 function StatCard({
     label,
     value,
@@ -546,111 +259,6 @@ function AdminActionCard({
                         {action.label}
                     </button>
                 ))}
-            </div>
-        </div>
-    );
-}
-
-function EmptySection({
-    title,
-    description,
-}: {
-    title: string;
-    description: string;
-}) {
-    return (
-        <div className="bg-[#1a1a1a] border border-white/8 rounded-lg p-6 min-h-[220px] flex flex-col items-center justify-center text-center">
-            <p className="text-[14px] font-medium text-white mb-1">{title}</p>
-            <p className="text-[12px] text-gray-500 max-w-md">{description}</p>
-        </div>
-    );
-}
-
-function PlayerRecordsTable({
-    players,
-    onEdit,
-    onDelete,
-}: {
-    players: Player[];
-    onEdit: (player: Player) => void;
-    onDelete: (player: Player) => void;
-}) {
-    return (
-        <div>
-            <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-2">
-                Player records ({players.length})
-            </p>
-
-            <div className="bg-[#1a1a1a] border border-white/8 rounded-lg overflow-hidden">
-                <div className="grid grid-cols-[2fr_1fr_1fr_1fr_auto] gap-3 px-3 py-2 border-b border-white/8 text-[10px] uppercase tracking-widest text-gray-500">
-                    <span>Name</span>
-                    <span>Position</span>
-                    <span>Team</span>
-                    <span>Status</span>
-                    <span>Actions</span>
-                </div>
-
-                {players.length > 0 ? (
-                    players.map((player) => {
-                        const active = player.is_active !== false;
-
-                        return (
-                            <div
-                                key={getPlayerId(player)}
-                                className="grid grid-cols-[2fr_1fr_1fr_1fr_auto] gap-3 items-center px-3 py-2 border-b border-white/6 last:border-b-0 hover:bg-white/3 transition-colors text-[12px]"
-                            >
-                                <span className="text-white font-medium truncate">
-                                    {displayPlayerName(player)}
-                                </span>
-
-                                <span className="text-gray-400">
-                                    {player.position || "—"}
-                                </span>
-
-                                <span className="text-gray-400">
-                                    {player.team ? `#${player.team}` : "—"}
-                                </span>
-
-                                <span>
-                                    <span
-                                        className={`inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full ${
-                                            active
-                                                ? "bg-emerald-900/40 text-emerald-400"
-                                                : "bg-white/5 text-gray-500"
-                                        }`}
-                                    >
-                                        <span
-                                            className={`w-1 h-1 rounded-full inline-block ${
-                                                active ? "bg-emerald-400" : "bg-gray-600"
-                                            }`}
-                                        />
-                                        {active ? "Active" : "Inactive"}
-                                    </span>
-                                </span>
-
-                                <div className="flex gap-1.5">
-                                    <button
-                                        onClick={() => onEdit(player)}
-                                        className="text-[10px] px-2 py-0.5 rounded border border-white/10 text-gray-400 hover:text-white hover:border-white/30 transition-colors cursor-pointer bg-transparent"
-                                    >
-                                        Edit
-                                    </button>
-
-                                    <button
-                                        onClick={() => onDelete(player)}
-                                        className="text-[10px] px-2 py-0.5 rounded border border-red-900/50 text-red-500 hover:border-red-700 hover:text-red-300 transition-colors cursor-pointer bg-transparent"
-                                    >
-                                        Delete
-                                    </button>
-                                </div>
-                            </div>
-                        );
-                    })
-                ) : (
-                    <div className="px-3 py-6 text-center text-[12px] text-gray-500">
-                        No players found.
-                    </div>
-                )}
             </div>
         </div>
     );
@@ -1110,7 +718,7 @@ function PlayerStatsReadOnlyPanel({
 
                     return (
                         <div
-                            key={getPlayerId(player)}
+                            key={getAdminPlayerKey(player)}
                             className="grid grid-cols-[1.4fr_80px_80px_2fr] gap-3 items-center px-3 py-2 border-b border-white/6 last:border-b-0 text-[12px] hover:bg-white/3"
                         >
                             <span className="text-white font-medium truncate">
@@ -1727,7 +1335,11 @@ function EditTeamModal({
                             <div className="flex items-center gap-2">
                                 <input
                                     type={type ?? "text"}
-                                    value={type === "color" ? safeColorValue(formData[field]) : formData[field]}
+                                    value={
+                                        type === "color"
+                                            ? safeColorValue(formData[field])
+                                            : formData[field]
+                                    }
                                     onChange={(event) => onChange(field, event.target.value)}
                                     className={
                                         type === "color"
@@ -1825,7 +1437,7 @@ function SeasonModal({
     onSave,
     saving,
 }: {
-    mode: "create" | "edit";
+    mode: SeasonModalMode;
     formData: SeasonFormData;
     onChange: (value: string) => void;
     onClose: () => void;
@@ -2127,25 +1739,20 @@ function DeleteRosterModal({
     );
 }
 
+// ---------------------------------------------------------------------------
 // Page component
+// ---------------------------------------------------------------------------
+
 export default function AdminPage() {
     const router = useRouter();
+    const { authChecked, username, role } = useAuthGuard("admin");
+    const { toast, showSuccess, showError, hideToast } = useToast();
 
-    const [authChecked, setAuthChecked] = useState(false);
-    const [username, setUsername] = useState("");
-    const [role, setRole] = useState("");
     const [activeSection, setActiveSection] = useState("dashboard");
-
-    // Toast notifications
-    const [showError, setShowError] = useState(false);
-    const [errorMsg, setErrorMsg] = useState("");
-    const [showSuccess, setShowSuccess] = useState(false);
-    const [successMsg, setSuccessMsg] = useState("");
 
     const [teams, setTeams] = useState<Team[]>([]);
     const [seasons, setSeasons] = useState<Season[]>([]);
 
-    // Player modals
     const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
     const [playerFormData, setPlayerFormData] = useState<PlayerFormData | null>(null);
     const [playerPendingDelete, setPlayerPendingDelete] = useState<Player | null>(null);
@@ -2153,14 +1760,12 @@ export default function AdminPage() {
     const [deletingPlayer, setDeletingPlayer] = useState(false);
     const [playerOverrides, setPlayerOverrides] = useState<Player[] | null>(null);
 
-    // Team modals
     const [editingTeam, setEditingTeam] = useState<Team | null>(null);
     const [teamFormData, setTeamFormData] = useState<TeamFormData | null>(null);
     const [teamPendingDelete, setTeamPendingDelete] = useState<Team | null>(null);
     const [savingTeam, setSavingTeam] = useState(false);
     const [deletingTeam, setDeletingTeam] = useState(false);
 
-    // Season modals
     const [editingSeason, setEditingSeason] = useState<Season | null>(null);
     const [seasonFormData, setSeasonFormData] = useState<SeasonFormData | null>(null);
     const [seasonPendingDelete, setSeasonPendingDelete] = useState<Season | null>(null);
@@ -2168,7 +1773,6 @@ export default function AdminPage() {
     const [deletingSeason, setDeletingSeason] = useState(false);
     const [creatingSeason, setCreatingSeason] = useState(false);
 
-    // Team roster state
     const [teamSeasons, setTeamSeasons] = useState<TeamSeason[]>([]);
     const [rosters, setRosters] = useState<PlayerSeasonRoster[]>([]);
 
@@ -2183,7 +1787,6 @@ export default function AdminPage() {
     const [savingRoster, setSavingRoster] = useState(false);
     const [deletingRoster, setDeletingRoster] = useState(false);
 
-    // Read-only dashboard parity state
     const [selectedDashboardSeasonYear, setSelectedDashboardSeasonYear] = useState("");
     const [selectedDashboardTeamId, setSelectedDashboardTeamId] = useState("");
     const [dashboardPlayers, setDashboardPlayers] = useState<Player[]>([]);
@@ -2195,7 +1798,6 @@ export default function AdminPage() {
         useState("receiving_yards");
     const [loadingDashboardReports, setLoadingDashboardReports] = useState(false);
 
-    // SQL comparison state
     const [leftComparisonPlayerId, setLeftComparisonPlayerId] = useState("");
     const [rightComparisonPlayerId, setRightComparisonPlayerId] = useState("");
     const [comparisonReport, setComparisonReport] =
@@ -2223,8 +1825,8 @@ export default function AdminPage() {
 
     const dashboardTeamLabel = selectedDashboardTeam
         ? `${selectedDashboardTeam.abbreviation || getTeamDisplayName(selectedDashboardTeam)}${
-            selectedDashboardSeasonYear ? ` · ${selectedDashboardSeasonYear}` : ""
-        }`
+              selectedDashboardSeasonYear ? ` · ${selectedDashboardSeasonYear}` : ""
+          }`
         : selectedDashboardSeasonYear
             ? `Team · ${selectedDashboardSeasonYear}`
             : "Team";
@@ -2243,6 +1845,20 @@ export default function AdminPage() {
             );
         });
     }, [teamSeasons, selectedRosterTeamId, selectedRosterSeasonYear]);
+
+    const showTemporaryError = useCallback(
+        (message: string) => {
+            showError(message);
+        },
+        [showError]
+    );
+
+    const showTemporarySuccess = useCallback(
+        (message: string) => {
+            showSuccess(message);
+        },
+        [showSuccess]
+    );
 
     const fetchAdminReferenceData = useCallback(async () => {
         const [seasonData, teamData, teamSeasonData] = await Promise.all([
@@ -2364,21 +1980,6 @@ export default function AdminPage() {
     }, [selectedRosterSeasonYear, selectedRosterTeamId]);
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        const storedUsername = localStorage.getItem("username");
-        const storedRole = localStorage.getItem("role");
-
-        if (!token || storedRole !== "admin") {
-            router.push("/login");
-            return;
-        }
-
-        setUsername(storedUsername || "Admin");
-        setRole(storedRole || "");
-        setAuthChecked(true);
-    }, [router]);
-
-    useEffect(() => {
         if (!authChecked) {
             return;
         }
@@ -2386,17 +1987,10 @@ export default function AdminPage() {
         const loginMessage = sessionStorage.getItem("loginSuccess");
 
         if (loginMessage) {
-            setSuccessMsg(loginMessage);
-            setShowSuccess(true);
+            showSuccess(loginMessage);
             sessionStorage.removeItem("loginSuccess");
-
-            const timeout = setTimeout(() => {
-                setShowSuccess(false);
-            }, 5000);
-
-            return () => clearTimeout(timeout);
         }
-    }, [authChecked]);
+    }, [authChecked, showSuccess]);
 
     useEffect(() => {
         if (!authChecked) {
@@ -2529,31 +2123,10 @@ export default function AdminPage() {
 
     useEffect(() => {
         if (apiError) {
-            setErrorMsg(String(apiError));
-            setShowError(true);
-
-            const timeout = setTimeout(() => setShowError(false), 5000);
-            return () => clearTimeout(timeout);
+            showError(String(apiError));
         }
-    }, [apiError]);
+    }, [apiError, showError]);
 
-    const showTemporaryError = useCallback((message: string) => {
-        setErrorMsg(message);
-        setShowError(true);
-
-        const timeout = setTimeout(() => setShowError(false), 5000);
-        return () => clearTimeout(timeout);
-    }, []);
-
-    const showTemporarySuccess = useCallback((message: string) => {
-        setSuccessMsg(message);
-        setShowSuccess(true);
-
-        const timeout = setTimeout(() => setShowSuccess(false), 5000);
-        return () => clearTimeout(timeout);
-    }, []);
-
-    // Handlers
     const handleLogout = async () => {
         try {
             const token = localStorage.getItem("token");
@@ -2566,16 +2139,17 @@ export default function AdminPage() {
                 },
             });
 
-            if (!response.ok) {
-                const data = await response.json();
-                showTemporaryError(data.error || "Logout failed, please try again");
-                return;
+            if (response.ok) {
+                sessionStorage.setItem(
+                    "logoutSuccess",
+                    "You have been logged out successfully."
+                );
+            } else {
+                sessionStorage.setItem(
+                    "logoutSuccess",
+                    "You have been logged out locally."
+                );
             }
-
-            sessionStorage.setItem(
-                "logoutSuccess",
-                "You have been logged out successfully."
-            );
         } catch (err) {
             console.error("Logout error:", err);
 
@@ -2592,7 +2166,6 @@ export default function AdminPage() {
         }
     };
 
-    // Player handlers
     const handleEditPlayer = (player: Player) => {
         setEditingPlayer(player);
         setPlayerFormData(playerToFormData(player));
@@ -2733,7 +2306,6 @@ export default function AdminPage() {
         }
     };
 
-    // Team handlers
     const handleEditTeam = (team: Team) => {
         setEditingTeam(team);
         setTeamFormData(teamToFormData(team));
@@ -2838,7 +2410,6 @@ export default function AdminPage() {
         }
     };
 
-    // Season handlers
     const handleAddSeason = () => {
         setEditingSeason(null);
         setSeasonFormData({ year: "" });
@@ -2940,7 +2511,6 @@ export default function AdminPage() {
         }
     };
 
-    // Roster handlers
     const handleOpenAddRoster = () => {
         if (!selectedTeamSeason) {
             showTemporaryError("Select a valid season and team before adding a player");
@@ -3247,28 +2817,13 @@ export default function AdminPage() {
             teamLabel="Admin Console"
             theme={ADMIN_THEME}
         >
-            {showError && errorMsg && (
-                <div className="fixed top-5 right-5 z-50 flex items-center gap-3 bg-red-950 border border-red-800 text-red-300 text-sm px-4 py-3 rounded-lg shadow-xl max-w-sm">
-                    <span className="flex-1">{errorMsg}</span>
-                    <button
-                        onClick={() => setShowError(false)}
-                        className="text-red-400 hover:text-red-200 text-lg leading-none cursor-pointer bg-transparent border-none"
-                    >
-                        ✕
-                    </button>
-                </div>
-            )}
-
-            {showSuccess && successMsg && (
-                <div className="fixed top-20 right-5 z-50 flex items-center gap-3 bg-emerald-950 border border-emerald-800 text-emerald-300 text-sm px-4 py-3 rounded-lg shadow-xl max-w-sm">
-                    <span className="flex-1">{successMsg}</span>
-                    <button
-                        onClick={() => setShowSuccess(false)}
-                        className="text-emerald-400 hover:text-emerald-200 text-lg leading-none cursor-pointer bg-transparent border-none"
-                    >
-                        ✕
-                    </button>
-                </div>
+            {toast.show && toast.message && (
+                <Toast
+                    type={toast.type}
+                    message={toast.message}
+                    onClose={hideToast}
+                    offset={toast.type === "success" ? "lower" : "top"}
+                />
             )}
 
             {renderAdminContent()}
