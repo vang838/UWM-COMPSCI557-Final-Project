@@ -50,6 +50,12 @@ class Command(BaseCommand):
             help="Run the import and report changes without committing to the database.",
         )
 
+        parser.add_argument(
+            "--import-all-numeric",
+            action="store_true",
+            help="Import all numeric nflverse stat columns instead of only the curated stat map.",
+        )
+
     def handle(self, *args, **options):
         input_path = Path(options["file"])
 
@@ -64,6 +70,7 @@ class Command(BaseCommand):
                 season_type=options["season_type"],
                 skip_zero_values=not options["include_zero_values"],
                 dry_run=options["dry_run"],
+                import_all_numeric=options["import_all_numeric"],
             )
 
         except NflverseImportError as error:

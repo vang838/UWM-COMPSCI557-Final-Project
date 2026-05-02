@@ -139,6 +139,7 @@ class Command(BaseCommand):
         force_download = options["force_download"]
         include_zero_values = options["include_zero_values"]
         stop_on_error = options["stop_on_error"]
+        import_all_numeric = options["import_all_numeric"]
 
         if start_year > end_year:
             raise CommandError("--start-year cannot be greater than --end-year")
@@ -165,6 +166,7 @@ class Command(BaseCommand):
         self.stdout.write(f"years: {start_year}-{end_year}")
         self.stdout.write(f"season_type: {season_type}")
         self.stdout.write(f"dry_run: {dry_run}")
+        self.stdout.write(f"import_all_numeric: {import_all_numeric}")
 
         for year in range(start_year, end_year + 1):
             years_attempted += 1
@@ -215,6 +217,7 @@ class Command(BaseCommand):
                         season_type=season_type,
                         skip_zero_values=not include_zero_values,
                         dry_run=dry_run,
+                        import_all_numeric=import_all_numeric,
                     )
 
                     team_year_successes += 1
