@@ -16,3 +16,15 @@ class Player(models.Model):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
+    
+
+
+class Teams(models.Model):
+    team_id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=100)
+    city = models.CharField(max_length=100)
+    coach = models.CharField(max_length=100)
+    established_year = models.IntegerField()
+
+    def __str__(self):
+        return self.name
