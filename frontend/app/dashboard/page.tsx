@@ -6,6 +6,7 @@ import React, {
     useMemo,
     useRef,
     useState,
+    useTransition,
 } from "react";
 import { useRouter } from "next/navigation";
 
@@ -78,14 +79,14 @@ const USER_NAV: NavSection[] = [
         items: [
             { label: "Players", section: "players" },
             { label: "Coaches", section: "coaches" },
-            { label: "Team roster", section: "team-roster" },
+            { label: "Team Roster", section: "team-roster" },
         ],
     },
     {
         heading: "Stats",
         items: [
-            { label: "Player stats", section: "player-stats" },
-            { label: "Stat types", section: "stat-types" },
+            { label: "Player Statistics", section: "player-stats" },
+            { label: "Statistic Types", section: "stat-types" },
             { label: "Leaderboard", section: "leaderboard" },
             { label: "Comparison", section: "comparison" },
         ],
@@ -139,7 +140,7 @@ function getSectionTitle(section: string): string {
         players: "Players",
         coaches: "Coaches",
         "team-roster": "Team Roster",
-        "player-stats": "Player Stats",
+        "player-stats": "Player Statistics",
         "stat-types": "Stat Types",
         leaderboard: "Leaderboard",
         comparison: "Player Comparison",
@@ -291,6 +292,8 @@ function PlayerAvatar({
             <img
                 src={player.headshot_url}
                 alt={name}
+                loading="lazy"
+                decoding="async"
                 className={`${sizeClasses[size]} rounded-full object-cover border border-white/10 bg-[#111] shrink-0`}
             />
         );
@@ -598,10 +601,46 @@ function PlayerDetailModal({
     );
 }
 
+const RosterPlayerRow = React.memo(function RosterPlayerRow({
+    player,
+    index,
+    onOpenPlayerDetails,
+}: {
+    player: Player;
+    index: number;
+    onOpenPlayerDetails: (player: Player) => void;
+}) {
+    const name = displayPlayerName(player);
+    const pos = player.position || "—";
+    const active = player.is_active !== false;
+
+    return (
+        <li
+            onClick={() => onOpenPlayerDetails(player)}
+            className="flex items-center gap-2 px-3 py-1.5 border-b border-white/6 last:border-b-0 text-[12px] hover:bg-white/3 cursor-pointer transition-colors"
+        >
+            <PlayerAvatar player={player} size="sm" />
+
+            <span className="flex-1 text-white truncate">{name}</span>
+
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/6 text-gray-400">
+                {pos}
+            </span>
+
+            <span
+                className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                    active ? "bg-emerald-500" : "bg-white/20"
+                }`}
+            />
+        </li>
+    );
+});
+
 export default function DashboardPage() {
     const router = useRouter();
     const { authChecked, username, role } = useAuthGuard("user");
     const { toast, showSuccess, showError, hideToast } = useToast();
+    const [isPendingSectionChange, startTransition] = useTransition();
 
     const referenceLoadedRef = useRef(false);
     const playersCacheRef = useRef<Record<string, Player[]>>({});
@@ -641,6 +680,15 @@ export default function DashboardPage() {
     const [initialLoading, setInitialLoading] = useState(true);
     const [sectionLoading, setSectionLoading] = useState(false);
     const [loadingComparisonData, setLoadingComparisonData] = useState(false);
+
+    const handleSectionChange = useCallback(
+        (section: string) => {
+            startTransition(() => {
+                setActiveSection(section);
+            });
+        },
+        [startTransition]
+    );
 
     useEffect(() => {
         if (!authChecked) {
@@ -888,16 +936,17 @@ export default function DashboardPage() {
                     setCoachAssignments(coachAssignmentResult);
                 }
 
-                const noDashboardData =
-                    (playerListResult?.length ?? players.length) === 0 &&
-                    (playerSeasonStatsResult?.length ?? playerSeasonStats.length) === 0 &&
-                    (coachAssignmentResult?.length ?? coachAssignments.length) === 0 &&
-                    (statTypeResult?.length ?? statTypes.length) === 0;
-
                 const shouldWarnAboutEmptyDashboard =
                     activeSection === "dashboard" || activeSection === "season-summary";
 
-                if (shouldWarnAboutEmptyDashboard && noDashboardData) {
+                const noDashboardData =
+                    shouldWarnAboutEmptyDashboard &&
+                    (playerListResult?.length ?? 0) === 0 &&
+                    (playerSeasonStatsResult?.length ?? 0) === 0 &&
+                    (coachAssignmentResult?.length ?? 0) === 0 &&
+                    (statTypeResult?.length ?? 0) === 0;
+
+                if (noDashboardData) {
                     showError("No dashboard data available");
                 }
             } catch (error) {
@@ -922,22 +971,18 @@ export default function DashboardPage() {
         activeSection,
         activeTeamId,
         authChecked,
-        coachAssignments.length,
         initialLoading,
-        playerSeasonStats.length,
-        players.length,
         selectedSeasonYear,
         showError,
-        statTypes.length,
     ]);
 
-    const playerList = players;
+    const playerList = useMemo(() => players, [players]);
 
     const comparisonPlayerIds = useMemo(() => {
-        return players
+        return playerList
             .map((player) => String(player.player_id ?? player.id ?? ""))
             .filter(Boolean);
-    }, [players]);
+    }, [playerList]);
 
     useEffect(() => {
         if (comparisonPlayerIds.length < 2) {
@@ -1212,7 +1257,7 @@ export default function DashboardPage() {
                         value={resolvedLeaderboardStatKey}
                         onChange={(event) => {
                             setActiveLeaderboardStatKey(event.target.value);
-                            setActiveSection("leaderboard");
+                            handleSectionChange("leaderboard");
                         }}
                         className="bg-[#111] border border-white/10 rounded px-2 py-1 text-[10px] text-gray-300 outline-none focus:border-white/30"
                     >
@@ -1296,7 +1341,7 @@ export default function DashboardPage() {
 
                     {limit && playerList.length > limit && (
                         <button
-                            onClick={() => setActiveSection("players")}
+                            onClick={() => handleSectionChange("players")}
                             className="text-[10px] text-gray-400 hover:text-white transition-colors cursor-pointer bg-transparent border-none"
                         >
                             View all →
@@ -1306,33 +1351,14 @@ export default function DashboardPage() {
 
                 <ul>
                     {rows.length > 0 ? (
-                        rows.map((player, index) => {
-                            const name = displayPlayerName(player);
-                            const pos = player.position || "—";
-                            const active = player.is_active !== false;
-
-                            return (
-                                <li
-                                    key={getPlayerId(player, index)}
-                                    onClick={() => handleOpenPlayerDetails(player)}
-                                    className="flex items-center gap-2 px-3 py-1.5 border-b border-white/6 last:border-b-0 text-[12px] hover:bg-white/3 cursor-pointer transition-colors"
-                                >
-                                    <PlayerAvatar player={player} size="sm" />
-
-                                    <span className="flex-1 text-white truncate">{name}</span>
-
-                                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/6 text-gray-400">
-                                        {pos}
-                                    </span>
-
-                                    <span
-                                        className={`w-1.5 h-1.5 rounded-full shrink-0 ${
-                                            active ? "bg-emerald-500" : "bg-white/20"
-                                        }`}
-                                    />
-                                </li>
-                            );
-                        })
+                        rows.map((player, index) => (
+                            <RosterPlayerRow
+                                key={getPlayerId(player, index)}
+                                player={player}
+                                index={index}
+                                onOpenPlayerDetails={handleOpenPlayerDetails}
+                            />
+                        ))
                     ) : (
                         <li className="px-3 py-4 text-center text-gray-500 text-sm">
                             No players found in roster
@@ -1412,8 +1438,8 @@ export default function DashboardPage() {
 
     const renderTeamRosterPanel = () => (
         <div className="space-y-3">
-            {renderRosterPanel(undefined, "Team roster")}
             {renderCoachesPanel()}
+            {renderRosterPanel(undefined, "Team Roster")}
         </div>
     );
 
@@ -1441,7 +1467,7 @@ export default function DashboardPage() {
             <div className="bg-[#1a1a1a] border border-white/8 rounded-lg overflow-hidden">
                 <div className="flex items-center justify-between px-3 py-2 border-b border-white/8">
                     <span className="text-[11px] font-medium uppercase tracking-widest text-gray-300">
-                        Player stats
+                        Player Statistics
                     </span>
 
                     <span className="text-[10px] text-gray-500">{teamLabel}</span>
@@ -1623,7 +1649,7 @@ export default function DashboardPage() {
                     coaches={coachAssignments}
                     teamLabel={teamLabel}
                     selectedSeasonYear={selectedSeasonYear}
-                    onViewFullSummary={() => setActiveSection("season-summary")}
+                    onViewFullSummary={() => handleSectionChange("season-summary")}
                 />
                 {renderComparisonPanel()}
             </div>
@@ -1684,7 +1710,7 @@ export default function DashboardPage() {
             onLogout={handleLogout}
             navSections={USER_NAV}
             activeSection={activeSection}
-            onSectionChange={setActiveSection}
+            onSectionChange={handleSectionChange}
             title={getSectionTitle(activeSection)}
             seasonPills={seasonPills}
             activeSeason={activeSeason}
@@ -1705,7 +1731,7 @@ export default function DashboardPage() {
                 setComparisonError("");
                 setLeftComparisonPlayerId("");
                 setRightComparisonPlayerId("");
-                setActiveSection("dashboard");
+                handleSectionChange("dashboard");
             }}
         >
             {toast.show && toast.message && (
@@ -1717,7 +1743,7 @@ export default function DashboardPage() {
                 />
             )}
 
-            {sectionLoading && (
+            {(sectionLoading || isPendingSectionChange) && (
                 <div className="rounded-lg border border-white/8 bg-[#1a1a1a] px-3 py-2 text-[11px] text-gray-400">
                     Updating {getSectionTitle(activeSection).toLowerCase()} data...
                 </div>

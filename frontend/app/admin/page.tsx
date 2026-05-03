@@ -1,6 +1,13 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+    useTransition,
+} from "react";
 import { useRouter } from "next/navigation";
 
 import LoadingSpinner from "@/src/components/LoadingSpinner";
@@ -215,6 +222,10 @@ function getSectionTitle(section: string): string {
     return titles[section] ?? "Admin Dashboard";
 }
 
+function getTeamSeasonCacheKey(teamId: string, year: string): string {
+    return `${teamId}:${year}`;
+}
+
 const STAT_TYPE_CATEGORY_OPTIONS = [
     "passing",
     "rushing",
@@ -326,7 +337,10 @@ function AdminOverview({
     onEditPlayer: (player: Player) => void;
     onDeletePlayer: (player: Player) => void;
 }) {
-    const activePlayers = players.filter((player) => player.is_active !== false);
+    const activePlayers = useMemo(
+        () => players.filter((player) => player.is_active !== false),
+        [players]
+    );
 
     return (
         <>
@@ -653,7 +667,10 @@ function CoachesReadOnlyPanel({
     teamLabel: string;
     loading: boolean;
 }) {
-    const sortedAssignments = sortCoachAssignments(assignments);
+    const sortedAssignments = useMemo(
+        () => sortCoachAssignments(assignments),
+        [assignments]
+    );
 
     return (
         <div className="bg-[#1a1a1a] border border-white/8 rounded-lg overflow-hidden">
@@ -758,57 +775,13 @@ function PlayerStatsReadOnlyPanel({
                     Loading player stats...
                 </div>
             ) : players.length > 0 ? (
-                players.map((player) => {
-                    const playerStats = sortPlayerStats(getStatsForPlayer(player, stats));
-                    const previewStats = playerStats.slice(0, 3);
-                    const remainingCount = Math.max(playerStats.length - previewStats.length, 0);
-
-                    return (
-                        <div
-                            key={getAdminPlayerKey(player)}
-                            className="grid grid-cols-[1.4fr_80px_80px_2fr] gap-3 items-center px-3 py-2 border-b border-white/6 last:border-b-0 text-[12px] hover:bg-white/3"
-                        >
-                            <span className="text-white font-medium truncate">
-                                {displayPlayerName(player)}
-                            </span>
-
-                            <span className="text-gray-400">{player.position || "—"}</span>
-
-                            <span className="text-gray-400">
-                                #{player.jersey_number ?? "—"}
-                            </span>
-
-                            <span className="text-gray-400 truncate">
-                                {previewStats.length > 0 ? (
-                                    <>
-                                        {previewStats.map((stat, statIndex) => (
-                                            <span
-                                                key={
-                                                    stat.player_season_stat_id ??
-                                                    `${stat.stat_type_key}-${statIndex}`
-                                                }
-                                            >
-                                                {stat.stat_type_name}:{" "}
-                                                <span className="text-white">
-                                                    {toNumber(stat.value).toLocaleString()}
-                                                </span>
-                                                {statIndex < previewStats.length - 1 ? " · " : ""}
-                                            </span>
-                                        ))}
-
-                                        {remainingCount > 0 && (
-                                            <span className="text-gray-500">
-                                                {" "}· +{remainingCount} more
-                                            </span>
-                                        )}
-                                    </>
-                                ) : (
-                                    "No stats"
-                                )}
-                            </span>
-                        </div>
-                    );
-                })
+                players.map((player) => (
+                    <AdminPlayerStatsRow
+                        key={getAdminPlayerKey(player)}
+                        player={player}
+                        stats={stats}
+                    />
+                ))
             ) : (
                 <div className="px-3 py-6 text-center text-[12px] text-gray-500">
                     No players available for this team and season.
@@ -1155,42 +1128,11 @@ function TeamRosterPanel({
                     </div>
                 ) : rosters.length > 0 ? (
                     rosters.map((roster) => (
-                        <div
+                        <TeamRosterRow
                             key={roster.roster_id}
-                            className="grid grid-cols-[2fr_1fr_1fr_1fr_auto] gap-3 items-center px-3 py-2 border-b border-white/6 last:border-b-0 hover:bg-white/3 transition-colors text-[12px]"
-                        >
-                            <span className="text-white font-medium truncate">
-                                {roster.player_name || `Player #${roster.player}`}
-                            </span>
-
-                            <span className="text-gray-400">
-                                {roster.player_position || "—"}
-                            </span>
-
-                            <span className="text-gray-400">
-                                {roster.jersey_number ?? "—"}
-                            </span>
-
-                            <span
-                                className={
-                                    roster.is_active
-                                        ? "text-emerald-400"
-                                        : "text-gray-500"
-                                }
-                            >
-                                {roster.roster_status ||
-                                    (roster.is_active ? "Active" : "Inactive")}
-                            </span>
-
-                            <div className="flex gap-1.5">
-                                <button
-                                    onClick={() => onDeleteRoster(roster)}
-                                    className="text-[10px] px-2 py-0.5 rounded border border-red-900/50 text-red-500 hover:border-red-700 hover:text-red-300 transition-colors cursor-pointer bg-transparent"
-                                >
-                                    Remove
-                                </button>
-                            </div>
-                        </div>
+                            roster={roster}
+                            onDeleteRoster={onDeleteRoster}
+                        />
                     ))
                 ) : (
                     <div className="px-3 py-6 text-center text-[12px] text-gray-500">
@@ -1648,19 +1590,24 @@ function RosterModal({
     onSave: () => void;
     saving: boolean;
 }) {
-    const assignedPlayerIds = new Set(
-        existingRosters.map((roster) => String(roster.player))
+    const assignedPlayerIds = useMemo(
+        () => new Set(existingRosters.map((roster) => String(roster.player))),
+        [existingRosters]
     );
 
-    const availablePlayers = players.filter((player) => {
-        const playerId = getStablePlayerId(player);
+    const availablePlayers = useMemo(
+        () =>
+            players.filter((player) => {
+                const playerId = getStablePlayerId(player);
 
-        if (playerId === undefined) {
-            return false;
-        }
+                if (playerId === undefined) {
+                    return false;
+                }
 
-        return !assignedPlayerIds.has(String(playerId));
-    });
+                return !assignedPlayerIds.has(String(playerId));
+            }),
+        [assignedPlayerIds, players]
+    );
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
@@ -2002,6 +1949,107 @@ function DeleteStatTypeModal({
         );
     }
 
+
+const AdminPlayerStatsRow = React.memo(function AdminPlayerStatsRow({
+    player,
+    stats,
+}: {
+    player: Player;
+    stats: PlayerSeasonStat[];
+}) {
+    const playerStats = useMemo(
+        () => sortPlayerStats(getStatsForPlayer(player, stats)),
+        [player, stats]
+    );
+
+    const previewStats = playerStats.slice(0, 3);
+    const remainingCount = Math.max(playerStats.length - previewStats.length, 0);
+
+    return (
+        <div className="grid grid-cols-[1.4fr_80px_80px_2fr] gap-3 items-center px-3 py-2 border-b border-white/6 last:border-b-0 text-[12px] hover:bg-white/3">
+            <span className="text-white font-medium truncate">
+                {displayPlayerName(player)}
+            </span>
+
+            <span className="text-gray-400">{player.position || "—"}</span>
+
+            <span className="text-gray-400">
+                #{player.jersey_number ?? "—"}
+            </span>
+
+            <span className="text-gray-400 truncate">
+                {previewStats.length > 0 ? (
+                    <>
+                        {previewStats.map((stat, statIndex) => (
+                            <span
+                                key={
+                                    stat.player_season_stat_id ??
+                                    `${stat.stat_type_key}-${statIndex}`
+                                }
+                            >
+                                {stat.stat_type_name}:{" "}
+                                <span className="text-white">
+                                    {toNumber(stat.value).toLocaleString()}
+                                </span>
+                                {statIndex < previewStats.length - 1 ? " · " : ""}
+                            </span>
+                        ))}
+
+                        {remainingCount > 0 && (
+                            <span className="text-gray-500">
+                                {" "}· +{remainingCount} more
+                            </span>
+                        )}
+                    </>
+                ) : (
+                    "No stats"
+                )}
+            </span>
+        </div>
+    );
+});
+
+const TeamRosterRow = React.memo(function TeamRosterRow({
+    roster,
+    onDeleteRoster,
+}: {
+    roster: PlayerSeasonRoster;
+    onDeleteRoster: (roster: PlayerSeasonRoster) => void;
+}) {
+    return (
+        <div className="grid grid-cols-[2fr_1fr_1fr_1fr_auto] gap-3 items-center px-3 py-2 border-b border-white/6 last:border-b-0 hover:bg-white/3 transition-colors text-[12px]">
+            <span className="text-white font-medium truncate">
+                {roster.player_name || `Player #${roster.player}`}
+            </span>
+
+            <span className="text-gray-400">
+                {roster.player_position || "—"}
+            </span>
+
+            <span className="text-gray-400">
+                {roster.jersey_number ?? "—"}
+            </span>
+
+            <span
+                className={
+                    roster.is_active ? "text-emerald-400" : "text-gray-500"
+                }
+            >
+                {roster.roster_status || (roster.is_active ? "Active" : "Inactive")}
+            </span>
+
+            <div className="flex gap-1.5">
+                <button
+                    onClick={() => onDeleteRoster(roster)}
+                    className="text-[10px] px-2 py-0.5 rounded border border-red-900/50 text-red-500 hover:border-red-700 hover:text-red-300 transition-colors cursor-pointer bg-transparent"
+                >
+                    Remove
+                </button>
+            </div>
+        </div>
+    );
+});
+
 // ---------------------------------------------------------------------------
 // Page component
 // ---------------------------------------------------------------------------
@@ -2010,6 +2058,7 @@ export default function AdminPage() {
     const router = useRouter();
     const { authChecked, username, role } = useAuthGuard("admin");
     const { toast, showSuccess, showError, hideToast } = useToast();
+    const [isPendingSectionChange, startTransition] = useTransition();
 
     const [activeSection, setActiveSection] = useState("dashboard");
 
@@ -2075,6 +2124,12 @@ export default function AdminPage() {
     const [comparisonError, setComparisonError] = useState("");
     const [loadingComparisonData, setLoadingComparisonData] = useState(false);
 
+    const dashboardPlayersCacheRef = useRef<Record<string, Player[]>>({});
+    const dashboardStatsCacheRef = useRef<Record<string, PlayerSeasonStat[]>>({});
+    const dashboardCoachesCacheRef = useRef<Record<string, CoachSeasonAssignment[]>>({});
+    const statTypesCacheRef = useRef<Record<string, StatType[]>>({});
+    const rostersCacheRef = useRef<Record<string, PlayerSeasonRoster[]>>({});
+
     const fetchPlayers = useCallback(() => playerAPI.getPlayersWithoutStats(), []);
 
     const {
@@ -2088,7 +2143,19 @@ export default function AdminPage() {
         [playersResponse]
     );
 
-    const playerList = playerOverrides ?? basePlayerList;
+    const playerList = useMemo(
+        () => playerOverrides ?? basePlayerList,
+        [basePlayerList, playerOverrides]
+    );
+
+    const handleSectionChange = useCallback(
+        (section: string) => {
+            startTransition(() => {
+                setActiveSection(section);
+            });
+        },
+        [startTransition]
+    );
 
     const selectedDashboardTeam = useMemo(() => {
         return teams.find((team) => String(getTeamId(team)) === selectedDashboardTeamId);
@@ -2130,6 +2197,17 @@ export default function AdminPage() {
         },
         [showSuccess]
     );
+
+    const clearDashboardReportCache = useCallback(() => {
+        dashboardPlayersCacheRef.current = {};
+        dashboardStatsCacheRef.current = {};
+        dashboardCoachesCacheRef.current = {};
+        statTypesCacheRef.current = {};
+    }, []);
+
+    const clearRosterCache = useCallback(() => {
+        rostersCacheRef.current = {};
+    }, []);
 
     const fetchAdminReferenceData = useCallback(async () => {
         const [seasonData, teamData, teamSeasonData] = await Promise.all([
@@ -2179,12 +2257,22 @@ export default function AdminPage() {
                 try {
                     setLoadingDashboardReports(true);
 
-                    const statTypeData = await safeApiCall<unknown[]>(
-                        () => statAPI.getAllStatTypes(),
-                        []
-                    );
+                    const cachedAllStatTypes = statTypesCacheRef.current.all;
 
-                    setStatTypes(normalizeApiList<StatType>(statTypeData));
+                    if (cachedAllStatTypes) {
+                        setStatTypes(cachedAllStatTypes);
+                    } else {
+                        const statTypeData = await safeApiCall<unknown[]>(
+                            () => statAPI.getAllStatTypes(),
+                            []
+                        );
+
+                        const normalizedStatTypes =
+                            normalizeApiList<StatType>(statTypeData);
+
+                        statTypesCacheRef.current.all = normalizedStatTypes;
+                        setStatTypes(normalizedStatTypes);
+                    }
                 } finally {
                     setLoadingDashboardReports(false);
                 }
@@ -2199,6 +2287,11 @@ export default function AdminPage() {
 
         try {
             setLoadingDashboardReports(true);
+
+            const cacheKey = getTeamSeasonCacheKey(
+                selectedDashboardTeamId,
+                selectedDashboardSeasonYear
+            );
 
             const sharedParams = {
                 team: selectedDashboardTeamId,
@@ -2223,6 +2316,8 @@ export default function AdminPage() {
                 "comparison",
             ].includes(activeSection);
 
+            const statTypeCacheKey = shouldLoadAllStatTypes ? "all" : "core";
+
             const [
                 filteredPlayers,
                 statTypeData,
@@ -2230,46 +2325,114 @@ export default function AdminPage() {
                 coachAssignmentData,
             ] = await Promise.all([
                 shouldLoadPlayers
-                    ? safeApiCall<unknown[]>(
-                          () => playerAPI.getPlayersWithoutStats(sharedParams),
-                          []
-                      )
-                    : Promise.resolve([]),
+                    ? (async () => {
+                          const cachedPlayers =
+                              dashboardPlayersCacheRef.current[cacheKey];
 
-                safeApiCall<unknown[]>(
-                    () =>
-                        shouldLoadAllStatTypes
-                            ? statAPI.getAllStatTypes()
-                            : statAPI.getCoreStatTypes(),
-                    []
-                ),
+                          if (cachedPlayers) {
+                              return cachedPlayers;
+                          }
+
+                          const playerData = await safeApiCall<unknown[]>(
+                              () => playerAPI.getPlayersWithoutStats(sharedParams),
+                              []
+                          );
+
+                          const normalizedPlayers = normalizeApiList<Player>(playerData);
+
+                          dashboardPlayersCacheRef.current[cacheKey] =
+                              normalizedPlayers;
+
+                          return normalizedPlayers;
+                      })()
+                    : Promise.resolve(null),
+
+                (async () => {
+                    const cachedStatTypes =
+                        statTypesCacheRef.current[statTypeCacheKey];
+
+                    if (cachedStatTypes) {
+                        return cachedStatTypes;
+                    }
+
+                    const rawStatTypes = await safeApiCall<unknown[]>(
+                        () =>
+                            shouldLoadAllStatTypes
+                                ? statAPI.getAllStatTypes()
+                                : statAPI.getCoreStatTypes(),
+                        []
+                    );
+
+                    const normalizedStatTypes =
+                        normalizeApiList<StatType>(rawStatTypes);
+
+                    statTypesCacheRef.current[statTypeCacheKey] = normalizedStatTypes;
+
+                    return normalizedStatTypes;
+                })(),
 
                 shouldLoadStats
-                    ? safeApiCall<unknown[]>(
-                          () => statAPI.getCorePlayerSeasonStats(sharedParams),
-                          []
-                      )
-                    : Promise.resolve([]),
+                    ? (async () => {
+                          const cachedStats = dashboardStatsCacheRef.current[cacheKey];
+
+                          if (cachedStats) {
+                              return cachedStats;
+                          }
+
+                          const statData = await safeApiCall<unknown[]>(
+                              () => statAPI.getCorePlayerSeasonStats(sharedParams),
+                              []
+                          );
+
+                          const normalizedStats =
+                              normalizeApiList<PlayerSeasonStat>(statData);
+
+                          dashboardStatsCacheRef.current[cacheKey] =
+                              normalizedStats;
+
+                          return normalizedStats;
+                      })()
+                    : Promise.resolve(null),
 
                 shouldLoadCoachAssignments
-                    ? safeApiCall<unknown[]>(
-                          () => coachAPI.getCoachSeasonAssignments(sharedParams),
-                          []
-                      )
-                    : Promise.resolve([]),
+                    ? (async () => {
+                          const cachedCoaches =
+                              dashboardCoachesCacheRef.current[cacheKey];
+
+                          if (cachedCoaches) {
+                              return cachedCoaches;
+                          }
+
+                          const coachData = await safeApiCall<unknown[]>(
+                              () => coachAPI.getCoachSeasonAssignments(sharedParams),
+                              []
+                          );
+
+                          const normalizedCoaches =
+                              normalizeApiList<CoachSeasonAssignment>(coachData);
+
+                          dashboardCoachesCacheRef.current[cacheKey] =
+                              normalizedCoaches;
+
+                          return normalizedCoaches;
+                      })()
+                    : Promise.resolve(null),
             ]);
 
-            const normalizedPlayers = normalizeApiList<Player>(filteredPlayers);
-            const normalizedStatTypes = normalizeApiList<StatType>(statTypeData);
-            const normalizedStats =
-                normalizeApiList<PlayerSeasonStat>(playerSeasonStatData);
-            const normalizedCoaches =
-                normalizeApiList<CoachSeasonAssignment>(coachAssignmentData);
+            if (filteredPlayers !== null) {
+                setDashboardPlayers(filteredPlayers);
+            }
 
-            setDashboardPlayers(normalizedPlayers);
-            setStatTypes(normalizedStatTypes);
-            setDashboardStats(normalizedStats);
-            setCoachAssignments(normalizedCoaches);
+            setStatTypes(statTypeData);
+
+            if (playerSeasonStatData !== null) {
+                setDashboardStats(playerSeasonStatData);
+            }
+
+            if (coachAssignmentData !== null) {
+                setCoachAssignments(coachAssignmentData);
+            }
+
             setLeaderboard([]);
         } finally {
             setLoadingDashboardReports(false);
@@ -2289,6 +2452,18 @@ export default function AdminPage() {
         try {
             setLoadingRosters(true);
 
+            const cacheKey = getTeamSeasonCacheKey(
+                selectedRosterTeamId,
+                selectedRosterSeasonYear
+            );
+
+            const cachedRosters = rostersCacheRef.current[cacheKey];
+
+            if (cachedRosters) {
+                setRosters(cachedRosters);
+                return;
+            }
+
             const rosterData = await safeApiCall<unknown[]>(
                 () =>
                     seasonAPI.getPlayerSeasonRosters({
@@ -2306,6 +2481,7 @@ export default function AdminPage() {
                     return aName.localeCompare(bName);
                 });
 
+            rostersCacheRef.current[cacheKey] = rosterList;
             setRosters(rosterList);
         } finally {
             setLoadingRosters(false);
@@ -2580,6 +2756,8 @@ export default function AdminPage() {
             setEditingPlayer(null);
             setPlayerFormData(null);
 
+            clearDashboardReportCache();
+
             await fetchDashboardReports();
 
             showTemporarySuccess(`${displayPlayerName(updatedPlayer)} updated successfully`);
@@ -2624,6 +2802,9 @@ export default function AdminPage() {
             });
 
             setPlayerPendingDelete(null);
+
+            clearRosterCache();
+            clearDashboardReportCache();
 
             await fetchSelectedRoster();
             await fetchDashboardReports();
@@ -2694,6 +2875,9 @@ export default function AdminPage() {
             setEditingTeam(null);
             setTeamFormData(null);
 
+            clearRosterCache();
+            clearDashboardReportCache();
+
             await fetchAdminReferenceData();
 
             showTemporarySuccess(`${teamName} updated successfully`);
@@ -2729,6 +2913,9 @@ export default function AdminPage() {
             await teamAPI.deleteTeam(teamId);
 
             setTeamPendingDelete(null);
+
+            clearRosterCache();
+            clearDashboardReportCache();
 
             await fetchAdminReferenceData();
 
@@ -2792,6 +2979,9 @@ export default function AdminPage() {
             setEditingSeason(null);
             setSeasonFormData(null);
 
+            clearRosterCache();
+            clearDashboardReportCache();
+
             await fetchAdminReferenceData();
         } catch (error) {
             console.error("Save season error:", error);
@@ -2830,6 +3020,9 @@ export default function AdminPage() {
             await seasonAPI.deleteSeason(seasonId);
 
             setSeasonPendingDelete(null);
+
+            clearRosterCache();
+            clearDashboardReportCache();
 
             await fetchAdminReferenceData();
 
@@ -2906,6 +3099,9 @@ export default function AdminPage() {
 
             setRosterFormData(null);
 
+            clearRosterCache();
+            clearDashboardReportCache();
+
             await fetchSelectedRoster();
             await fetchDashboardReports();
 
@@ -2935,6 +3131,9 @@ export default function AdminPage() {
             await seasonAPI.deletePlayerSeasonRoster(rosterPendingDelete.roster_id);
 
             setRosterPendingDelete(null);
+
+            clearRosterCache();
+            clearDashboardReportCache();
 
             await fetchSelectedRoster();
             await fetchDashboardReports();
@@ -3047,6 +3246,8 @@ const handleSaveStatType = async () => {
             setEditingStatType(null);
             setStatTypeFormData(null);
 
+            clearDashboardReportCache();
+
             await fetchDashboardReports();
         } catch (error) {
             console.error("Save stat type error:", error);
@@ -3086,6 +3287,8 @@ const handleSaveStatType = async () => {
             await statAPI.deleteStatType(statTypeId);
 
             setStatTypePendingDelete(null);
+
+            clearDashboardReportCache();
 
             await fetchDashboardReports();
 
@@ -3129,7 +3332,7 @@ const handleSaveStatType = async () => {
                         players={playerList}
                         teams={teams}
                         seasons={seasons}
-                        onSectionChange={setActiveSection}
+                        onSectionChange={handleSectionChange}
                         onEditPlayer={handleEditPlayer}
                         onDeletePlayer={handleDeletePlayer}
                     />
@@ -3277,7 +3480,7 @@ const handleSaveStatType = async () => {
                         players={playerList}
                         seasons={seasons}
                         teams={teams}
-                        onSectionChange={setActiveSection}
+                        onSectionChange={handleSectionChange}
                         onEditPlayer={handleEditPlayer}
                         onDeletePlayer={handleDeletePlayer}
                     />
@@ -3300,7 +3503,7 @@ const handleSaveStatType = async () => {
             onLogout={handleLogout}
             navSections={ADMIN_NAV}
             activeSection={activeSection}
-            onSectionChange={setActiveSection}
+            onSectionChange={handleSectionChange}
             title={getSectionTitle(activeSection)}
             teamLabel="Admin Console"
             theme={ADMIN_THEME}
@@ -3312,6 +3515,12 @@ const handleSaveStatType = async () => {
                     onClose={hideToast}
                     offset={toast.type === "success" ? "lower" : "top"}
                 />
+            )}
+
+            {(loadingDashboardReports || loadingRosters || isPendingSectionChange) && (
+                <div className="rounded-lg border border-white/8 bg-[#1a1a1a] px-3 py-2 text-[11px] text-gray-400">
+                    Updating {getSectionTitle(activeSection).toLowerCase()} data...
+                </div>
             )}
 
             {renderAdminContent()}

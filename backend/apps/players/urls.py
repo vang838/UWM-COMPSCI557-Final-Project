@@ -1,7 +1,8 @@
 from rest_framework.routers import DefaultRouter
-from django.urls import include, path
-from .views import PlayerViewSet
+
+from apps.players.views import PlayerViewSet
 
 router = DefaultRouter()
-router.register(r'players', PlayerViewSet, basename='player')
+router.register(r"players", PlayerViewSet, basename="player")
+
 urlpatterns = router.urls
