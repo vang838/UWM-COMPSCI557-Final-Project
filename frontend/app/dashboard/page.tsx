@@ -1,6 +1,7 @@
 "use client";
 
 import React, {
+    startTransition,
     useCallback,
     useEffect,
     useMemo,
@@ -78,14 +79,14 @@ const USER_NAV: NavSection[] = [
         items: [
             { label: "Players", section: "players" },
             { label: "Coaches", section: "coaches" },
-            { label: "Team roster", section: "team-roster" },
+            { label: "Team Roster", section: "team-roster" },
         ],
     },
     {
         heading: "Stats",
         items: [
-            { label: "Player stats", section: "player-stats" },
-            { label: "Stat types", section: "stat-types" },
+            { label: "Player Stats", section: "player-stats" },
+            { label: "Statistic Types", section: "stat-types" },
             { label: "Leaderboard", section: "leaderboard" },
             { label: "Comparison", section: "comparison" },
         ],
@@ -291,6 +292,8 @@ function PlayerAvatar({
             <img
                 src={player.headshot_url}
                 alt={name}
+                loading={size === "sm" ? "lazy" : "eager"}
+                decoding="async"
                 className={`${sizeClasses[size]} rounded-full object-cover border border-white/10 bg-[#111] shrink-0`}
             />
         );
@@ -642,6 +645,12 @@ export default function DashboardPage() {
     const [sectionLoading, setSectionLoading] = useState(false);
     const [loadingComparisonData, setLoadingComparisonData] = useState(false);
 
+    const handleSectionChange = useCallback((section: string) => {
+        startTransition(() => {
+            setActiveSection(section);
+        });
+    }, []);
+
     useEffect(() => {
         if (!authChecked) {
             return;
@@ -760,8 +769,28 @@ export default function DashboardPage() {
             const shouldLoadStatTypes = STAT_TYPE_DATA_SECTIONS.has(activeSection);
             const shouldLoadAllStatTypes = activeSection === "stat-types";
 
+            const statTypeCacheKey = shouldLoadAllStatTypes ? "all" : "core";
+
+            const needsPlayersFetch =
+                shouldLoadPlayers && !playersCacheRef.current[cacheKey];
+
+            const needsStatsFetch =
+                shouldLoadStats && !statsCacheRef.current[cacheKey];
+
+            const needsCoachesFetch =
+                shouldLoadCoaches && !coachesCacheRef.current[cacheKey];
+
+            const needsStatTypesFetch =
+                shouldLoadStatTypes && !statTypesCacheRef.current[statTypeCacheKey];
+
+            const hasAnyMissingData =
+                needsPlayersFetch ||
+                needsStatsFetch ||
+                needsCoachesFetch ||
+                needsStatTypesFetch;
+
             try {
-                setSectionLoading(true);
+                setSectionLoading(hasAnyMissingData);
 
                 const [
                     playerListResult,
@@ -793,10 +822,6 @@ export default function DashboardPage() {
 
                     shouldLoadStatTypes
                         ? (async () => {
-                              const statTypeCacheKey = shouldLoadAllStatTypes
-                                  ? "all"
-                                  : "core";
-
                               const cachedStatTypes =
                                   statTypesCacheRef.current[statTypeCacheKey];
 
@@ -930,6 +955,120 @@ export default function DashboardPage() {
         showError,
         statTypes.length,
     ]);
+
+    useEffect(() => {
+        if (
+            !authChecked ||
+            initialLoading ||
+            !activeTeamId ||
+            !selectedSeasonYear
+        ) {
+            return;
+        }
+
+        let cancelled = false;
+
+        const prefetchDashboardData = async () => {
+            const cacheKey = getTeamSeasonCacheKey(activeTeamId, selectedSeasonYear);
+
+            const sharedParams = {
+                team: activeTeamId,
+                year: selectedSeasonYear,
+            };
+
+            try {
+                const [rawPlayers, rawStats, rawCoaches, rawStatTypes] =
+                    await Promise.all([
+                        playersCacheRef.current[cacheKey]
+                            ? Promise.resolve(playersCacheRef.current[cacheKey])
+                            : safeApiCall<unknown[]>(
+                                  () => playerAPI.getPlayersWithoutStats(sharedParams),
+                                  []
+                              ),
+
+                        statsCacheRef.current[cacheKey]
+                            ? Promise.resolve(statsCacheRef.current[cacheKey])
+                            : safeApiCall<unknown[]>(
+                                  () => statAPI.getCorePlayerSeasonStats(sharedParams),
+                                  []
+                              ),
+
+                        coachesCacheRef.current[cacheKey]
+                            ? Promise.resolve(coachesCacheRef.current[cacheKey])
+                            : safeApiCall<unknown[]>(
+                                  () => coachAPI.getCoachSeasonAssignments(sharedParams),
+                                  []
+                              ),
+
+                        statTypesCacheRef.current.core
+                            ? Promise.resolve(statTypesCacheRef.current.core)
+                            : safeApiCall<unknown[]>(
+                                  () => statAPI.getCoreStatTypes(),
+                                  []
+                              ),
+                    ]);
+
+                if (cancelled) {
+                    return;
+                }
+
+                const normalizedPlayers = Array.isArray(rawPlayers)
+                    ? normalizeApiList<Player>(rawPlayers)
+                    : [];
+
+                const normalizedStats = Array.isArray(rawStats)
+                    ? normalizeApiList<PlayerSeasonStat>(rawStats)
+                    : [];
+
+                const normalizedCoaches = Array.isArray(rawCoaches)
+                    ? normalizeApiList<CoachSeasonAssignment>(rawCoaches)
+                    : [];
+
+                const normalizedStatTypes = Array.isArray(rawStatTypes)
+                    ? normalizeApiList<StatType>(rawStatTypes)
+                    : [];
+
+                playersCacheRef.current[cacheKey] = normalizedPlayers;
+                statsCacheRef.current[cacheKey] = normalizedStats;
+                coachesCacheRef.current[cacheKey] = normalizedCoaches;
+                statTypesCacheRef.current.core = normalizedStatTypes;
+
+                setPlayers(normalizedPlayers);
+                setPlayersLoaded(true);
+                setPlayerSeasonStats(normalizedStats);
+                setCoachAssignments(normalizedCoaches);
+                setStatTypes(normalizedStatTypes);
+            } catch (error) {
+                console.error("Dashboard prefetch error:", error);
+            }
+        };
+
+        prefetchDashboardData();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [
+        activeTeamId,
+        authChecked,
+        initialLoading,
+        selectedSeasonYear,
+    ]);
+
+    useEffect(() => {
+        if (players.length === 0) {
+            return;
+        }
+
+        players.slice(0, 80).forEach((player) => {
+            if (!player.headshot_url) {
+                return;
+            }
+
+            const image = new Image();
+            image.src = player.headshot_url;
+        });
+    }, [players]);
 
     const playerList = players;
 
@@ -1080,7 +1219,7 @@ export default function DashboardPage() {
         try {
             const token = localStorage.getItem("token");
 
-            const response = await fetch("http://localhost:8000/api/auth/logout/", {
+            const response = await fetch("http://127.0.0.1:8000/api/auth/logout/", {
                 method: "POST",
                 headers: {
                     Authorization: `Token ${token}`,
@@ -1212,7 +1351,7 @@ export default function DashboardPage() {
                         value={resolvedLeaderboardStatKey}
                         onChange={(event) => {
                             setActiveLeaderboardStatKey(event.target.value);
-                            setActiveSection("leaderboard");
+                            handleSectionChange("leaderboard");
                         }}
                         className="bg-[#111] border border-white/10 rounded px-2 py-1 text-[10px] text-gray-300 outline-none focus:border-white/30"
                     >
@@ -1296,7 +1435,7 @@ export default function DashboardPage() {
 
                     {limit && playerList.length > limit && (
                         <button
-                            onClick={() => setActiveSection("players")}
+                            onClick={() => handleSectionChange("players")}
                             className="text-[10px] text-gray-400 hover:text-white transition-colors cursor-pointer bg-transparent border-none"
                         >
                             View all →
@@ -1412,8 +1551,8 @@ export default function DashboardPage() {
 
     const renderTeamRosterPanel = () => (
         <div className="space-y-3">
-            {renderRosterPanel(undefined, "Team roster")}
             {renderCoachesPanel()}
+            {renderRosterPanel(undefined, "Team Roster")}
         </div>
     );
 
@@ -1623,7 +1762,7 @@ export default function DashboardPage() {
                     coaches={coachAssignments}
                     teamLabel={teamLabel}
                     selectedSeasonYear={selectedSeasonYear}
-                    onViewFullSummary={() => setActiveSection("season-summary")}
+                    onViewFullSummary={() => handleSectionChange("season-summary")}
                 />
                 {renderComparisonPanel()}
             </div>
@@ -1684,7 +1823,7 @@ export default function DashboardPage() {
             onLogout={handleLogout}
             navSections={USER_NAV}
             activeSection={activeSection}
-            onSectionChange={setActiveSection}
+            onSectionChange={handleSectionChange}
             title={getSectionTitle(activeSection)}
             seasonPills={seasonPills}
             activeSeason={activeSeason}
@@ -1705,7 +1844,7 @@ export default function DashboardPage() {
                 setComparisonError("");
                 setLeftComparisonPlayerId("");
                 setRightComparisonPlayerId("");
-                setActiveSection("dashboard");
+                handleSectionChange("dashboard");
             }}
         >
             {toast.show && toast.message && (

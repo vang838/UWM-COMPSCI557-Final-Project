@@ -14,6 +14,7 @@ router = DefaultRouter()
 router.register(r"users", UserAdminViewSet, basename="admin-user")
 
 urlpatterns = [
+    path("", include(router.urls)),
     path('login/', login_view, name='login'),
     path('logout/', logout_view, name='logout'),
     path("auth/register/", RegisterView.as_view(), name="register"),

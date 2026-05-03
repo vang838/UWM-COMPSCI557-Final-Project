@@ -1,0 +1,289 @@
+year,team,team_name,first_name,last_name,role,is_active,start_date,end_date,title_notes,source_url,review_status
+2022,ARI,Arizona Cardinals,Spencer,Whipple,Offensive Coordinator,true,,,Co-pass game coordinator; no single official OC listed. Cameron Turner was also co-pass game coordinator/QB coach.,https://en.wikipedia.org/wiki/2022_Arizona_Cardinals_season,Compiled
+2022,ARI,Arizona Cardinals,Vance,Joseph,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Arizona_Cardinals_season,Compiled
+2022,ARI,Arizona Cardinals,Jeff,Rodgers,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Arizona_Cardinals_season,Compiled
+2022,ATL,Atlanta Falcons,Dave,Ragone,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Atlanta_Falcons_season,Compiled
+2022,ATL,Atlanta Falcons,Dean,Pees,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Atlanta_Falcons_season,Compiled
+2022,ATL,Atlanta Falcons,Marquice,Williams,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Atlanta_Falcons_season,Compiled
+2022,BAL,Baltimore Ravens,Greg,Roman,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Baltimore_Ravens_season,Compiled
+2022,BAL,Baltimore Ravens,Mike,Macdonald,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Baltimore_Ravens_season,Compiled
+2022,BAL,Baltimore Ravens,Chris,Horton,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Baltimore_Ravens_season,Compiled
+2022,BUF,Buffalo Bills,Ken,Dorsey,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Buffalo_Bills_season,Compiled
+2022,BUF,Buffalo Bills,Leslie,Frazier,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Buffalo_Bills_season,Compiled
+2022,BUF,Buffalo Bills,Matthew,Smiley,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Buffalo_Bills_season,Compiled
+2022,CAR,Carolina Panthers,Ben,McAdoo,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Carolina_Panthers_season,Compiled
+2022,CAR,Carolina Panthers,Phil,Snow,Defensive Coordinator,true,,,Phil Snow was dismissed midseason; Al Holcomb later handled coordinator duties under interim staff.,https://en.wikipedia.org/wiki/2022_Carolina_Panthers_season,Needs review
+2022,CAR,Carolina Panthers,Chris,Tabor,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Carolina_Panthers_season,Compiled
+2022,CHI,Chicago Bears,Luke,Getsy,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Chicago_Bears_season,Compiled
+2022,CHI,Chicago Bears,Alan,Williams,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Chicago_Bears_season,Compiled
+2022,CHI,Chicago Bears,Richard,Hightower,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Chicago_Bears_season,Compiled
+2022,CIN,Cincinnati Bengals,Brian,Callahan,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Cincinnati_Bengals_season,Compiled
+2022,CIN,Cincinnati Bengals,Lou,Anarumo,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Cincinnati_Bengals_season,Compiled
+2022,CIN,Cincinnati Bengals,Darrin,Simmons,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Cincinnati_Bengals_season,Compiled
+2022,CLE,Cleveland Browns,Alex,Van Pelt,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Cleveland_Browns_season,Compiled
+2022,CLE,Cleveland Browns,Joe,Woods,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Cleveland_Browns_season,Compiled
+2022,CLE,Cleveland Browns,Mike,Priefer,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Cleveland_Browns_season,Compiled
+2022,DAL,Dallas Cowboys,Kellen,Moore,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Dallas_Cowboys_season,Compiled
+2022,DAL,Dallas Cowboys,Dan,Quinn,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Dallas_Cowboys_season,Compiled
+2022,DAL,Dallas Cowboys,John,Fassel,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Dallas_Cowboys_season,Compiled
+2022,DEN,Denver Broncos,Justin,Outten,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Denver_Broncos_season,Compiled
+2022,DEN,Denver Broncos,Ejiro,Evero,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Denver_Broncos_season,Compiled
+2022,DEN,Denver Broncos,Dwayne,Stukes,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Denver_Broncos_season,Compiled
+2022,DET,Detroit Lions,Ben,Johnson,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Detroit_Lions_season,Compiled
+2022,DET,Detroit Lions,Aaron,Glenn,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Detroit_Lions_season,Compiled
+2022,DET,Detroit Lions,Dave,Fipp,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Detroit_Lions_season,Compiled
+2022,GB,Green Bay Packers,Adam,Stenavich,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Green_Bay_Packers_season,Compiled
+2022,GB,Green Bay Packers,Joe,Barry,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Green_Bay_Packers_season,Compiled
+2022,GB,Green Bay Packers,Rich,Bisaccia,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Green_Bay_Packers_season,Compiled
+2022,HOU,Houston Texans,Pep,Hamilton,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Houston_Texans_season,Compiled
+2022,HOU,Houston Texans,Lovie,Smith,Defensive Coordinator,true,,,No separate DC; head coach Lovie Smith handled defensive/play-calling responsibilities.,https://en.wikipedia.org/wiki/2022_Houston_Texans_season,Compiled
+2022,HOU,Houston Texans,Frank,Ross,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Houston_Texans_season,Compiled
+2022,IND,Indianapolis Colts,Marcus,Brady,Offensive Coordinator,true,,,Marcus Brady was dismissed midseason; Parks Frazier handled play-calling after Jeff Saturday became interim HC.,https://en.wikipedia.org/wiki/2022_Indianapolis_Colts_season,Needs review
+2022,IND,Indianapolis Colts,Gus,Bradley,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Indianapolis_Colts_season,Compiled
+2022,IND,Indianapolis Colts,Bubba,Ventrone,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Indianapolis_Colts_season,Compiled
+2022,JAX,Jacksonville Jaguars,Press,Taylor,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Jacksonville_Jaguars_season,Compiled
+2022,JAX,Jacksonville Jaguars,Mike,Caldwell,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Jacksonville_Jaguars_season,Compiled
+2022,JAX,Jacksonville Jaguars,Heath,Farwell,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Jacksonville_Jaguars_season,Compiled
+2022,KC,Kansas City Chiefs,Eric,Bieniemy,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Kansas_City_Chiefs_season,Compiled
+2022,KC,Kansas City Chiefs,Steve,Spagnuolo,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Kansas_City_Chiefs_season,Compiled
+2022,KC,Kansas City Chiefs,Dave,Toub,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Kansas_City_Chiefs_season,Compiled
+2022,LAC,Los Angeles Chargers,Joe,Lombardi,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Los_Angeles_Chargers_season,Compiled
+2022,LAC,Los Angeles Chargers,Renaldo,Hill,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Los_Angeles_Chargers_season,Compiled
+2022,LAC,Los Angeles Chargers,Ryan,Ficken,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Los_Angeles_Chargers_season,Compiled
+2022,LAR,Los Angeles Rams,Liam,Coen,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Los_Angeles_Rams_season,Compiled
+2022,LAR,Los Angeles Rams,Raheem,Morris,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Los_Angeles_Rams_season,Compiled
+2022,LAR,Los Angeles Rams,Joe,DeCamillis,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Los_Angeles_Rams_season,Compiled
+2022,LV,Las Vegas Raiders,Mick,Lombardi,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Las_Vegas_Raiders_season,Compiled
+2022,LV,Las Vegas Raiders,Patrick,Graham,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Las_Vegas_Raiders_season,Compiled
+2022,LV,Las Vegas Raiders,Tom,McMahon,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Las_Vegas_Raiders_season,Compiled
+2022,MIA,Miami Dolphins,Frank,Smith,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Miami_Dolphins_season,Compiled
+2022,MIA,Miami Dolphins,Josh,Boyer,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Miami_Dolphins_season,Compiled
+2022,MIA,Miami Dolphins,Danny,Crossman,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Miami_Dolphins_season,Compiled
+2022,MIN,Minnesota Vikings,Wes,Phillips,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Minnesota_Vikings_season,Compiled
+2022,MIN,Minnesota Vikings,Ed,Donatell,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Minnesota_Vikings_season,Compiled
+2022,MIN,Minnesota Vikings,Matt,Daniels,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Minnesota_Vikings_season,Compiled
+2022,NE,New England Patriots,Matt,Patricia,Offensive Coordinator,true,,,No official OC; Matt Patricia led much of offensive play-calling.,https://en.wikipedia.org/wiki/2022_New_England_Patriots_season,Needs review
+2022,NE,New England Patriots,Steve,Belichick,Defensive Coordinator,true,,,No official DC; Steve Belichick was a primary defensive play-caller.,https://en.wikipedia.org/wiki/2022_New_England_Patriots_season,Needs review
+2022,NE,New England Patriots,Cam,Achord,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_New_England_Patriots_season,Compiled
+2022,NO,New Orleans Saints,Pete,Carmichael,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_New_Orleans_Saints_season,Compiled
+2022,NO,New Orleans Saints,Ryan,Nielsen,Defensive Coordinator,true,,,Ryan Nielsen and Kris Richard were listed as co-defensive coordinators; row uses Nielsen as primary entry.,https://en.wikipedia.org/wiki/2022_New_Orleans_Saints_season,Compiled
+2022,NO,New Orleans Saints,Darren,Rizzi,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_New_Orleans_Saints_season,Compiled
+2022,NYG,New York Giants,Mike,Kafka,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_New_York_Giants_season,Compiled
+2022,NYG,New York Giants,Don,Martindale,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_New_York_Giants_season,Compiled
+2022,NYG,New York Giants,Thomas,McGaughey,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_New_York_Giants_season,Compiled
+2022,NYJ,New York Jets,Mike,LaFleur,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_New_York_Jets_season,Compiled
+2022,NYJ,New York Jets,Jeff,Ulbrich,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_New_York_Jets_season,Compiled
+2022,NYJ,New York Jets,Brant,Boyer,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_New_York_Jets_season,Compiled
+2022,PHI,Philadelphia Eagles,Shane,Steichen,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Philadelphia_Eagles_season,Compiled
+2022,PHI,Philadelphia Eagles,Jonathan,Gannon,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Philadelphia_Eagles_season,Compiled
+2022,PHI,Philadelphia Eagles,Michael,Clay,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Philadelphia_Eagles_season,Compiled
+2022,PIT,Pittsburgh Steelers,Matt,Canada,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Pittsburgh_Steelers_season,Compiled
+2022,PIT,Pittsburgh Steelers,Teryl,Austin,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Pittsburgh_Steelers_season,Compiled
+2022,PIT,Pittsburgh Steelers,Danny,Smith,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Pittsburgh_Steelers_season,Compiled
+2022,SEA,Seattle Seahawks,Shane,Waldron,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Seattle_Seahawks_season,Compiled
+2022,SEA,Seattle Seahawks,Clint,Hurtt,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Seattle_Seahawks_season,Compiled
+2022,SEA,Seattle Seahawks,Larry,Izzo,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Seattle_Seahawks_season,Compiled
+2022,SF,San Francisco 49ers,Kyle,Shanahan,Offensive Coordinator,true,,,No official OC; Kyle Shanahan handled offensive play-calling.,https://en.wikipedia.org/wiki/2022_San_Francisco_49ers_season,Needs review
+2022,SF,San Francisco 49ers,DeMeco,Ryans,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_San_Francisco_49ers_season,Compiled
+2022,SF,San Francisco 49ers,Brian,Schneider,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_San_Francisco_49ers_season,Compiled
+2022,TB,Tampa Bay Buccaneers,Byron,Leftwich,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Tampa_Bay_Buccaneers_season,Compiled
+2022,TB,Tampa Bay Buccaneers,Kacy,Rodgers,Defensive Coordinator,true,,,Tampa Bay used co-defensive coordinator structure with Kacy Rodgers and Larry Foote.,https://en.wikipedia.org/wiki/2022_Tampa_Bay_Buccaneers_season,Compiled
+2022,TB,Tampa Bay Buccaneers,Keith,Armstrong,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Tampa_Bay_Buccaneers_season,Compiled
+2022,TEN,Tennessee Titans,Todd,Downing,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Tennessee_Titans_season,Compiled
+2022,TEN,Tennessee Titans,Shane,Bowen,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Tennessee_Titans_season,Compiled
+2022,TEN,Tennessee Titans,Craig,Aukerman,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Tennessee_Titans_season,Compiled
+2022,WAS,Washington Commanders,Scott,Turner,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Washington_Commanders_season,Compiled
+2022,WAS,Washington Commanders,Jack,Del Rio,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Washington_Commanders_season,Compiled
+2022,WAS,Washington Commanders,Nate,Kaczor,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2022_Washington_Commanders_season,Compiled
+2023,ARI,Arizona Cardinals,Drew,Petzing,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Arizona_Cardinals_season,Compiled
+2023,ARI,Arizona Cardinals,Nick,Rallis,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Arizona_Cardinals_season,Compiled
+2023,ARI,Arizona Cardinals,Jeff,Rodgers,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Arizona_Cardinals_season,Compiled
+2023,ATL,Atlanta Falcons,Dave,Ragone,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Atlanta_Falcons_season,Compiled
+2023,ATL,Atlanta Falcons,Ryan,Nielsen,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Atlanta_Falcons_season,Compiled
+2023,ATL,Atlanta Falcons,Marquice,Williams,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Atlanta_Falcons_season,Compiled
+2023,BAL,Baltimore Ravens,Todd,Monken,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Baltimore_Ravens_season,Compiled
+2023,BAL,Baltimore Ravens,Mike,Macdonald,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Baltimore_Ravens_season,Compiled
+2023,BAL,Baltimore Ravens,Chris,Horton,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Baltimore_Ravens_season,Compiled
+2023,BUF,Buffalo Bills,Ken,Dorsey,Offensive Coordinator,true,,,Ken Dorsey was replaced by Joe Brady as interim OC during the season.,https://en.wikipedia.org/wiki/2023_Buffalo_Bills_season,Needs review
+2023,BUF,Buffalo Bills,Sean,McDermott,Defensive Coordinator,true,,,No separate DC after Leslie Frazier stepped away; Sean McDermott handled defensive play-calling.,https://en.wikipedia.org/wiki/2023_Buffalo_Bills_season,Compiled
+2023,BUF,Buffalo Bills,Matthew,Smiley,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Buffalo_Bills_season,Compiled
+2023,CAR,Carolina Panthers,Thomas,Brown,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Carolina_Panthers_season,Compiled
+2023,CAR,Carolina Panthers,Ejiro,Evero,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Carolina_Panthers_season,Compiled
+2023,CAR,Carolina Panthers,Chris,Tabor,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Carolina_Panthers_season,Compiled
+2023,CHI,Chicago Bears,Luke,Getsy,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Chicago_Bears_season,Compiled
+2023,CHI,Chicago Bears,Alan,Williams,Defensive Coordinator,true,,,Alan Williams resigned during the season; Matt Eberflus handled defensive play-calling afterward.,https://en.wikipedia.org/wiki/2023_Chicago_Bears_season,Compiled
+2023,CHI,Chicago Bears,Richard,Hightower,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Chicago_Bears_season,Compiled
+2023,CIN,Cincinnati Bengals,Brian,Callahan,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Cincinnati_Bengals_season,Compiled
+2023,CIN,Cincinnati Bengals,Lou,Anarumo,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Cincinnati_Bengals_season,Compiled
+2023,CIN,Cincinnati Bengals,Darrin,Simmons,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Cincinnati_Bengals_season,Compiled
+2023,CLE,Cleveland Browns,Alex,Van Pelt,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Cleveland_Browns_season,Compiled
+2023,CLE,Cleveland Browns,Jim,Schwartz,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Cleveland_Browns_season,Compiled
+2023,CLE,Cleveland Browns,Bubba,Ventrone,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Cleveland_Browns_season,Compiled
+2023,DAL,Dallas Cowboys,Brian,Schottenheimer,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Dallas_Cowboys_season,Compiled
+2023,DAL,Dallas Cowboys,Dan,Quinn,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Dallas_Cowboys_season,Compiled
+2023,DAL,Dallas Cowboys,John,Fassel,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Dallas_Cowboys_season,Compiled
+2023,DEN,Denver Broncos,Joe,Lombardi,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Denver_Broncos_season,Compiled
+2023,DEN,Denver Broncos,Vance,Joseph,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Denver_Broncos_season,Compiled
+2023,DEN,Denver Broncos,Ben,Kotwica,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Denver_Broncos_season,Compiled
+2023,DET,Detroit Lions,Ben,Johnson,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Detroit_Lions_season,Compiled
+2023,DET,Detroit Lions,Aaron,Glenn,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Detroit_Lions_season,Compiled
+2023,DET,Detroit Lions,Dave,Fipp,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Detroit_Lions_season,Compiled
+2023,GB,Green Bay Packers,Adam,Stenavich,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Green_Bay_Packers_season,Compiled
+2023,GB,Green Bay Packers,Joe,Barry,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Green_Bay_Packers_season,Compiled
+2023,GB,Green Bay Packers,Rich,Bisaccia,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Green_Bay_Packers_season,Compiled
+2023,HOU,Houston Texans,Bobby,Slowik,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Houston_Texans_season,Compiled
+2023,HOU,Houston Texans,Matt,Burke,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Houston_Texans_season,Compiled
+2023,HOU,Houston Texans,Frank,Ross,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Houston_Texans_season,Compiled
+2023,IND,Indianapolis Colts,Jim,Bob Cooter,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Indianapolis_Colts_season,Compiled
+2023,IND,Indianapolis Colts,Gus,Bradley,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Indianapolis_Colts_season,Compiled
+2023,IND,Indianapolis Colts,Brian,Mason,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Indianapolis_Colts_season,Compiled
+2023,JAX,Jacksonville Jaguars,Press,Taylor,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Jacksonville_Jaguars_season,Compiled
+2023,JAX,Jacksonville Jaguars,Mike,Caldwell,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Jacksonville_Jaguars_season,Compiled
+2023,JAX,Jacksonville Jaguars,Heath,Farwell,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Jacksonville_Jaguars_season,Compiled
+2023,KC,Kansas City Chiefs,Matt,Nagy,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Kansas_City_Chiefs_season,Compiled
+2023,KC,Kansas City Chiefs,Steve,Spagnuolo,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Kansas_City_Chiefs_season,Compiled
+2023,KC,Kansas City Chiefs,Dave,Toub,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Kansas_City_Chiefs_season,Compiled
+2023,LAC,Los Angeles Chargers,Kellen,Moore,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Los_Angeles_Chargers_season,Compiled
+2023,LAC,Los Angeles Chargers,Derrick,Ansley,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Los_Angeles_Chargers_season,Compiled
+2023,LAC,Los Angeles Chargers,Ryan,Ficken,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Los_Angeles_Chargers_season,Compiled
+2023,LAR,Los Angeles Rams,Mike,LaFleur,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Los_Angeles_Rams_season,Compiled
+2023,LAR,Los Angeles Rams,Raheem,Morris,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Los_Angeles_Rams_season,Compiled
+2023,LAR,Los Angeles Rams,Chase,Blackburn,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Los_Angeles_Rams_season,Compiled
+2023,LV,Las Vegas Raiders,Mick,Lombardi,Offensive Coordinator,true,,,Mick Lombardi was dismissed during the season; Bo Hardegree served as interim OC.,https://en.wikipedia.org/wiki/2023_Las_Vegas_Raiders_season,Needs review
+2023,LV,Las Vegas Raiders,Patrick,Graham,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Las_Vegas_Raiders_season,Compiled
+2023,LV,Las Vegas Raiders,Tom,McMahon,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Las_Vegas_Raiders_season,Compiled
+2023,MIA,Miami Dolphins,Frank,Smith,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Miami_Dolphins_season,Compiled
+2023,MIA,Miami Dolphins,Vic,Fangio,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Miami_Dolphins_season,Compiled
+2023,MIA,Miami Dolphins,Danny,Crossman,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Miami_Dolphins_season,Compiled
+2023,MIN,Minnesota Vikings,Wes,Phillips,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Minnesota_Vikings_season,Compiled
+2023,MIN,Minnesota Vikings,Brian,Flores,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Minnesota_Vikings_season,Compiled
+2023,MIN,Minnesota Vikings,Matt,Daniels,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Minnesota_Vikings_season,Compiled
+2023,NE,New England Patriots,Bill,O'Brien,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_New_England_Patriots_season,Compiled
+2023,NE,New England Patriots,Steve,Belichick,Defensive Coordinator,true,,,No official DC; Steve Belichick remained primary defensive play-caller.,https://en.wikipedia.org/wiki/2023_New_England_Patriots_season,Needs review
+2023,NE,New England Patriots,Cam,Achord,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_New_England_Patriots_season,Compiled
+2023,NO,New Orleans Saints,Pete,Carmichael,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_New_Orleans_Saints_season,Compiled
+2023,NO,New Orleans Saints,Joe,Woods,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_New_Orleans_Saints_season,Compiled
+2023,NO,New Orleans Saints,Darren,Rizzi,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_New_Orleans_Saints_season,Compiled
+2023,NYG,New York Giants,Mike,Kafka,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_New_York_Giants_season,Compiled
+2023,NYG,New York Giants,Don,Martindale,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_New_York_Giants_season,Compiled
+2023,NYG,New York Giants,Thomas,McGaughey,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_New_York_Giants_season,Compiled
+2023,NYJ,New York Jets,Nathaniel,Hackett,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_New_York_Jets_season,Compiled
+2023,NYJ,New York Jets,Jeff,Ulbrich,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_New_York_Jets_season,Compiled
+2023,NYJ,New York Jets,Brant,Boyer,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_New_York_Jets_season,Compiled
+2023,PHI,Philadelphia Eagles,Brian,Johnson,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Philadelphia_Eagles_season,Compiled
+2023,PHI,Philadelphia Eagles,Sean,Desai,Defensive Coordinator,true,,,Sean Desai began as DC; Matt Patricia took over defensive play-calling late in the season.,https://en.wikipedia.org/wiki/2023_Philadelphia_Eagles_season,Compiled
+2023,PHI,Philadelphia Eagles,Michael,Clay,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Philadelphia_Eagles_season,Compiled
+2023,PIT,Pittsburgh Steelers,Matt,Canada,Offensive Coordinator,true,,,Matt Canada was dismissed during the season; Eddie Faulkner was interim OC.,https://en.wikipedia.org/wiki/2023_Pittsburgh_Steelers_season,Needs review
+2023,PIT,Pittsburgh Steelers,Teryl,Austin,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Pittsburgh_Steelers_season,Compiled
+2023,PIT,Pittsburgh Steelers,Danny,Smith,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Pittsburgh_Steelers_season,Compiled
+2023,SEA,Seattle Seahawks,Shane,Waldron,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Seattle_Seahawks_season,Compiled
+2023,SEA,Seattle Seahawks,Clint,Hurtt,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Seattle_Seahawks_season,Compiled
+2023,SEA,Seattle Seahawks,Larry,Izzo,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Seattle_Seahawks_season,Compiled
+2023,SF,San Francisco 49ers,Kyle,Shanahan,Offensive Coordinator,true,,,No official OC; Kyle Shanahan handled offensive play-calling.,https://en.wikipedia.org/wiki/2023_San_Francisco_49ers_season,Needs review
+2023,SF,San Francisco 49ers,Steve,Wilks,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_San_Francisco_49ers_season,Compiled
+2023,SF,San Francisco 49ers,Brian,Schneider,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_San_Francisco_49ers_season,Compiled
+2023,TB,Tampa Bay Buccaneers,Dave,Canales,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Tampa_Bay_Buccaneers_season,Compiled
+2023,TB,Tampa Bay Buccaneers,Kacy,Rodgers,Defensive Coordinator,true,,,Tampa Bay used co-defensive coordinator structure with Kacy Rodgers and Larry Foote.,https://en.wikipedia.org/wiki/2023_Tampa_Bay_Buccaneers_season,Compiled
+2023,TB,Tampa Bay Buccaneers,Keith,Armstrong,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Tampa_Bay_Buccaneers_season,Compiled
+2023,TEN,Tennessee Titans,Tim,Kelly,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Tennessee_Titans_season,Compiled
+2023,TEN,Tennessee Titans,Shane,Bowen,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Tennessee_Titans_season,Compiled
+2023,TEN,Tennessee Titans,Craig,Aukerman,Special Teams Coordinator,true,,,Craig Aukerman was dismissed during the season; Tom Quinn handled interim special teams duties.,https://en.wikipedia.org/wiki/2023_Tennessee_Titans_season,Needs review
+2023,WAS,Washington Commanders,Eric,Bieniemy,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Washington_Commanders_season,Compiled
+2023,WAS,Washington Commanders,Jack,Del Rio,Defensive Coordinator,true,,,Jack Del Rio was dismissed during the season; Ron Rivera handled defense afterward.,https://en.wikipedia.org/wiki/2023_Washington_Commanders_season,Compiled
+2023,WAS,Washington Commanders,Nate,Kaczor,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2023_Washington_Commanders_season,Compiled
+2024,ARI,Arizona Cardinals,Drew,Petzing,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Arizona_Cardinals_season,Compiled
+2024,ARI,Arizona Cardinals,Nick,Rallis,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Arizona_Cardinals_season,Compiled
+2024,ARI,Arizona Cardinals,Jeff,Rodgers,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Arizona_Cardinals_season,Compiled
+2024,ATL,Atlanta Falcons,Zac,Robinson,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Atlanta_Falcons_season,Compiled
+2024,ATL,Atlanta Falcons,Jimmy,Lake,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Atlanta_Falcons_season,Compiled
+2024,ATL,Atlanta Falcons,Marquice,Williams,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Atlanta_Falcons_season,Compiled
+2024,BAL,Baltimore Ravens,Todd,Monken,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Baltimore_Ravens_season,Compiled
+2024,BAL,Baltimore Ravens,Zach,Orr,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Baltimore_Ravens_season,Compiled
+2024,BAL,Baltimore Ravens,Chris,Horton,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Baltimore_Ravens_season,Compiled
+2024,BUF,Buffalo Bills,Joe,Brady,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Buffalo_Bills_season,Compiled
+2024,BUF,Buffalo Bills,Bobby,Babich,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Buffalo_Bills_season,Compiled
+2024,BUF,Buffalo Bills,Matthew,Smiley,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Buffalo_Bills_season,Compiled
+2024,CAR,Carolina Panthers,Brad,Idzik,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Carolina_Panthers_season,Compiled
+2024,CAR,Carolina Panthers,Ejiro,Evero,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Carolina_Panthers_season,Compiled
+2024,CAR,Carolina Panthers,Tracy,Smith,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Carolina_Panthers_season,Compiled
+2024,CHI,Chicago Bears,Shane,Waldron,Offensive Coordinator,true,,,Shane Waldron was dismissed during the season; Thomas Brown served as interim OC.,https://en.wikipedia.org/wiki/2024_Chicago_Bears_season,Needs review
+2024,CHI,Chicago Bears,Eric,Washington,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Chicago_Bears_season,Compiled
+2024,CHI,Chicago Bears,Richard,Hightower,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Chicago_Bears_season,Compiled
+2024,CIN,Cincinnati Bengals,Dan,Pitcher,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Cincinnati_Bengals_season,Compiled
+2024,CIN,Cincinnati Bengals,Lou,Anarumo,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Cincinnati_Bengals_season,Compiled
+2024,CIN,Cincinnati Bengals,Darrin,Simmons,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Cincinnati_Bengals_season,Compiled
+2024,CLE,Cleveland Browns,Ken,Dorsey,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Cleveland_Browns_season,Compiled
+2024,CLE,Cleveland Browns,Jim,Schwartz,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Cleveland_Browns_season,Compiled
+2024,CLE,Cleveland Browns,Bubba,Ventrone,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Cleveland_Browns_season,Compiled
+2024,DAL,Dallas Cowboys,Brian,Schottenheimer,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Dallas_Cowboys_season,Compiled
+2024,DAL,Dallas Cowboys,Mike,Zimmer,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Dallas_Cowboys_season,Compiled
+2024,DAL,Dallas Cowboys,John,Fassel,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Dallas_Cowboys_season,Compiled
+2024,DEN,Denver Broncos,Joe,Lombardi,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Denver_Broncos_season,Compiled
+2024,DEN,Denver Broncos,Vance,Joseph,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Denver_Broncos_season,Compiled
+2024,DEN,Denver Broncos,Ben,Kotwica,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Denver_Broncos_season,Compiled
+2024,DET,Detroit Lions,Ben,Johnson,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Detroit_Lions_season,Compiled
+2024,DET,Detroit Lions,Aaron,Glenn,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Detroit_Lions_season,Compiled
+2024,DET,Detroit Lions,Dave,Fipp,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Detroit_Lions_season,Compiled
+2024,GB,Green Bay Packers,Adam,Stenavich,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Green_Bay_Packers_season,Compiled
+2024,GB,Green Bay Packers,Jeff,Hafley,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Green_Bay_Packers_season,Compiled
+2024,GB,Green Bay Packers,Rich,Bisaccia,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Green_Bay_Packers_season,Compiled
+2024,HOU,Houston Texans,Bobby,Slowik,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Houston_Texans_season,Compiled
+2024,HOU,Houston Texans,Matt,Burke,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Houston_Texans_season,Compiled
+2024,HOU,Houston Texans,Frank,Ross,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Houston_Texans_season,Compiled
+2024,IND,Indianapolis Colts,Jim,Bob Cooter,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Indianapolis_Colts_season,Compiled
+2024,IND,Indianapolis Colts,Gus,Bradley,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Indianapolis_Colts_season,Compiled
+2024,IND,Indianapolis Colts,Brian,Mason,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Indianapolis_Colts_season,Compiled
+2024,JAX,Jacksonville Jaguars,Press,Taylor,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Jacksonville_Jaguars_season,Compiled
+2024,JAX,Jacksonville Jaguars,Ryan,Nielsen,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Jacksonville_Jaguars_season,Compiled
+2024,JAX,Jacksonville Jaguars,Heath,Farwell,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Jacksonville_Jaguars_season,Compiled
+2024,KC,Kansas City Chiefs,Matt,Nagy,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Kansas_City_Chiefs_season,Compiled
+2024,KC,Kansas City Chiefs,Steve,Spagnuolo,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Kansas_City_Chiefs_season,Compiled
+2024,KC,Kansas City Chiefs,Dave,Toub,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Kansas_City_Chiefs_season,Compiled
+2024,LAC,Los Angeles Chargers,Greg,Roman,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Los_Angeles_Chargers_season,Compiled
+2024,LAC,Los Angeles Chargers,Jesse,Minter,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Los_Angeles_Chargers_season,Compiled
+2024,LAC,Los Angeles Chargers,Ryan,Ficken,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Los_Angeles_Chargers_season,Compiled
+2024,LAR,Los Angeles Rams,Mike,LaFleur,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Los_Angeles_Rams_season,Compiled
+2024,LAR,Los Angeles Rams,Chris,Shula,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Los_Angeles_Rams_season,Compiled
+2024,LAR,Los Angeles Rams,Chase,Blackburn,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Los_Angeles_Rams_season,Compiled
+2024,LV,Las Vegas Raiders,Luke,Getsy,Offensive Coordinator,true,,,Luke Getsy was dismissed during the season; Scott Turner served as interim OC.,https://en.wikipedia.org/wiki/2024_Las_Vegas_Raiders_season,Needs review
+2024,LV,Las Vegas Raiders,Patrick,Graham,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Las_Vegas_Raiders_season,Compiled
+2024,LV,Las Vegas Raiders,Tom,McMahon,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Las_Vegas_Raiders_season,Compiled
+2024,MIA,Miami Dolphins,Frank,Smith,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Miami_Dolphins_season,Compiled
+2024,MIA,Miami Dolphins,Anthony,Weaver,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Miami_Dolphins_season,Compiled
+2024,MIA,Miami Dolphins,Danny,Crossman,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Miami_Dolphins_season,Compiled
+2024,MIN,Minnesota Vikings,Wes,Phillips,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Minnesota_Vikings_season,Compiled
+2024,MIN,Minnesota Vikings,Brian,Flores,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Minnesota_Vikings_season,Compiled
+2024,MIN,Minnesota Vikings,Matt,Daniels,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Minnesota_Vikings_season,Compiled
+2024,NE,New England Patriots,Alex,Van Pelt,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_New_England_Patriots_season,Compiled
+2024,NE,New England Patriots,DeMarcus,Covington,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_New_England_Patriots_season,Compiled
+2024,NE,New England Patriots,Jeremy,Springer,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_New_England_Patriots_season,Compiled
+2024,NO,New Orleans Saints,Klint,Kubiak,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_New_Orleans_Saints_season,Compiled
+2024,NO,New Orleans Saints,Joe,Woods,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_New_Orleans_Saints_season,Compiled
+2024,NO,New Orleans Saints,Darren,Rizzi,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_New_Orleans_Saints_season,Compiled
+2024,NYG,New York Giants,Mike,Kafka,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_New_York_Giants_season,Compiled
+2024,NYG,New York Giants,Shane,Bowen,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_New_York_Giants_season,Compiled
+2024,NYG,New York Giants,Michael,Ghobrial,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_New_York_Giants_season,Compiled
+2024,NYJ,New York Jets,Nathaniel,Hackett,Offensive Coordinator,true,,,Nathaniel Hackett was demoted; Todd Downing handled play-calling later in the season.,https://en.wikipedia.org/wiki/2024_New_York_Jets_season,Compiled
+2024,NYJ,New York Jets,Jeff,Ulbrich,Defensive Coordinator,true,,,Jeff Ulbrich became interim head coach while retaining defensive background.,https://en.wikipedia.org/wiki/2024_New_York_Jets_season,Needs review
+2024,NYJ,New York Jets,Brant,Boyer,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_New_York_Jets_season,Compiled
+2024,PHI,Philadelphia Eagles,Kellen,Moore,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Philadelphia_Eagles_season,Compiled
+2024,PHI,Philadelphia Eagles,Vic,Fangio,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Philadelphia_Eagles_season,Compiled
+2024,PHI,Philadelphia Eagles,Michael,Clay,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Philadelphia_Eagles_season,Compiled
+2024,PIT,Pittsburgh Steelers,Arthur,Smith,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Pittsburgh_Steelers_season,Compiled
+2024,PIT,Pittsburgh Steelers,Teryl,Austin,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Pittsburgh_Steelers_season,Compiled
+2024,PIT,Pittsburgh Steelers,Danny,Smith,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Pittsburgh_Steelers_season,Compiled
+2024,SEA,Seattle Seahawks,Ryan,Grubb,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Seattle_Seahawks_season,Compiled
+2024,SEA,Seattle Seahawks,Aden,Durde,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Seattle_Seahawks_season,Compiled
+2024,SEA,Seattle Seahawks,Jay,Harbaugh,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Seattle_Seahawks_season,Compiled
+2024,SF,San Francisco 49ers,Kyle,Shanahan,Offensive Coordinator,true,,,No official OC; Kyle Shanahan handled offensive play-calling.,https://en.wikipedia.org/wiki/2024_San_Francisco_49ers_season,Needs review
+2024,SF,San Francisco 49ers,Nick,Sorensen,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_San_Francisco_49ers_season,Compiled
+2024,SF,San Francisco 49ers,Brian,Schneider,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_San_Francisco_49ers_season,Compiled
+2024,TB,Tampa Bay Buccaneers,Liam,Coen,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Tampa_Bay_Buccaneers_season,Compiled
+2024,TB,Tampa Bay Buccaneers,Kacy,Rodgers,Defensive Coordinator,true,,,Tampa Bay used co-defensive coordinator structure with Kacy Rodgers and Larry Foote.,https://en.wikipedia.org/wiki/2024_Tampa_Bay_Buccaneers_season,Compiled
+2024,TB,Tampa Bay Buccaneers,Thomas,McGaughey,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Tampa_Bay_Buccaneers_season,Compiled
+2024,TEN,Tennessee Titans,Nick,Holz,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Tennessee_Titans_season,Compiled
+2024,TEN,Tennessee Titans,Dennard,Wilson,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Tennessee_Titans_season,Compiled
+2024,TEN,Tennessee Titans,Colt,Anderson,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Tennessee_Titans_season,Compiled
+2024,WAS,Washington Commanders,Kliff,Kingsbury,Offensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Washington_Commanders_season,Compiled
+2024,WAS,Washington Commanders,Joe,Whitt Jr.,Defensive Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Washington_Commanders_season,Compiled
+2024,WAS,Washington Commanders,Larry,Izzo,Special Teams Coordinator,true,,,,https://en.wikipedia.org/wiki/2024_Washington_Commanders_season,Compiled
