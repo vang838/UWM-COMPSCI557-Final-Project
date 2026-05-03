@@ -2,55 +2,48 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 export default function PlayerNavigation() {
   const pathname = usePathname();
 
-  const [lastPlayerId, setLastPlayerId] = useState<string | null>(null);
+  const [lastPlayerId] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    return localStorage.getItem("lastPlayerId");
+  });
 
-  useEffect(() => {
-      if(typeof window !== "undefined") {
-          const storedID = localStorage.getItem("lastPlayerId");
-          setLastPlayerId(storedID);
-      }
-  })
-
-    const isActive = (path: string) => pathname === path;
-
-  const isPlayersPage = () =>
-      pathname.startsWith("/players") && !pathname.match(/\/players\/\d+/);
+  const linkStyle = (active: boolean) => ({
+    textDecoration: "none",
+    color: "#ffffff",
+    fontWeight: active ? "600" : "400",
+    borderBottom: active ? "2px solid #d9ff00" : "none",
+    paddingBottom: "0.25rem",
+  });
 
   return (
     <nav style={{ display: "flex", gap: "2rem" }}>
-      <Link
-        href="/search"
-        className={`px-3 py-2 rounded-lg transition ${
-          isActive("/search") ? "bg-blue-600 text-white" : "text-gray-300 hover:text-white"
-        }`}
-      >
+      <Link href="/search" style={linkStyle(pathname === "/search")}>
         Search
       </Link>
 
       <Link
         href="/players"
-        className={`px-3 py-2 rounded-lg transition ${
-            isPlayersPage() ? "bg-blue-600 text-white" : "text-gray-300 hover:text-white"
-        }`}>
-          Players
+        style={linkStyle(
+          pathname.startsWith("/players") && !pathname.match(/\/players\/\d+/)
+        )}
+      >
+        Players
       </Link>
 
       {lastPlayerId ? (
         <Link
           href={`/players/${lastPlayerId}`}
-          className={`px-3 py-2 rounded-lg transition ${
-              pathname === `/players/${lastPlayerId}` ? "bg-blue-300 text-white" : "text-gray-300 hover:text-white"
-          }`}
+          style={linkStyle(!!pathname.match(/\/players\/\d+/))}
         >
           Player Card
         </Link>
       ) : (
-        <span className={"px-3 py-2 text-gray-600"}>Player Card</span>
+        <span style={{ color: "#888" }}>Player Card</span>
       )}
     </nav>
   );
