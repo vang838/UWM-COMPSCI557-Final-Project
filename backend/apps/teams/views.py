@@ -123,7 +123,7 @@ class CoachSeasonAssignmentViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(is_active=active.lower() == "true")
 
         return queryset.order_by(
-            "team_season__season__year",
+            "-team_season__season__year",
             "team_season__team__team_name",
             "role",
             "coach__last_name",

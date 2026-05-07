@@ -79,6 +79,8 @@ export interface CoachSeasonAssignment {
     team_abbreviation?: string;
     season_id?: number;
     season_year?: number | string;
+    conference?: string;
+    division?: string;
     role?: string;
     is_active?: boolean;
     start_date?: string | null;

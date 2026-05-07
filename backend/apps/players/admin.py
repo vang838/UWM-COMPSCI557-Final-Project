@@ -5,6 +5,8 @@ from .models import Player
 
 @admin.register(Player)
 class PlayerAdmin(admin.ModelAdmin):
+    list_select_related = ("team",)
+
     list_display = (
         "player_id",
         "first_name",

@@ -34,6 +34,14 @@ export const coachAPI = {
     getCoachSeasonAssignments: (params = {}) =>
         apiClient.get(`/coach-season-assignments/${buildQuery(params)}`),
 
+    getCoachAssignmentHistory: (coachId, params = {}) =>
+        apiClient.get(
+            `/coach-season-assignments/${buildQuery({
+                ...params,
+                coach_id: coachId,
+            })}`
+        ),
+
     getCoachSeasonAssignmentById: (id) =>
         apiClient.get(`/coach-season-assignments/${id}/`),
 
@@ -45,4 +53,6 @@ export const coachAPI = {
 
     deleteCoachSeasonAssignment: (id) =>
         apiClient.delete(`/coach-season-assignments/${id}/`),
+
+
 };

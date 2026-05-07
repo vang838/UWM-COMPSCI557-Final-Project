@@ -42,6 +42,7 @@ import {
 } from "@/src/types/dashboard";
 
 import {
+    CoachSeasonAssignmentFormData,
     PlayerFormData,
     PlayerSeasonRoster,
     RosterFormData,
@@ -149,7 +150,41 @@ function playerToFormData(player: Player): PlayerFormData {
         last_name: player.last_name ?? "",
         position: player.position ?? "",
         team: player.team ? String(player.team) : "",
+        date_of_birth: player.date_of_birth ?? "",
+        college: player.college ?? "",
+        height:
+            player.height !== undefined && player.height !== null
+                ? String(player.height)
+                : "",
+        weight:
+            player.weight !== undefined && player.weight !== null
+                ? String(player.weight)
+                : "",
+        headshot_url: player.headshot_url ?? "",
         is_active: player.is_active !== false,
+    };
+}
+
+function getCoachAssignmentId(
+    assignment: CoachSeasonAssignment
+): number | string | undefined {
+    return assignment.assignment_id;
+}
+
+function displayCoachAssignmentName(assignment: CoachSeasonAssignment): string {
+    return (
+        assignment.coach_full_name ||
+        `${assignment.coach_first_name ?? ""} ${assignment.coach_last_name ?? ""}`.trim() ||
+        "Unknown coach"
+    );
+}
+
+function coachAssignmentToFormData( assignment: CoachSeasonAssignment ): CoachSeasonAssignmentFormData {
+    return {
+        role: assignment.role ?? "",
+        is_active: assignment.is_active !== false,
+        start_date: assignment.start_date ?? "",
+        end_date: assignment.end_date ?? "",
     };
 }
 
@@ -179,8 +214,6 @@ function teamToFormData(team: Team): TeamFormData {
         city: team.city ?? "",
         state: team.state ?? "",
         team_name: team.team_name ?? "",
-        conference: team.conference ?? "",
-        division: team.division ?? "",
         abbreviation: team.abbreviation ?? "",
         primary_color: team.primary_color ?? "#1a3d28",
         secondary_color: team.secondary_color ?? "#f0c040",
@@ -495,7 +528,7 @@ function TeamsPanel({
     onDelete: (team: Team) => void;
 }) {
     const teamGrid =
-        "grid grid-cols-[minmax(220px,1.6fr)_80px_120px_120px_100px_120px] gap-3";
+        "grid grid-cols-[minmax(220px,1.6fr)_80px_100px_120px] gap-3";
 
     return (
         <div>
@@ -509,8 +542,6 @@ function TeamsPanel({
                 >
                     <span className="flex items-center justify-start">Team</span>
                     <span className="flex items-center justify-center">ABBR.</span>
-                    <span className="flex items-center justify-center">Conference</span>
-                    <span className="flex items-center justify-center">Division</span>
                     <span className="flex items-center justify-center">Theme</span>
                     <span className="flex items-center justify-center">Actions</span>
                 </div>
@@ -527,14 +558,6 @@ function TeamsPanel({
 
                             <span className="flex items-center justify-center text-gray-400">
                                 {team.abbreviation || "—"}
-                            </span>
-
-                            <span className="flex items-center justify-center text-gray-400">
-                                {team.conference || "—"}
-                            </span>
-
-                            <span className="flex items-center justify-center text-gray-400">
-                                {team.division || "—"}
                             </span>
 
                             <span className="flex items-center justify-center gap-1.5">
@@ -662,10 +685,14 @@ function CoachesReadOnlyPanel({
     assignments,
     teamLabel,
     loading,
+    onEdit,
+    onDelete,
 }: {
     assignments: CoachSeasonAssignment[];
     teamLabel: string;
     loading: boolean;
+    onEdit: (assignment: CoachSeasonAssignment) => void;
+    onDelete: (assignment: CoachSeasonAssignment) => void;
 }) {
     const sortedAssignments = useMemo(
         () => sortCoachAssignments(assignments),
@@ -681,11 +708,12 @@ function CoachesReadOnlyPanel({
                 <span className="text-[10px] text-gray-500">{teamLabel}</span>
             </div>
 
-            <div className="grid grid-cols-[1.4fr_1.2fr_100px_100px] gap-3 px-3 py-2 border-b border-white/8 text-[10px] uppercase tracking-widest text-gray-500">
+            <div className="grid grid-cols-[1.4fr_1.2fr_100px_100px_120px] gap-3 px-3 py-2 border-b border-white/8 text-[10px] uppercase tracking-widest text-gray-500">
                 <span>Coach</span>
                 <span>Role</span>
                 <span>Status</span>
                 <span className="text-right">Season</span>
+                <span className="text-right">Actions</span>
             </div>
 
             {loading ? (
@@ -699,12 +727,10 @@ function CoachesReadOnlyPanel({
                     return (
                         <div
                             key={assignment.assignment_id}
-                            className="grid grid-cols-[1.4fr_1.2fr_100px_100px] gap-3 items-center px-3 py-2 border-b border-white/6 last:border-b-0 text-[12px] hover:bg-white/3"
+                            className="grid grid-cols-[1.4fr_1.2fr_100px_100px_120px] gap-3 items-center px-3 py-2 border-b border-white/6 last:border-b-0 text-[12px] hover:bg-white/3"
                         >
                             <span className="text-white font-medium truncate">
-                                {assignment.coach_full_name ||
-                                    `${assignment.coach_first_name ?? ""} ${assignment.coach_last_name ?? ""}`.trim() ||
-                                    "Unknown coach"}
+                                {displayCoachAssignmentName(assignment)}
                             </span>
 
                             <span className="text-gray-400 truncate">
@@ -731,6 +757,22 @@ function CoachesReadOnlyPanel({
                             <span className="text-gray-400 text-right">
                                 {assignment.season_year ?? "—"}
                             </span>
+
+                            <div className="flex justify-end gap-1.5">
+                                <button
+                                    onClick={() => onEdit(assignment)}
+                                    className="text-[10px] px-2 py-0.5 rounded border border-white/10 text-gray-400 hover:text-white hover:border-white/30 transition-colors cursor-pointer bg-transparent"
+                                >
+                                    Edit
+                                </button>
+
+                                <button
+                                    onClick={() => onDelete(assignment)}
+                                    className="text-[10px] px-2 py-0.5 rounded border border-red-900/50 text-red-500 hover:border-red-700 hover:text-red-300 transition-colors cursor-pointer bg-transparent"
+                                >
+                                    Delete
+                                </button>
+                            </div>
                         </div>
                     );
                 })
@@ -1163,13 +1205,13 @@ function EditPlayerModal({
 }) {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
-            <div className="w-full max-w-lg bg-[#1a1a1a] border border-white/10 rounded-lg shadow-xl">
+            <div className="w-full max-w-2xl bg-[#1a1a1a] border border-white/10 rounded-lg shadow-xl">
                 <div className="px-4 py-3 border-b border-white/8">
                     <p className="text-sm font-medium text-white">
                         Edit {displayPlayerName(player)}
                     </p>
                     <p className="text-[11px] text-gray-500">
-                        Update player identity, position, team, and active status.
+                        Update player identity, team assignment, and biographical details.
                     </p>
                 </div>
 
@@ -1232,6 +1274,79 @@ function EditPlayerModal({
                                 );
                             })}
                         </select>
+                    </label>
+
+                    <label className="flex flex-col gap-1">
+                        <span className="text-[10px] uppercase tracking-widest text-gray-500">
+                            Date of birth
+                        </span>
+                        <input
+                            type="date"
+                            value={formData.date_of_birth ?? ""}
+                            onChange={(event) => onChange("date_of_birth", event.target.value)}
+                            className="bg-[#111] border border-white/10 rounded px-2 py-1.5 text-sm text-white outline-none focus:border-white/30"
+                        />
+                        <span className="text-[10px] text-gray-600">
+                            Age is calculated automatically from this date.
+                        </span>
+                    </label>
+
+                    <label className="flex flex-col gap-1">
+                        <span className="text-[10px] uppercase tracking-widest text-gray-500">
+                            College
+                        </span>
+                        <input
+                            value={formData.college ?? ""}
+                            onChange={(event) => onChange("college", event.target.value)}
+                            className="bg-[#111] border border-white/10 rounded px-2 py-1.5 text-sm text-white outline-none focus:border-white/30"
+                            placeholder="Wyoming, Utah State, Alabama..."
+                        />
+                    </label>
+
+                    <label className="flex flex-col gap-1">
+                        <span className="text-[10px] uppercase tracking-widest text-gray-500">
+                            Height
+                        </span>
+                        <input
+                            type="number"
+                            step="0.1"
+                            value={formData.height ?? ""}
+                            onChange={(event) => onChange("height", event.target.value)}
+                            className="bg-[#111] border border-white/10 rounded px-2 py-1.5 text-sm text-white outline-none focus:border-white/30"
+                            placeholder="76"
+                        />
+                        <span className="text-[10px] text-gray-600">
+                            Stored as inches.
+                        </span>
+                    </label>
+
+                    <label className="flex flex-col gap-1">
+                        <span className="text-[10px] uppercase tracking-widest text-gray-500">
+                            Weight
+                        </span>
+                        <input
+                            type="number"
+                            step="0.1"
+                            value={formData.weight ?? ""}
+                            onChange={(event) => onChange("weight", event.target.value)}
+                            className="bg-[#111] border border-white/10 rounded px-2 py-1.5 text-sm text-white outline-none focus:border-white/30"
+                            placeholder="220"
+                        />
+                        <span className="text-[10px] text-gray-600">
+                            Stored as pounds.
+                        </span>
+                    </label>
+
+                    <label className="col-span-2 flex flex-col gap-1">
+                        <span className="text-[10px] uppercase tracking-widest text-gray-500">
+                            Headshot URL
+                        </span>
+                        <input
+                            value={formData.headshot_url ?? ""}
+                            onChange={(event) => onChange("headshot_url", event.target.value)}
+                            className="bg-[#111] border border-white/10 rounded px-2 py-1.5 text-sm text-white outline-none focus:border-white/30"
+                            placeholder="https://..."
+                        />
                     </label>
 
                     <label className="col-span-2 flex items-center gap-2 text-[12px] text-gray-300">
@@ -1333,8 +1448,6 @@ function EditTeamModal({
         { field: "state", label: "State" },
         { field: "team_name", label: "Team name" },
         { field: "abbreviation", label: "Abbreviation" },
-        { field: "conference", label: "Conference" },
-        { field: "division", label: "Division" },
         { field: "primary_color", label: "Primary color", type: "color" },
         { field: "secondary_color", label: "Secondary color", type: "color" },
         { field: "text_color", label: "Text color", type: "color" },
@@ -1348,7 +1461,7 @@ function EditTeamModal({
                         Edit {getTeamDisplayName(team)}
                     </p>
                     <p className="text-[11px] text-gray-500">
-                        Update team identity, division, and dashboard theme colors.
+                        Update team identity and dashboard theme colors.
                     </p>
                 </div>
 
@@ -1402,6 +1515,170 @@ function EditTeamModal({
                         className="px-3 py-1.5 rounded border border-emerald-800 bg-emerald-900/40 text-emerald-300 text-xs hover:bg-emerald-800/60 disabled:opacity-50"
                     >
                         {saving ? "Saving..." : "Save changes"}
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function EditCoachAssignmentModal({
+    assignment,
+    formData,
+    onChange,
+    onClose,
+    onSave,
+    saving,
+}: {
+    assignment: CoachSeasonAssignment;
+    formData: CoachSeasonAssignmentFormData;
+    onChange: (
+        field: keyof CoachSeasonAssignmentFormData,
+        value: string | boolean
+    ) => void;
+    onClose: () => void;
+    onSave: () => void;
+    saving: boolean;
+}) {
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
+            <div className="w-full max-w-lg bg-[#1a1a1a] border border-white/10 rounded-lg shadow-xl">
+                <div className="px-4 py-3 border-b border-white/8">
+                    <p className="text-sm font-medium text-white">
+                        Edit {displayCoachAssignmentName(assignment)}
+                    </p>
+                    <p className="text-[11px] text-gray-500">
+                        Update this coach&apos;s role, assignment status, and assignment dates.
+                    </p>
+                </div>
+
+                <div className="p-4 grid grid-cols-2 gap-3">
+                    <label className="col-span-2 flex flex-col gap-1">
+                        <span className="text-[10px] uppercase tracking-widest text-gray-500">
+                            Role
+                        </span>
+                        <input
+                            value={formData.role}
+                            onChange={(event) => onChange("role", event.target.value)}
+                            className="bg-[#111] border border-white/10 rounded px-2 py-1.5 text-sm text-white outline-none focus:border-white/30"
+                            placeholder="Head Coach, Offensive Coordinator..."
+                        />
+                    </label>
+
+                    <label className="flex flex-col gap-1">
+                        <span className="text-[10px] uppercase tracking-widest text-gray-500">
+                            Start date
+                        </span>
+                        <input
+                            type="date"
+                            value={formData.start_date ?? ""}
+                            onChange={(event) => onChange("start_date", event.target.value)}
+                            className="bg-[#111] border border-white/10 rounded px-2 py-1.5 text-sm text-white outline-none focus:border-white/30"
+                        />
+                    </label>
+
+                    <label className="flex flex-col gap-1">
+                        <span className="text-[10px] uppercase tracking-widest text-gray-500">
+                            End date
+                        </span>
+                        <input
+                            type="date"
+                            value={formData.end_date ?? ""}
+                            onChange={(event) => onChange("end_date", event.target.value)}
+                            className="bg-[#111] border border-white/10 rounded px-2 py-1.5 text-sm text-white outline-none focus:border-white/30"
+                        />
+                    </label>
+
+                    <label className="col-span-2 flex items-center gap-2 text-[12px] text-gray-300">
+                        <input
+                            type="checkbox"
+                            checked={formData.is_active}
+                            onChange={(event) => onChange("is_active", event.target.checked)}
+                        />
+                        Active assignment
+                    </label>
+
+                    <div className="col-span-2 rounded-lg border border-white/8 bg-[#111] px-3 py-2">
+                        <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-1">
+                            Assignment context
+                        </p>
+                        <p className="text-[12px] text-gray-400">
+                            {assignment.team_name || "Unknown team"} ·{" "}
+                            {assignment.team_abbreviation || "—"} ·{" "}
+                            {assignment.season_year ?? "—"}
+                        </p>
+                    </div>
+                </div>
+
+                <div className="px-4 py-3 border-t border-white/8 flex justify-end gap-2">
+                    <button
+                        onClick={onClose}
+                        disabled={saving}
+                        className="px-3 py-1.5 rounded border border-white/10 text-gray-300 text-xs hover:text-white hover:border-white/30 disabled:opacity-50 bg-transparent"
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        onClick={onSave}
+                        disabled={saving}
+                        className="px-3 py-1.5 rounded border border-emerald-800 bg-emerald-900/40 text-emerald-300 text-xs hover:bg-emerald-800/60 disabled:opacity-50"
+                    >
+                        {saving ? "Saving..." : "Save changes"}
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function DeleteCoachAssignmentModal({
+    assignment,
+    onClose,
+    onConfirm,
+    deleting,
+}: {
+    assignment: CoachSeasonAssignment;
+    onClose: () => void;
+    onConfirm: () => void;
+    deleting: boolean;
+}) {
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
+            <div className="w-full max-w-md bg-[#1a1a1a] border border-red-900/50 rounded-lg shadow-xl">
+                <div className="px-4 py-3 border-b border-white/8">
+                    <p className="text-sm font-medium text-white">
+                        Delete coach assignment?
+                    </p>
+                    <p className="text-[12px] text-gray-400 mt-1">
+                        Are you sure you want to delete{" "}
+                        <span className="text-red-300 font-medium">
+                            {displayCoachAssignmentName(assignment)}
+                        </span>{" "}
+                        as{" "}
+                        <span className="text-red-300 font-medium">
+                            {assignment.role || "coach"}
+                        </span>{" "}
+                        for {assignment.team_name || "this team"} in{" "}
+                        {assignment.season_year ?? "this season"}?
+                    </p>
+                </div>
+
+                <div className="px-4 py-3 flex justify-end gap-2">
+                    <button
+                        onClick={onClose}
+                        disabled={deleting}
+                        className="px-3 py-1.5 rounded border border-white/10 text-gray-300 text-xs hover:text-white hover:border-white/30 disabled:opacity-50 bg-transparent"
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        onClick={onConfirm}
+                        disabled={deleting}
+                        className="px-3 py-1.5 rounded border border-red-800 bg-red-900/40 text-red-300 text-xs hover:bg-red-800/60 disabled:opacity-50"
+                    >
+                        {deleting ? "Deleting..." : "Delete assignment"}
                     </button>
                 </div>
             </div>
@@ -2072,6 +2349,12 @@ export default function AdminPage() {
     const [deletingPlayer, setDeletingPlayer] = useState(false);
     const [playerOverrides, setPlayerOverrides] = useState<Player[] | null>(null);
 
+    const [editingCoachAssignment, setEditingCoachAssignment] = useState<CoachSeasonAssignment | null>(null);
+    const [coachAssignmentFormData, setCoachAssignmentFormData] = useState<CoachSeasonAssignmentFormData | null>(null);
+    const [coachAssignmentPendingDelete, setCoachAssignmentPendingDelete] = useState<CoachSeasonAssignment | null>(null);
+    const [savingCoachAssignment, setSavingCoachAssignment] = useState(false);
+    const [deletingCoachAssignment, setDeletingCoachAssignment] = useState(false);
+
     const [editingTeam, setEditingTeam] = useState<Team | null>(null);
     const [teamFormData, setTeamFormData] = useState<TeamFormData | null>(null);
     const [teamPendingDelete, setTeamPendingDelete] = useState<Team | null>(null);
@@ -2723,11 +3006,26 @@ export default function AdminPage() {
             return;
         }
 
+        if ( playerFormData.height && Number.isNaN(Number(playerFormData.height))) {
+            showTemporaryError("Player height must be a valid number");
+            return;
+        }
+
+        if ( playerFormData.weight && Number.isNaN(Number(playerFormData.weight)) ) {
+            showTemporaryError("Player weight must be a valid number");
+            return;
+        }
+
         const payload = {
             first_name: playerFormData.first_name.trim(),
             last_name: playerFormData.last_name.trim(),
             position: playerFormData.position.trim(),
             team: Number(playerFormData.team),
+            date_of_birth: playerFormData.date_of_birth || null,
+            college: playerFormData.college?.trim() ?? "",
+            height: playerFormData.height ? Number(playerFormData.height) : null,
+            weight: playerFormData.weight ? Number(playerFormData.weight) : null,
+            headshot_url: playerFormData.headshot_url?.trim() ?? "",
             is_active: playerFormData.is_active,
         };
 
@@ -3303,6 +3601,134 @@ const handleSaveStatType = async () => {
         }
     };
 
+    const handleEditCoachAssignment = (assignment: CoachSeasonAssignment) => {
+        setEditingCoachAssignment(assignment);
+        setCoachAssignmentFormData(coachAssignmentToFormData(assignment));
+    };
+
+    const handleCoachAssignmentFormChange = (
+        field: keyof CoachSeasonAssignmentFormData,
+        value: string | boolean
+    ) => {
+        setCoachAssignmentFormData((current) => {
+            if (!current) {
+                return current;
+            }
+
+            return {
+                ...current,
+                [field]: value,
+            };
+        });
+    };
+
+    const handleSaveCoachAssignment = async () => {
+        if (!editingCoachAssignment || !coachAssignmentFormData) {
+            return;
+        }
+
+        const assignmentId = getCoachAssignmentId(editingCoachAssignment);
+
+        if (assignmentId === undefined) {
+            showTemporaryError(
+                "Unable to update coach assignment because the assignment ID is missing"
+            );
+            return;
+        }
+
+        if (!coachAssignmentFormData.role.trim()) {
+            showTemporaryError("Coach role is required");
+            return;
+        }
+
+        const payload = {
+            role: coachAssignmentFormData.role.trim(),
+            is_active: coachAssignmentFormData.is_active,
+            start_date: coachAssignmentFormData.start_date || null,
+            end_date: coachAssignmentFormData.end_date || null,
+        };
+
+        try {
+            setSavingCoachAssignment(true);
+
+            await coachAPI.updateCoachSeasonAssignment(assignmentId, payload);
+
+            setCoachAssignments((current) =>
+                current.map((assignment) =>
+                    String(assignment.assignment_id) === String(assignmentId)
+                        ? {
+                              ...assignment,
+                              ...payload,
+                          }
+                        : assignment
+                )
+            );
+
+            setEditingCoachAssignment(null);
+            setCoachAssignmentFormData(null);
+
+            clearDashboardReportCache();
+
+            await fetchDashboardReports();
+
+            showTemporarySuccess(
+                `${displayCoachAssignmentName(editingCoachAssignment)} updated successfully`
+            );
+        } catch (error) {
+            console.error("Update coach assignment error:", error);
+            showTemporaryError("Failed to update coach assignment");
+        } finally {
+            setSavingCoachAssignment(false);
+        }
+    };
+
+    const handleDeleteCoachAssignment = (assignment: CoachSeasonAssignment) => {
+        setCoachAssignmentPendingDelete(assignment);
+    };
+
+    const handleConfirmDeleteCoachAssignment = async () => {
+        if (!coachAssignmentPendingDelete) {
+            return;
+        }
+
+        const assignmentId = getCoachAssignmentId(coachAssignmentPendingDelete);
+
+        if (assignmentId === undefined) {
+            showTemporaryError(
+                "Unable to delete coach assignment because the assignment ID is missing"
+            );
+            return;
+        }
+
+        try {
+            setDeletingCoachAssignment(true);
+
+            const coachName = displayCoachAssignmentName(coachAssignmentPendingDelete);
+
+            await coachAPI.deleteCoachSeasonAssignment(assignmentId);
+
+            setCoachAssignments((current) =>
+                current.filter(
+                    (assignment) =>
+                        String(assignment.assignment_id) !== String(assignmentId)
+                )
+            );
+
+            setCoachAssignmentPendingDelete(null);
+
+            clearDashboardReportCache();
+
+            await fetchDashboardReports();
+
+            showTemporarySuccess(`${coachName} assignment deleted successfully`);
+        } catch (error) {
+            console.error("Delete coach assignment error:", error);
+            showTemporaryError("Failed to delete coach assignment");
+        } finally {
+            setDeletingCoachAssignment(false);
+        }
+    };
+
     const renderReportFilter = () => (
         <AdminDataFilterPanel
             seasons={seasons}
@@ -3392,6 +3818,8 @@ const handleSaveStatType = async () => {
                             assignments={coachAssignments}
                             teamLabel={dashboardTeamLabel}
                             loading={loadingDashboardReports}
+                            onEdit={handleEditCoachAssignment}
+                            onDelete={handleDeleteCoachAssignment}
                         />
                     </>
                 );
@@ -3613,6 +4041,29 @@ const handleSaveStatType = async () => {
                     onClose={() => setRosterPendingDelete(null)}
                     onConfirm={handleConfirmDeleteRoster}
                     deleting={deletingRoster}
+                />
+            )}
+
+            {editingCoachAssignment && coachAssignmentFormData && (
+                <EditCoachAssignmentModal
+                    assignment={editingCoachAssignment}
+                    formData={coachAssignmentFormData}
+                    onChange={handleCoachAssignmentFormChange}
+                    onClose={() => {
+                        setEditingCoachAssignment(null);
+                        setCoachAssignmentFormData(null);
+                    }}
+                    onSave={handleSaveCoachAssignment}
+                    saving={savingCoachAssignment}
+                />
+            )}
+
+            {coachAssignmentPendingDelete && (
+                <DeleteCoachAssignmentModal
+                    assignment={coachAssignmentPendingDelete}
+                    onClose={() => setCoachAssignmentPendingDelete(null)}
+                    onConfirm={handleConfirmDeleteCoachAssignment}
+                    deleting={deletingCoachAssignment}
                 />
             )}
 
