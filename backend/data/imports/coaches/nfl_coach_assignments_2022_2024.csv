@@ -1,0 +1,385 @@
+year,team_abbreviation,first_name,last_name,role,is_active,start_date,end_date,source
+2022,ARI,Kliff,Kingsbury,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,ARI,Kliff,Kingsbury,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,ARI,Vance,Joseph,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,ARI,Jeff,Rodgers,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,ATL,Arthur,Smith,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,ATL,Dave,Ragone,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,ATL,Dean,Pees,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,ATL,Marquice,Williams,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,BAL,John,Harbaugh,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,BAL,Greg,Roman,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,BAL,Mike,Macdonald,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,BAL,Chris,Horton,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,BUF,Sean,McDermott,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,BUF,Ken,Dorsey,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,BUF,Leslie,Frazier,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,BUF,Matthew,Smiley,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,CAR,Matt,Rhule,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,CAR,Ben,McAdoo,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,CAR,Phil,Snow,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,CAR,Chris,Tabor,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,CHI,Matt,Eberflus,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,CHI,Luke,Getsy,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,CHI,Alan,Williams,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,CHI,Richard,Hightower,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,CIN,Zac,Taylor,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,CIN,Brian,Callahan,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,CIN,Lou,Anarumo,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,CIN,Darrin,Simmons,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,CLE,Kevin,Stefanski,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,CLE,Alex Van,Pelt,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,CLE,Joe,Woods,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,CLE,Mike,Priefer,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,DAL,Mike,McCarthy,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,DAL,Kellen,Moore,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,DAL,Dan,Quinn,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,DAL,John,Fassel,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,DEN,Nathaniel,Hackett,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,DEN,Justin,Outten,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,DEN,Ejiro,Evero,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,DEN,Dwayne,Stukes,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,DET,Dan,Campbell,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,DET,Ben,Johnson,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,DET,Aaron,Glenn,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,DET,Dave,Fipp,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,GB,Matt,LaFleur,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,GB,Adam,Stenavich,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,GB,Joe,Barry,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,GB,Rich,Bisaccia,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,HOU,Lovie,Smith,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,HOU,Pep,Hamilton,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,HOU,Lovie,Smith,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,HOU,Frank,Ross,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,IND,Frank,Reich,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,IND,Marcus,Brady,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,IND,Gus,Bradley,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,IND,Bubba,Ventrone,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,JAX,Doug,Pederson,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,JAX,Press,Taylor,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,JAX,Mike,Caldwell,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,JAX,Heath,Farwell,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,KC,Andy,Reid,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,KC,Eric,Bieniemy,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,KC,Steve,Spagnuolo,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,KC,Dave,Toub,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,LAC,Brandon,Staley,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,LAC,Joe,Lombardi,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,LAC,Renaldo,Hill,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,LAC,Ryan,Ficken,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,LAR,Sean,McVay,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,LAR,Liam,Coen,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,LAR,Raheem,Morris,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,LAR,Joe,DeCamillis,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,LV,Josh,McDaniels,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,LV,Mick,Lombardi,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,LV,Patrick,Graham,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,LV,Tom,McMahon,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,MIA,Mike,McDaniel,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,MIA,Frank,Smith,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,MIA,Josh,Boyer,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,MIA,Danny,Crossman,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,MIN,Kevin,O'Connell,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,MIN,Wes,Phillips,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,MIN,Ed,Donatell,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,MIN,Matt,Daniels,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,NE,Bill,Belichick,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,NE,Matt,Patricia,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,NE,Steve,Belichick,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,NE,Cameron,Achord,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,NO,Dennis,Allen,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,NO,Pete,Carmichael,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,NO,Ryan,Nielsen,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,NO,Darren,Rizzi,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,NYG,Brian,Daboll,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,NYG,Mike,Kafka,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,NYG,Wink,Martindale,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,NYG,Thomas,McGaughey,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,NYJ,Robert,Saleh,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,NYJ,Mike,LaFleur,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,NYJ,Jeff,Ulbrich,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,NYJ,Brant,Boyer,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,PHI,Nick,Sirianni,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,PHI,Shane,Steichen,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,PHI,Jonathan,Gannon,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,PHI,Michael,Clay,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,PIT,Mike,Tomlin,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,PIT,Matt,Canada,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,PIT,Teryl,Austin,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,PIT,Danny,Smith,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,SEA,Pete,Carroll,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,SEA,Shane,Waldron,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,SEA,Clint,Hurtt,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,SEA,Larry,Izzo,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,SF,Kyle,Shanahan,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,SF,Chris,Foerster,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,SF,DeMeco,Ryans,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,SF,Brian,Schneider,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,TB,Todd,Bowles,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,TB,Byron,Leftwich,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,TB,Kacy,Rodgers,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,TB,Keith,Armstrong,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,TEN,Mike,Vrabel,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,TEN,Todd,Downing,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,TEN,Shane,Bowen,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,TEN,Craig,Aukerman,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,WAS,Ron,Rivera,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,WAS,Scott,Turner,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,WAS,Jack Del,Rio,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2022,WAS,Nate,Kaczor,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2022_NFL_Coaching_Staffs
+2023,ARI,Jonathan,Gannon,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,ARI,Drew,Petzing,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,ARI,Nick,Rallis,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,ARI,Jeff,Rodgers,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,ATL,Arthur,Smith,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,ATL,Dave,Ragone,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,ATL,Ryan,Nielsen,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,ATL,Marquice,Williams,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,BAL,John,Harbaugh,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,BAL,Todd,Monken,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,BAL,Mike,Macdonald,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,BAL,Chris,Horton,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,BUF,Sean,McDermott,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,BUF,Ken,Dorsey,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,BUF,Sean,McDermott,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,BUF,Matthew,Smiley,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,CAR,Frank,Reich,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,CAR,Thomas,Brown,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,CAR,Ejiro,Evero,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,CAR,Chris,Tabor,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,CHI,Matt,Eberflus,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,CHI,Luke,Getsy,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,CHI,Alan,Williams,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,CHI,Richard,Hightower,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,CIN,Zac,Taylor,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,CIN,Brian,Callahan,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,CIN,Lou,Anarumo,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,CIN,Darrin,Simmons,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,CLE,Kevin,Stefanski,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,CLE,Alex Van,Pelt,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,CLE,Jim,Schwartz,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,CLE,Bubba,Ventrone,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,DAL,Mike,McCarthy,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,DAL,Brian,Schottenheimer,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,DAL,Dan,Quinn,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,DAL,John,Fassel,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,DEN,Sean,Payton,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,DEN,Joe,Lombardi,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,DEN,Vance,Joseph,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,DEN,Ben,Kotwica,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,DET,Dan,Campbell,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,DET,Ben,Johnson,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,DET,Aaron,Glenn,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,DET,Dave,Fipp,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,GB,Matt,LaFleur,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,GB,Adam,Stenavich,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,GB,Joe,Barry,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,GB,Rich,Bisaccia,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,HOU,DeMeco,Ryans,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,HOU,Bobby,Slowik,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,HOU,Matt,Burke,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,HOU,Frank,Ross,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,IND,Shane,Steichen,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,IND,Jim Bob,Cooter,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,IND,Gus,Bradley,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,IND,Brian,Mason,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,JAX,Doug,Pederson,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,JAX,Press,Taylor,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,JAX,Mike,Caldwell,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,JAX,Heath,Farwell,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,KC,Andy,Reid,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,KC,Matt,Nagy,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,KC,Steve,Spagnuolo,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,KC,Dave,Toub,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,LAC,Brandon,Staley,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,LAC,Kellen,Moore,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,LAC,Derrick,Ansley,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,LAC,Ryan,Ficken,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,LAR,Sean,McVay,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,LAR,Mike,LaFleur,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,LAR,Raheem,Morris,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,LAR,Chase,Blackburn,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,LV,Josh,McDaniels,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,LV,Mick,Lombardi,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,LV,Patrick,Graham,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,LV,Tom,McMahon,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,MIA,Mike,McDaniel,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,MIA,Frank,Smith,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,MIA,Vic,Fangio,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,MIA,Danny,Crossman,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,MIN,Kevin,O'Connell,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,MIN,Wes,Phillips,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,MIN,Brian,Flores,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,MIN,Matt,Daniels,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,NE,Bill,Belichick,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,NE,Bill,O'Brien,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,NE,Steve,Belichick,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,NE,Cameron,Achord,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,NO,Dennis,Allen,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,NO,Pete,Carmichael,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,NO,Joe,Woods,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,NO,Darren,Rizzi,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,NYG,Brian,Daboll,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,NYG,Mike,Kafka,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,NYG,Wink,Martindale,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,NYG,Thomas,McGaughey,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,NYJ,Robert,Saleh,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,NYJ,Nathaniel,Hackett,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,NYJ,Jeff,Ulbrich,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,NYJ,Brant,Boyer,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,PHI,Nick,Sirianni,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,PHI,Brian,Johnson,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,PHI,Sean,Desai,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,PHI,Michael,Clay,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,PIT,Mike,Tomlin,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,PIT,Matt,Canada,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,PIT,Teryl,Austin,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,PIT,Danny,Smith,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,SEA,Pete,Carroll,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,SEA,Shane,Waldron,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,SEA,Clint,Hurtt,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,SEA,Larry,Izzo,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,SF,Kyle,Shanahan,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,SF,Chris,Foerster,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,SF,Steve,Wilks,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,SF,Brian,Schneider,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,TB,Todd,Bowles,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,TB,Dave,Canales,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,TB,Todd,Bowles,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,TB,Keith,Armstrong,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,TEN,Mike,Vrabel,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,TEN,Tim,Kelly,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,TEN,Shane,Bowen,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,TEN,Craig,Aukerman,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,WAS,Ron,Rivera,Head Coach,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,WAS,Eric,Bieniemy,Offensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,WAS,Jack Del,Rio,Defensive Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2023,WAS,Nate,Kaczor,Special Teams Coordinator,true,,,https://tags-sport-world.fandom.com/wiki/2023_NFL_Coaching_Staffs
+2024,ARI,Jonathan,Gannon,Head Coach,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,ARI,Drew,Petzing,Offensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,ARI,Nick,Rallis,Defensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,ARI,Jeff,Rodgers,Special Teams Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,ATL,Raheem,Morris,Head Coach,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,ATL,Zac,Robinson,Offensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,ATL,Jimmy,Lake,Defensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,ATL,Marquice,Williams,Special Teams Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,BAL,John,Harbaugh,Head Coach,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,BAL,Todd,Monken,Offensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,BAL,Zach,Orr,Defensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,BAL,Chris,Horton,Special Teams Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,BUF,Sean,McDermott,Head Coach,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,BUF,Joe,Brady,Offensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,BUF,Bobby,Babich,Defensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,BUF,Matthew,Smiley,Special Teams Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,CAR,Dave,Canales,Head Coach,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,CAR,Brad,Idzik,Offensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,CAR,Ejiro,Evero,Defensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,CAR,Tracy,Smith,Special Teams Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,CHI,Matt,Eberflus,Head Coach,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,CHI,Shane,Waldron,Offensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,CHI,Eric,Washington,Defensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,CHI,Richard,Hightower,Special Teams Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,CIN,Zac,Taylor,Head Coach,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,CIN,Dan,Pitcher,Offensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,CIN,Lou,Anarumo,Defensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,CIN,Darrin,Simmons,Special Teams Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,CLE,Kevin,Stefanski,Head Coach,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,CLE,Ken,Dorsey,Offensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,CLE,Jim,Schwartz,Defensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,CLE,Bubba,Ventrone,Special Teams Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,DAL,Mike,McCarthy,Head Coach,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,DAL,Brian,Schottenheimer,Offensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,DAL,Mike,Zimmer,Defensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,DAL,John,Fassel,Special Teams Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,DEN,Sean,Payton,Head Coach,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,DEN,Joe,Lombardi,Offensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,DEN,Vance,Joseph,Defensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,DEN,Ben,Kotwica,Special Teams Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,DET,Dan,Campbell,Head Coach,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,DET,Ben,Johnson,Offensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,DET,Aaron,Glenn,Defensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,DET,Dave,Fipp,Special Teams Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,GB,Matt,LaFleur,Head Coach,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,GB,Adam,Stenavich,Offensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,GB,Jeff,Hafley,Defensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,GB,Rich,Bisaccia,Special Teams Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,HOU,DeMeco,Ryans,Head Coach,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,HOU,Bobby,Slowik,Offensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,HOU,Matt,Burke,Defensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,HOU,Frank,Ross,Special Teams Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,IND,Shane,Steichen,Head Coach,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,IND,Jim Bob,Cooter,Offensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,IND,Gus,Bradley,Defensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,IND,Brian,Mason,Special Teams Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,JAX,Doug,Pederson,Head Coach,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,JAX,Press,Taylor,Offensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,JAX,Ryan,Nielsen,Defensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,JAX,Heath,Farwell,Special Teams Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,KC,Andy,Reid,Head Coach,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,KC,Matt,Nagy,Offensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,KC,Steve,Spagnuolo,Defensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,KC,Dave,Toub,Special Teams Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,LAC,Jim,Harbaugh,Head Coach,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,LAC,Greg,Roman,Offensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,LAC,Jesse,Minter,Defensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,LAC,Ryan,Ficken,Special Teams Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,LAR,Sean,McVay,Head Coach,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,LAR,Mike,LaFleur,Offensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,LAR,Chris,Shula,Defensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,LAR,Chase,Blackburn,Special Teams Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,LV,Antonio,Pierce,Head Coach,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,LV,Luke,Getsy,Offensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,LV,Patrick,Graham,Defensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,LV,Tom,McMahon,Special Teams Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,MIA,Mike,McDaniel,Head Coach,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,MIA,Frank,Smith,Offensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,MIA,Anthony,Weaver,Defensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,MIA,Danny,Crossman,Special Teams Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,MIN,Kevin,O'Connell,Head Coach,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,MIN,Wes,Phillips,Offensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,MIN,Brian,Flores,Defensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,MIN,Matt,Daniels,Special Teams Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,NE,Jerod,Mayo,Head Coach,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,NE,Alex Van,Pelt,Offensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,NE,DeMarcus,Covington,Defensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,NE,Jeremy,Springer,Special Teams Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,NO,Dennis,Allen,Head Coach,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,NO,Klint,Kubiak,Offensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,NO,Joe,Woods,Defensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,NO,Darren,Rizzi,Special Teams Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,NYG,Brian,Daboll,Head Coach,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,NYG,Mike,Kafka,Offensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,NYG,Shane,Bowen,Defensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,NYG,Michael,Ghobrial,Special Teams Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,NYJ,Robert,Saleh,Head Coach,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,NYJ,Nathaniel,Hackett,Offensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,NYJ,Jeff,Ulbrich,Defensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,NYJ,Brant,Boyer,Special Teams Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,PHI,Nick,Sirianni,Head Coach,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,PHI,Kellen,Moore,Offensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,PHI,Vic,Fangio,Defensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,PHI,Michael,Clay,Special Teams Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,PIT,Mike,Tomlin,Head Coach,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,PIT,Arthur,Smith,Offensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,PIT,Teryl,Austin,Defensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,PIT,Danny,Smith,Special Teams Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,SEA,Mike,Macdonald,Head Coach,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,SEA,Ryan,Grubb,Offensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,SEA,Aden,Durde,Defensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,SEA,Jay,Harbaugh,Special Teams Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,SF,Kyle,Shanahan,Head Coach,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,SF,Klay,Kubiak,Offensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,SF,Nick,Sorensen,Defensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,SF,Brian,Schneider,Special Teams Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,TB,Todd,Bowles,Head Coach,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,TB,Liam,Coen,Offensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,TB,Todd,Bowles,Defensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,TB,Thomas,McGaughey,Special Teams Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,TEN,Brian,Callahan,Head Coach,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,TEN,Nick,Holz,Offensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,TEN,Dennard,Wilson,Defensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,TEN,Colt,Anderson,Special Teams Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,WAS,Dan,Quinn,Head Coach,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,WAS,Kliff,Kingsbury,Offensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,WAS,Joe,Whitt Jr.,Defensive Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
+2024,WAS,Larry,Izzo,Special Teams Coordinator,true,,,https://www.cbssports.com/nfl/news/2024-nfl-coaching-hires-a-rundown-of-every-teams-current-offensive-and-defensive-coordinator/; https://www.nfl.com/news/nfl-coaching-gm-tracker-latest-news-interviews-developments-in-2024-hiring-cycle
