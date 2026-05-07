@@ -11,8 +11,6 @@ export interface TeamFormData {
     state: string;
     team_name: string;
     conference: string;
-    division: string;
-    abbreviation: string;
     primary_color: string;
     secondary_color: string;
     text_color: string;

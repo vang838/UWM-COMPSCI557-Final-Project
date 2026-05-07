@@ -496,6 +496,41 @@ function CompactSeasonSummaryCard({
     );
 }
 
+function displayBioValue(value?: string | number | null) {
+    return value === null || value === undefined || value === "" ? "N/A" : value;
+}
+
+function formatHeight(height?: number | string | null) {
+    if (height === null || height === undefined || height === "") {
+        return "N/A";
+    }
+
+    const numericHeight = Math.round(Number(height));
+
+    if (Number.isNaN(numericHeight)) {
+        return `${height} in`;
+    }
+
+    const feet = Math.floor(numericHeight / 12);
+    const inches = numericHeight % 12;
+
+    return `${feet}'${inches}"`;
+}
+
+function formatWeight(weight?: number | string | null) {
+    if (weight === null || weight === undefined || weight === "") {
+        return "N/A";
+    }
+
+    const numericWeight = Number(weight);
+
+    if (Number.isNaN(numericWeight)) {
+        return `${weight} lbs`;
+    }
+
+    return `${numericWeight.toFixed(0)} lbs`;
+}
+
 function PlayerDetailModal({
     player,
     stats,
@@ -541,6 +576,44 @@ function PlayerDetailModal({
                     >
                         ✕
                     </button>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 border-b border-white/8 px-4 py-3 text-sm sm:grid-cols-4">
+                    <div>
+                        <p className="text-[10px] uppercase tracking-widest text-gray-500">
+                            Age
+                        </p>
+                        <p className="mt-1 font-semibold text-white">
+                            {displayBioValue(player.age)}
+                        </p>
+                    </div>
+
+                    <div>
+                        <p className="text-[10px] uppercase tracking-widest text-gray-500">
+                            College
+                        </p>
+                        <p className="mt-1 truncate font-semibold text-white">
+                            {displayBioValue(player.college)}
+                        </p>
+                    </div>
+
+                    <div>
+                        <p className="text-[10px] uppercase tracking-widest text-gray-500">
+                            Height
+                        </p>
+                        <p className="mt-1 font-semibold text-white">
+                            {formatHeight(player.height)}
+                        </p>
+                    </div>
+
+                    <div>
+                        <p className="text-[10px] uppercase tracking-widest text-gray-500">
+                            Weight
+                        </p>
+                        <p className="mt-1 font-semibold text-white">
+                            {formatWeight(player.weight)}
+                        </p>
+                    </div>
                 </div>
 
                 <div className="p-4">

@@ -330,21 +330,23 @@ class Command(BaseCommand):
         for player_data in TEST_PLAYERS:
             team = self.get_team(player_data["team_abbreviation"])
 
-            team_season, _ = TeamSeason.objects.update_or_create(
-                team=team,
-                season=season,
-                defaults={
-                    "conference": getattr(team, "conference", "") or "",
-                    "division": getattr(team, "division", "") or "",
-                },
-            )
+            try:
+                team_season = TeamSeason.objects.get(
+                    team=team,
+                    season=season,
+                )
+            except TeamSeason.DoesNotExist:
+                raise CommandError(
+                    f"TeamSeason for {team} in {year} does not exist. "
+                    f"Run: python manage.py seed_team_seasons --year {year}"
+                )
 
             player, player_created = Player.objects.update_or_create(
                 first_name=player_data["first_name"],
                 last_name=player_data["last_name"],
+                team=team,
                 defaults={
                     "position": player_data["position"],
-                    "team": team,
                     "is_active": True,
                 },
             )

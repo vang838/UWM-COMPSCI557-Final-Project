@@ -25,7 +25,6 @@ class ImportSummary:
     players_created: int = 0
     players_updated: int = 0
 
-    team_seasons_created: int = 0
     rosters_created: int = 0
 
     stat_types_created: int = 0
@@ -440,17 +439,33 @@ def import_nflverse_player_stats(
     with transaction.atomic():
         season, _ = Season.objects.get_or_create(year=year)
 
-        team_season, team_season_created = TeamSeason.objects.get_or_create(
+        team_season = TeamSeason.objects.filter(
             team=team,
             season=season,
-            defaults={
-                "conference": team.conference,
-                "division": team.division,
-            },
-        )
+        ).first()
 
-        if team_season_created:
-            summary.team_seasons_created += 1
+        if team_season is None:
+            raise NflverseImportError(
+                f"TeamSeason does not exist for {team} in {year}. "
+                f"Run: python manage.py seed_team_seasons --year {year}"
+            )
+
+        with transaction.atomic():
+            season, _ = Season.objects.get_or_create(year=year)
+
+            team_season = TeamSeason.objects.filter(
+                team=team,
+                season=season,
+            ).first()
+
+            if team_season is None:
+                raise NflverseImportError(
+                    f"TeamSeason does not exist for {team} in {year}. "
+                    f"Run: python manage.py seed_team_seasons --year {year}"
+                )
+
+            with path.open(newline="", encoding="utf-8") as csv_file:
+                reader = csv.DictReader(csv_file)
 
         with path.open(newline="", encoding="utf-8") as csv_file:
             reader = csv.DictReader(csv_file)

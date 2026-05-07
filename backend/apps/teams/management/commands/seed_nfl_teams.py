@@ -3,7 +3,7 @@ from apps.teams.models import Team
 
 
 class Command(BaseCommand):
-    help = "Seed NFL team data with conference, division, abbreviation, and theme colors."
+    help = "Seed NFL team data, abbreviation, and theme colors."
 
     def handle(self, *args, **options):
         teams = [
@@ -380,9 +380,15 @@ class Command(BaseCommand):
         updated_count = 0
 
         for team_data in teams:
+            team_defaults = {
+                key: value
+                for key, value in team_data.items()
+                if key not in {"conference", "division"}
+            }
+
             team, created = Team.objects.update_or_create(
                 team_name=team_data["team_name"],
-                defaults=team_data,
+                defaults=team_defaults,
             )
 
             if created:
