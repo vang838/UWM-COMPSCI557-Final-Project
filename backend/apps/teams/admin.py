@@ -10,11 +10,8 @@ class TeamAdmin(admin.ModelAdmin):
         "city",
         "team_name",
         "abbreviation",
-        "conference",
-        "division",
     )
     search_fields = ("city", "team_name", "abbreviation")
-    list_filter = ("conference", "division")
     ordering = ("team_name",)
 
 

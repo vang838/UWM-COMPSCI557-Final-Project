@@ -14,8 +14,6 @@ class TeamSerializer(serializers.ModelSerializer):
             "state",
             "team_name",
             "display_name",
-            "conference",
-            "division",
             "abbreviation",
             "primary_color",
             "secondary_color",
@@ -169,15 +167,6 @@ class CoachSeasonAssignmentSerializer(serializers.ModelSerializer):
         read_only=True,
     )
 
-    conference = serializers.CharField(
-        source="team_season.conference",
-        read_only=True,
-    )
-    division = serializers.CharField(
-        source="team_season.division",
-        read_only=True,
-    )
-
     class Meta:
         model = CoachSeasonAssignment
         fields = [
@@ -192,8 +181,6 @@ class CoachSeasonAssignmentSerializer(serializers.ModelSerializer):
             "team_abbreviation",
             "season_id",
             "season_year",
-            "conference",
-            "division",
             "role",
             "is_active",
             "start_date",

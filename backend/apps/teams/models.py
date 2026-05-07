@@ -8,9 +8,6 @@ class Team(models.Model):
     city = models.CharField(max_length=100, blank=True)
     state = models.CharField(max_length=2, blank=True)
 
-    conference = models.CharField(max_length=50)
-    division = models.CharField(max_length=50)
-
     abbreviation = models.CharField(max_length=5, blank=True)
     primary_color = models.CharField(max_length=7, default="#1a3d28")
     secondary_color = models.CharField(max_length=7, default="#f0c040")
