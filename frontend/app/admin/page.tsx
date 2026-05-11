@@ -99,14 +99,14 @@ const ADMIN_NAV: NavSection[] = [
         items: [
             { label: "Players", section: "players" },
             { label: "Coaches", section: "coaches" },
-            { label: "Team roster", section: "team-roster" },
+            { label: "Team Rosters", section: "team-roster" },
         ],
     },
     {
         heading: "Stats",
         items: [
-            { label: "Player stats", section: "player-stats" },
-            { label: "Stat types", section: "stat-types" },
+            { label: "Player Statistics", section: "player-stats" },
+            { label: "Statistic Types", section: "stat-types" },
             { label: "Leaderboard", section: "leaderboard" },
             { label: "Comparison", section: "comparison" },
         ],
