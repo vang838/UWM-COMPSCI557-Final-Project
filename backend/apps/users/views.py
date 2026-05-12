@@ -24,31 +24,82 @@ from apps.users.serializers import (
 #login stuff
 @csrf_exempt
 def login_view(request):
-    if request.method == "POST":    # Authenticate user via username/password, returns token + user role
+    if request.method == "POST":
         try:
             data = json.loads(request.body)
             username = data.get("username")
             password = data.get("password")
 
             if not username or not password:
-                return JsonResponse({"success": False, "error": "username and password required"}, status=400)
+                return JsonResponse(
+                    {
+                        "success": False,
+                        "error": "Username and password are required.",
+                        "code": "missing_credentials",
+                    },
+                    status=400,
+                )
+
+            # Check inactive account only when the password is correct.
+            # This avoids showing "inactive account" for random wrong passwords.
+            matching_user = User.objects.filter(username__iexact=username).first()
+
+            if (
+                matching_user is not None
+                and matching_user.check_password(password)
+                and not matching_user.is_active
+            ):
+                return JsonResponse(
+                    {
+                        "success": False,
+                        "error": "This account is inactive. Please contact an administrator.",
+                        "code": "account_inactive",
+                    },
+                    status=403,
+                )
 
             user = authenticate(request, username=username, password=password)
 
             if user is not None:
                 token, created = Token.objects.get_or_create(user=user)
-                return JsonResponse({
-                    "success": True,
-                    "token": token.key,
-                    "user_id": user.id,
-                    "username": user.username,
-                    "role": user.role})
-            else:
-                return JsonResponse({"success": False, "error": "Invalid credentials"},status=401)
+
+                return JsonResponse(
+                    {
+                        "success": True,
+                        "token": token.key,
+                        "user_id": user.id,
+                        "username": user.username,
+                        "role": user.role,
+                    }
+                )
+
+            return JsonResponse(
+                {
+                    "success": False,
+                    "error": "Invalid username or password.",
+                    "code": "invalid_credentials",
+                },
+                status=401,
+            )
+
         except json.JSONDecodeError:
-            return JsonResponse({"success": False, "error": "Invalid JSON"},status=400)
-    else:
-        return JsonResponse({"success": False, "error": "Method not allowed"}, status=405)
+            return JsonResponse(
+                {
+                    "success": False,
+                    "error": "Invalid JSON.",
+                    "code": "invalid_json",
+                },
+                status=400,
+            )
+
+    return JsonResponse(
+        {
+            "success": False,
+            "error": "Method not allowed.",
+            "code": "method_not_allowed",
+        },
+        status=405,
+    )
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
