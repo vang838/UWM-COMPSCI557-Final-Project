@@ -71,7 +71,7 @@ const USER_NAV: NavSection[] = [
         heading: "Overview",
         items: [
             { label: "Dashboard", section: "dashboard" },
-            { label: "Season summary", section: "season-summary" },
+            { label: "Season Summary", section: "season-summary" },
         ],
     },
     {
@@ -79,7 +79,7 @@ const USER_NAV: NavSection[] = [
         items: [
             { label: "Players", section: "players" },
             { label: "Coaches", section: "coaches" },
-            { label: "Team Roster", section: "team-roster" },
+            { label: "Team Rosters", section: "team-roster" },
         ],
     },
     {
@@ -496,6 +496,41 @@ function CompactSeasonSummaryCard({
     );
 }
 
+function displayBioValue(value?: string | number | null) {
+    return value === null || value === undefined || value === "" ? "N/A" : value;
+}
+
+function formatHeight(height?: number | string | null) {
+    if (height === null || height === undefined || height === "") {
+        return "N/A";
+    }
+
+    const numericHeight = Math.round(Number(height));
+
+    if (Number.isNaN(numericHeight)) {
+        return `${height} in`;
+    }
+
+    const feet = Math.floor(numericHeight / 12);
+    const inches = numericHeight % 12;
+
+    return `${feet}'${inches}"`;
+}
+
+function formatWeight(weight?: number | string | null) {
+    if (weight === null || weight === undefined || weight === "") {
+        return "N/A";
+    }
+
+    const numericWeight = Number(weight);
+
+    if (Number.isNaN(numericWeight)) {
+        return `${weight} lbs`;
+    }
+
+    return `${numericWeight.toFixed(0)} lbs`;
+}
+
 function PlayerDetailModal({
     player,
     stats,
@@ -541,6 +576,44 @@ function PlayerDetailModal({
                     >
                         ✕
                     </button>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 border-b border-white/8 px-4 py-3 text-sm sm:grid-cols-4">
+                    <div>
+                        <p className="text-[10px] uppercase tracking-widest text-gray-500">
+                            Age
+                        </p>
+                        <p className="mt-1 font-semibold text-white">
+                            {displayBioValue(player.age)}
+                        </p>
+                    </div>
+
+                    <div>
+                        <p className="text-[10px] uppercase tracking-widest text-gray-500">
+                            College
+                        </p>
+                        <p className="mt-1 truncate font-semibold text-white">
+                            {displayBioValue(player.college)}
+                        </p>
+                    </div>
+
+                    <div>
+                        <p className="text-[10px] uppercase tracking-widest text-gray-500">
+                            Height
+                        </p>
+                        <p className="mt-1 font-semibold text-white">
+                            {formatHeight(player.height)}
+                        </p>
+                    </div>
+
+                    <div>
+                        <p className="text-[10px] uppercase tracking-widest text-gray-500">
+                            Weight
+                        </p>
+                        <p className="mt-1 font-semibold text-white">
+                            {formatWeight(player.weight)}
+                        </p>
+                    </div>
                 </div>
 
                 <div className="p-4">
@@ -595,6 +668,181 @@ function PlayerDetailModal({
                             No stats available for this player in the selected team and season.
                         </div>
                     )}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function displayCoachName(assignment: CoachSeasonAssignment): string {
+    return (
+        assignment.coach_full_name ||
+        `${assignment.coach_first_name ?? ""} ${assignment.coach_last_name ?? ""}`.trim() ||
+        "Unknown coach"
+    );
+}
+
+function formatNullableDate(value?: string | null): string {
+    if (!value) {
+        return "N/A";
+    }
+
+    const date = new Date(`${value}T00:00:00`);
+
+    if (Number.isNaN(date.getTime())) {
+        return value;
+    }
+
+    return date.toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+    });
+}
+
+function CoachDetailModal({
+    assignment,
+    onClose,
+}: {
+    assignment: CoachSeasonAssignment;
+    onClose: () => void;
+}) {
+    const coachName = displayCoachName(assignment);
+    const active = assignment.is_active !== false;
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
+            <div className="w-full max-w-xl bg-[#1a1a1a] border border-white/10 rounded-lg shadow-xl overflow-hidden">
+                <div className="px-4 py-4 border-b border-white/8 flex items-start justify-between gap-4">
+                    <div className="flex items-center gap-3 min-w-0">
+                        <span className="w-14 h-14 rounded-full flex items-center justify-center bg-[#1a3d28] text-[#f0c040] font-medium shrink-0">
+                            <PlayerInitials name={coachName} />
+                        </span>
+
+                        <div className="min-w-0">
+                            <p className="text-lg font-semibold text-white truncate">
+                                {coachName}
+                            </p>
+
+                            <p className="text-[12px] text-gray-500 mt-0.5">
+                                {assignment.role || "Coach"} ·{" "}
+                                {assignment.team_abbreviation || "—"} ·{" "}
+                                {assignment.season_year ?? "—"}
+                            </p>
+                        </div>
+                    </div>
+
+                    <button
+                        onClick={onClose}
+                        className="text-gray-500 hover:text-white text-xl leading-none bg-transparent border-none cursor-pointer shrink-0"
+                    >
+                        ✕
+                    </button>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 border-b border-white/8 px-4 py-3 text-sm sm:grid-cols-4">
+                    <div>
+                        <p className="text-[10px] uppercase tracking-widest text-gray-500">
+                            Status
+                        </p>
+                        <p
+                            className={`mt-1 font-semibold ${
+                                active ? "text-emerald-400" : "text-gray-400"
+                            }`}
+                        >
+                            {active ? "Active" : "Inactive"}
+                        </p>
+                    </div>
+
+                    <div>
+                        <p className="text-[10px] uppercase tracking-widest text-gray-500">
+                            Conference
+                        </p>
+                        <p className="mt-1 font-semibold text-white">
+                            {displayBioValue(assignment.conference)}
+                        </p>
+                    </div>
+
+                    <div>
+                        <p className="text-[10px] uppercase tracking-widest text-gray-500">
+                            Division
+                        </p>
+                        <p className="mt-1 font-semibold text-white">
+                            {displayBioValue(assignment.division)}
+                        </p>
+                    </div>
+
+                    <div>
+                        <p className="text-[10px] uppercase tracking-widest text-gray-500">
+                            Season
+                        </p>
+                        <p className="mt-1 font-semibold text-white">
+                            {displayBioValue(assignment.season_year)}
+                        </p>
+                    </div>
+                </div>
+
+                <div className="p-4 space-y-4">
+                    <div>
+                        <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-2">
+                            Assignment Details
+                        </p>
+
+                        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                            <div className="bg-[#111] border border-white/8 rounded-lg px-3 py-2">
+                                <p className="text-[11px] text-gray-400 mb-1">Team</p>
+                                <p className="text-sm font-semibold text-white">
+                                    {assignment.team_name || "N/A"}
+                                </p>
+                            </div>
+
+                            <div className="bg-[#111] border border-white/8 rounded-lg px-3 py-2">
+                                <p className="text-[11px] text-gray-400 mb-1">Role</p>
+                                <p className="text-sm font-semibold text-white">
+                                    {assignment.role || "N/A"}
+                                </p>
+                            </div>
+
+                            <div className="bg-[#111] border border-white/8 rounded-lg px-3 py-2">
+                                <p className="text-[11px] text-gray-400 mb-1">
+                                    Start Date
+                                </p>
+                                <p className="text-sm font-semibold text-white">
+                                    {formatNullableDate(assignment.start_date)}
+                                </p>
+                            </div>
+
+                            <div className="bg-[#111] border border-white/8 rounded-lg px-3 py-2">
+                                <p className="text-[11px] text-gray-400 mb-1">
+                                    End Date
+                                </p>
+                                <p className="text-sm font-semibold text-white">
+                                    {formatNullableDate(assignment.end_date)}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="rounded-lg border border-white/8 bg-[#111] px-3 py-2">
+                        <p className="text-[11px] text-gray-400 mb-1">
+                            Assignment Summary
+                        </p>
+                        <p className="text-sm text-gray-300">
+                            {coachName} served as{" "}
+                            <span className="text-white font-medium">
+                                {assignment.role || "a coach"}
+                            </span>{" "}
+                            for{" "}
+                            <span className="text-white font-medium">
+                                {assignment.team_name || "this team"}
+                            </span>{" "}
+                            during the{" "}
+                            <span className="text-white font-medium">
+                                {assignment.season_year ?? "selected"}
+                            </span>{" "}
+                            season.
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -680,6 +928,15 @@ export default function DashboardPage() {
     const [initialLoading, setInitialLoading] = useState(true);
     const [sectionLoading, setSectionLoading] = useState(false);
     const [loadingComparisonData, setLoadingComparisonData] = useState(false);
+
+    const [selectedCoachAssignment, setSelectedCoachAssignment] = useState<CoachSeasonAssignment | null>(null);
+    const handleOpenCoachDetails = useCallback((assignment: CoachSeasonAssignment) => {
+        setSelectedCoachAssignment(assignment);
+    }, []);
+
+    const closeCoachDetails = useCallback(() => {
+        setSelectedCoachAssignment(null);
+    }, []);
 
     const handleSectionChange = useCallback(
         (section: string) => {
@@ -1393,7 +1650,16 @@ export default function DashboardPage() {
                     return (
                         <div
                             key={assignment.assignment_id}
-                            className="grid grid-cols-[1.4fr_1.2fr_100px_100px] gap-3 items-center px-3 py-2 border-b border-white/6 last:border-b-0 text-[12px] hover:bg-white/3"
+                            role="button"
+                            tabIndex={0}
+                            onClick={() => handleOpenCoachDetails(assignment)}
+                            onKeyDown={(event) => {
+                                if (event.key === "Enter" || event.key === " ") {
+                                    event.preventDefault();
+                                    handleOpenCoachDetails(assignment);
+                                }
+                            }}
+                            className="grid grid-cols-[1.4fr_1.2fr_100px_100px] gap-3 items-center px-3 py-2 border-b border-white/6 last:border-b-0 text-[12px] hover:bg-white/3 cursor-pointer transition-colors"
                         >
                             <span className="text-white font-medium truncate">
                                 {assignment.coach_full_name ||
@@ -1717,6 +1983,7 @@ export default function DashboardPage() {
             onSeasonChange={(season) => {
                 setActiveSeason(season);
                 closePlayerDetails();
+                closeCoachDetails();
                 setComparisonReport(null);
                 setComparisonError("");
             }}
@@ -1727,6 +1994,7 @@ export default function DashboardPage() {
             onTeamChange={(teamId) => {
                 setActiveTeamId(teamId);
                 closePlayerDetails();
+                closeCoachDetails();
                 setComparisonReport(null);
                 setComparisonError("");
                 setLeftComparisonPlayerId("");
@@ -1759,6 +2027,13 @@ export default function DashboardPage() {
                     loading={loadingSelectedPlayerStats}
                     error={selectedPlayerStatsError}
                     onClose={closePlayerDetails}
+                />
+            )}
+
+            {selectedCoachAssignment && (
+                <CoachDetailModal
+                    assignment={selectedCoachAssignment}
+                    onClose={closeCoachDetails}
                 />
             )}
         </PageLayout>

@@ -152,6 +152,12 @@ class PlayerViewSet(viewsets.ModelViewSet):
                 "last_name",
                 "position",
                 "team_id",
+                "date_of_birth",
+                "college",
+                "height",
+                "weight",
+                "headshot_url",
+                "is_active",
             )
             .get(player_id=self.kwargs.get(self.lookup_field))
         )
@@ -212,6 +218,13 @@ class PlayerViewSet(viewsets.ModelViewSet):
                     "player_id": player.player_id,
                     "first_name": player.first_name,
                     "last_name": player.last_name,
+                    "position": player.position,
+                    "date_of_birth": player.date_of_birth,
+                    "age": player.age,
+                    "college": player.college,
+                    "height": player.height,
+                    "weight": player.weight,
+                    "headshot_url": player.headshot_url,
                     "stats": serializer.data,
                 }
             )

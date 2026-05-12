@@ -13,6 +13,12 @@ interface Player {
     jersey_number?: number | string;
     team?: number | string;
     team_name?: string;
+    date_of_birth?: string | null;
+    age?: number | null;
+    college?: string;
+    height?: number | string | null;
+    weight?: number | string | null;
+    headshot_url?: string;
     is_active?: boolean;
 }
 
@@ -97,6 +103,41 @@ function getPlayerTeamLabel(player: Player, teamLookup: Map<string, string>): st
     return teamLookup.get(teamId) ?? `Team #${teamId}`;
 }
 
+function displayAdminValue(value?: string | number | null): string | number {
+    return value === null || value === undefined || value === "" ? "—" : value;
+}
+
+function formatAdminHeight(height?: number | string | null): string {
+    if (height === null || height === undefined || height === "") {
+        return "—";
+    }
+
+    const numericHeight = Math.round(Number(height));
+
+    if (Number.isNaN(numericHeight)) {
+        return `${height} in`;
+    }
+
+    const feet = Math.floor(numericHeight / 12);
+    const inches = numericHeight % 12;
+
+    return `${feet}'${inches}"`;
+}
+
+function formatAdminWeight(weight?: number | string | null): string {
+    if (weight === null || weight === undefined || weight === "") {
+        return "—";
+    }
+
+    const numericWeight = Number(weight);
+
+    if (Number.isNaN(numericWeight)) {
+        return `${weight} lbs`;
+    }
+
+    return `${numericWeight.toFixed(0)} lbs`;
+}
+
 function PlayerRow({
     player,
     teamLookup,
@@ -111,7 +152,7 @@ function PlayerRow({
     const active = player.is_active !== false;
 
     return (
-        <div className="grid grid-cols-[2fr_1fr_1.4fr_1fr_auto] gap-3 items-center px-3 py-2 border-b border-white/6 last:border-b-0 hover:bg-white/3 transition-colors text-[12px]">
+        <div className="grid grid-cols-[1.6fr_70px_1.3fr_60px_1.2fr_70px_80px_90px_auto] gap-3 items-center px-3 py-2 border-b border-white/6 last:border-b-0 hover:bg-white/3 transition-colors text-[12px]">
             <span className="text-white font-medium truncate">
                 {displayPlayerName(player)}
             </span>
@@ -122,6 +163,22 @@ function PlayerRow({
 
             <span className="text-gray-400 truncate">
                 {getPlayerTeamLabel(player, teamLookup)}
+            </span>
+
+            <span className="text-gray-400">
+                {displayAdminValue(player.age)}
+            </span>
+
+            <span className="text-gray-400 truncate">
+                {displayAdminValue(player.college)}
+            </span>
+
+            <span className="text-gray-400">
+                {formatAdminHeight(player.height)}
+            </span>
+
+            <span className="text-gray-400">
+                {formatAdminWeight(player.weight)}
             </span>
 
             <span>
@@ -196,12 +253,14 @@ export default function AdminPlayerRecords({
         return players
             .filter((player) => {
                 const name = displayPlayerName(player).toLowerCase();
+                const college = (player.college || "").toLowerCase();
                 const teamId = getPlayerTeamId(player);
                 const active = player.is_active !== false;
 
                 const matchesSearch =
                     !normalizedSearch ||
                     name.includes(normalizedSearch) ||
+                    college.includes(normalizedSearch) ||
                     String(player.player_id ?? player.id ?? "").includes(normalizedSearch);
 
                 const matchesTeam =
@@ -363,10 +422,14 @@ export default function AdminPlayerRecords({
 
             {viewMode === "table" ? (
                 <>
-                    <div className="grid grid-cols-[2fr_1fr_1.4fr_1fr_auto] gap-3 px-3 py-2 border-b border-white/8 text-[10px] uppercase tracking-widest text-gray-500">
+                    <div className="grid grid-cols-[1.6fr_70px_1.3fr_60px_1.2fr_70px_80px_90px_auto] gap-3 px-3 py-2 border-b border-white/8 text-[10px] uppercase tracking-widest text-gray-500">
                         <span>Name</span>
-                        <span>Position</span>
+                        <span>Pos</span>
                         <span>Team</span>
+                        <span>Age</span>
+                        <span>College</span>
+                        <span>Height</span>
+                        <span>Weight</span>
                         <span>Status</span>
                         <span>Actions</span>
                     </div>
@@ -401,10 +464,14 @@ export default function AdminPlayerRecords({
                                     </span>
                                 </div>
 
-                                <div className="grid grid-cols-[2fr_1fr_1.4fr_1fr_auto] gap-3 px-3 py-2 border-b border-white/8 text-[10px] uppercase tracking-widest text-gray-500">
+                                <div className="grid grid-cols-[1.6fr_70px_1.3fr_60px_1.2fr_70px_80px_90px_auto] gap-3 px-3 py-2 border-b border-white/8 text-[10px] uppercase tracking-widest text-gray-500">
                                     <span>Name</span>
-                                    <span>Position</span>
+                                    <span>Pos</span>
                                     <span>Team</span>
+                                    <span>Age</span>
+                                    <span>College</span>
+                                    <span>Height</span>
+                                    <span>Weight</span>
                                     <span>Status</span>
                                     <span>Actions</span>
                                 </div>

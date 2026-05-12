@@ -14,8 +14,6 @@ class TeamSerializer(serializers.ModelSerializer):
             "state",
             "team_name",
             "display_name",
-            "conference",
-            "division",
             "abbreviation",
             "primary_color",
             "secondary_color",

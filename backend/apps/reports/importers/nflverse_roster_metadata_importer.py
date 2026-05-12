@@ -1,10 +1,10 @@
-# backend/apps/reports/importers/nflverse_roster_metadata_importer.py
-
 from __future__ import annotations
+from django.utils.dateparse import parse_date
 
 import csv
 import re
 import unicodedata
+from decimal import Decimal, InvalidOperation
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Iterable
@@ -129,6 +129,41 @@ def build_roster_lookup(rosters: Iterable[PlayerSeasonRoster]) -> dict[str, list
             lookup.setdefault(key, []).append(roster)
 
     return lookup
+
+def first_non_empty(row: dict, *column_names: str) -> str:
+    for column_name in column_names:
+        value = str(row.get(column_name) or "").strip()
+
+        if value:
+            return value
+
+    return ""
+
+
+def parse_optional_date(value: str | None):
+    cleaned_value = str(value or "").strip()
+
+    if not cleaned_value:
+        return None
+
+    return parse_date(cleaned_value)
+
+
+def parse_optional_decimal(value: str | None):
+    cleaned_value = str(value or "").strip()
+
+    if not cleaned_value:
+        return None
+
+    try:
+        parsed_value = Decimal(cleaned_value)
+
+        if not parsed_value.is_finite():
+            return None
+
+        return parsed_value
+    except InvalidOperation:
+        return None
 
 
 def get_row_candidate_keys(row: dict) -> list[str]:
@@ -260,11 +295,20 @@ def import_nflverse_roster_metadata(
 
             processed_source_keys.add(source_key)
 
-            headshot_url = str(row.get("headshot_url") or "").strip()
+            headshot_url = first_non_empty(row, "headshot_url", "player_headshot_url")
+            date_of_birth = parse_optional_date(
+                first_non_empty(row, "birth_date", "date_of_birth", "dob")
+            )
+            college = first_non_empty(row, "college", "college_name", "school")
+            height = parse_optional_decimal(
+                first_non_empty(row, "height", "height_inches")
+            )
+            weight = parse_optional_decimal(
+                first_non_empty(row, "weight", "weight_lbs")
+            )
 
             if not headshot_url:
                 summary.rows_missing_headshot += 1
-                continue
 
             matched_roster, ambiguous = find_matching_roster(row, roster_lookup)
 
@@ -299,14 +343,35 @@ def import_nflverse_roster_metadata(
             processed_player_ids.add(player.player_id)
             summary.players_matched += 1
 
-            if player.headshot_url == headshot_url:
+            update_fields = []
+
+            if headshot_url and player.headshot_url != headshot_url:
+                player.headshot_url = headshot_url
+                update_fields.append("headshot_url")
+
+            if date_of_birth and player.date_of_birth != date_of_birth:
+                player.date_of_birth = date_of_birth
+                update_fields.append("date_of_birth")
+
+            if college and player.college != college:
+                player.college = college
+                update_fields.append("college")
+
+            if height is not None and player.height != height:
+                player.height = height
+                update_fields.append("height")
+
+            if weight is not None and player.weight != weight:
+                player.weight = weight
+                update_fields.append("weight")
+
+            if not update_fields:
                 summary.players_unchanged += 1
                 continue
 
             summary.players_updated += 1
 
             if not dry_run:
-                player.headshot_url = headshot_url
-                player.save(update_fields=["headshot_url"])
+                player.save(update_fields=update_fields)
 
     return summary

@@ -65,6 +65,7 @@ class PlayerSeasonStatSerializer(serializers.ModelSerializer):
 class PlayerDashboardSerializer(serializers.ModelSerializer):
     team_name = serializers.SerializerMethodField()
     jersey_number = serializers.SerializerMethodField()
+    age = serializers.ReadOnlyField()
     season_stats = serializers.SerializerMethodField()
 
     class Meta:
@@ -77,7 +78,9 @@ class PlayerDashboardSerializer(serializers.ModelSerializer):
             "team",
             "team_name",
             "jersey_number",
+            "date_of_birth",
             "age",
+            "college",
             "height",
             "weight",
             "headshot_url",

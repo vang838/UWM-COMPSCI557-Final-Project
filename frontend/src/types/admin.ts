@@ -3,6 +3,11 @@ export interface PlayerFormData {
     last_name: string;
     position: string;
     team: string;
+    date_of_birth?: string;
+    college?: string;
+    height?: string;
+    weight?: string;
+    headshot_url?: string;
     is_active: boolean;
 }
 
@@ -10,8 +15,6 @@ export interface TeamFormData {
     city: string;
     state: string;
     team_name: string;
-    conference: string;
-    division: string;
     abbreviation: string;
     primary_color: string;
     secondary_color: string;
@@ -67,6 +70,42 @@ export interface StatTypeFormData {
     category: string;
     unit: string;
     description: string;
+}
+
+export interface CoachFormData {
+    first_name: string;
+    last_name: string;
+    role: string;
+    team: string;
+}
+
+export interface CoachSeasonAssignmentFormData {
+    coach: string;
+    team_season: string;
+    role: string;
+    is_active: boolean;
+    start_date?: string;
+    end_date?: string;
+}
+
+export interface CoachSeasonAssignment {
+    assignment_id: number;
+    coach: number;
+    coach_first_name?: string;
+    coach_last_name?: string;
+    coach_full_name?: string;
+    team_season: number;
+    team_id?: number;
+    team_name?: string;
+    team_abbreviation?: string;
+    season_id?: number;
+    season_year?: number;
+    conference?: string;
+    division?: string;
+    role?: string;
+    is_active?: boolean;
+    start_date?: string | null;
+    end_date?: string | null;
 }
 
 export type SeasonModalMode = "create" | "edit";

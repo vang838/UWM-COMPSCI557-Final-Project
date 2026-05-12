@@ -29,6 +29,11 @@ export interface Player {
     jersey_number?: number | string;
     team?: number | string;
     team_name?: string;
+    date_of_birth?: string | null;
+    age?: number | null;
+    college?: string;
+    height?: number | string | null;
+    weight?: number | string | null;
     headshot_url?: string;
     is_active?: boolean;
     season_stats?: PlayerSeasonStat[];
@@ -47,8 +52,6 @@ export interface Team {
     state?: string;
     team_name?: string;
     display_name?: string;
-    conference?: string;
-    division?: string;
     abbreviation?: string;
     primary_color?: string;
     secondary_color?: string;

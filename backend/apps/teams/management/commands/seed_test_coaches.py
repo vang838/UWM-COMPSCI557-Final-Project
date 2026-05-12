@@ -76,14 +76,16 @@ class Command(BaseCommand):
         for row in TEST_COACH_ASSIGNMENTS:
             team = self.get_team(row["team_abbreviation"])
 
-            team_season, _ = TeamSeason.objects.update_or_create(
-                team=team,
-                season=season,
-                defaults={
-                    "conference": getattr(team, "conference", "") or "",
-                    "division": getattr(team, "division", "") or "",
-                },
-            )
+            try:
+                team_season = TeamSeason.objects.get(
+                    team=team,
+                    season=season,
+                )
+            except TeamSeason.DoesNotExist:
+                raise CommandError(
+                    f"TeamSeason for {team} in {year} does not exist. "
+                    f"Run: python manage.py seed_team_seasons --year {year}"
+                )
 
             coach, coach_created = Coach.objects.update_or_create(
                 first_name=row["first_name"],

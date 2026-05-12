@@ -101,6 +101,12 @@ class UserPreferenceSerializer(serializers.ModelSerializer):
 
 
 class UserAdminSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(
+        write_only=True,
+        required=False,
+        min_length=8,
+    )
+
     class Meta:
         model = User
         fields = [
@@ -114,14 +120,46 @@ class UserAdminSerializer(serializers.ModelSerializer):
             "is_staff",
             "is_superuser",
             "date_joined",
+            "password",
         ]
         read_only_fields = [
             "id",
-            "username",
             "is_staff",
             "is_superuser",
             "date_joined",
         ]
+
+    def validate_username(self, value):
+        value = value.strip()
+
+        if not value:
+            raise serializers.ValidationError("Username is required.")
+
+        existing = User.objects.filter(username__iexact=value)
+
+        if self.instance:
+            existing = existing.exclude(pk=self.instance.pk)
+
+        if existing.exists():
+            raise serializers.ValidationError("A user with this username already exists.")
+
+        return value
+
+    def validate_email(self, value):
+        value = value.strip()
+
+        if not value:
+            raise serializers.ValidationError("Email is required.")
+
+        existing = User.objects.filter(email__iexact=value)
+
+        if self.instance:
+            existing = existing.exclude(pk=self.instance.pk)
+
+        if existing.exists():
+            raise serializers.ValidationError("A user with this email already exists.")
+
+        return value
 
     def validate_role(self, value):
         valid_roles = {choice[0] for choice in User.Role.choices}
@@ -130,3 +168,49 @@ class UserAdminSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Invalid role.")
 
         return value
+
+    def create(self, validated_data):
+        password = validated_data.pop("password", None)
+
+        if not password:
+            raise serializers.ValidationError(
+                {"password": "Password is required when creating a user."}
+            )
+
+        user = User(
+            username=validated_data.get("username", ""),
+            email=validated_data.get("email", ""),
+            first_name=validated_data.get("first_name", ""),
+            last_name=validated_data.get("last_name", ""),
+            role=validated_data.get("role", User.Role.USER),
+            is_active=validated_data.get("is_active", True),
+            is_superuser=False,
+        )
+
+        user.is_staff = user.role == User.Role.ADMIN
+        user.set_password(password)
+        user.save()
+
+        UserPreference.objects.get_or_create(user=user)
+
+        return user
+
+    def update(self, instance, validated_data):
+        validated_data.pop("password", None)
+
+        for field in [
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "role",
+            "is_active",
+        ]:
+            if field in validated_data:
+                setattr(instance, field, validated_data[field])
+
+        if not instance.is_superuser:
+            instance.is_staff = instance.role == User.Role.ADMIN
+
+        instance.save()
+        return instance

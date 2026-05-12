@@ -1,0 +1,127 @@
+GRIDTRACKER DATABASE EER DIAGRAM
+
+teams_team 1 ───< players_player
+teams_team 1 ───< seasons_teamseason >─── 1 seasons_season
+
+players_player 1 ───< seasons_playerseasonroster >─── 1 seasons_teamseason
+
+seasons_playerseasonroster 1 ───< stats_playerseasonstat >─── 1 stats_stattype
+stats_stattype 1 ───< stats_positionstattype
+
+teams_team 1 ───< teams_coach
+teams_coach 1 ───< teams_coachseasonassignment >─── 1 seasons_teamseason
+
+users_user 1 ─── 1 users_userpreference
+teams_team 1 ───< users_userpreference
+seasons_season 1 ───< users_userpreference
+
+
+ENTITY DETAILS
+
+teams_team
+- PK team_id
+- team_name
+- city
+- state
+- conference
+- division
+- abbreviation
+- primary_color
+- secondary_color
+- text_color
+
+players_player
+- PK player_id
+- FK team_id -> teams_team.team_id
+- first_name
+- last_name
+- position
+- age
+- height
+- weight
+- headshot_url
+- is_active
+
+seasons_season
+- PK season_id
+- year UNIQUE
+
+seasons_teamseason
+- PK team_season_id
+- FK team_id -> teams_team.team_id
+- FK season_id -> seasons_season.season_id
+- conference
+- division
+- UNIQUE(team_id, season_id)
+
+seasons_playerseasonroster
+- PK roster_id
+- FK player_id -> players_player.player_id
+- FK team_season_id -> seasons_teamseason.team_season_id
+- jersey_number
+- roster_status
+- is_active
+- UNIQUE(player_id, team_season_id)
+
+stats_stattype
+- PK stat_type_id
+- key UNIQUE
+- name
+- category
+- unit
+- description
+
+stats_positionstattype
+- PK id
+- position
+- FK stat_type_id -> stats_stattype.stat_type_id
+- display_order
+- is_primary
+- UNIQUE(position, stat_type_id)
+
+stats_playerseasonstat
+- PK id
+- FK player_roster_id -> seasons_playerseasonroster.roster_id
+- FK stat_type_id -> stats_stattype.stat_type_id
+- value
+- UNIQUE(player_roster_id, stat_type_id)
+
+teams_coach
+- PK coach_id
+- FK team_id -> teams_team.team_id
+- first_name
+- last_name
+- role
+
+teams_coachseasonassignment
+- PK assignment_id
+- FK coach_id -> teams_coach.coach_id
+- FK team_season_id -> seasons_teamseason.team_season_id
+- role
+- is_active
+- start_date
+- end_date
+- UNIQUE(coach_id, team_season_id, role)
+
+users_user
+- PK id
+- username UNIQUE
+- password
+- first_name
+- last_name
+- email
+- role
+- is_staff
+- is_active
+- is_superuser
+- last_login
+- date_joined
+
+users_userpreference
+- PK id
+- FK user_id -> users_user.id UNIQUE
+- FK default_team_id -> teams_team.team_id
+- FK default_season_id -> seasons_season.season_id
+- compact_tables
+- created_at
+- updated_at
