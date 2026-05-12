@@ -65,13 +65,16 @@ The database is normalized to **Third Normal Form (3NF)** to:
 
 ### Core Entities
 
-* **Player**
-* **Team**
-* **Season**
-* **StatType**
-* **PlayerSeasonStat**
-* **Coach**
-* **TeamRoster**
+* **Player** — Represents an NFL player including name, position, age, height, weight, headshot URL, active status, and current team.
+* **Team** — Represents an NFL team/franchise including team name, city, state, conference, division, abbreviation, and team colors.
+* **Season** — Represents an NFL season year.
+* **TeamSeason** — Connects a team to a specific season and stores season-specific conference/division information.
+* **PlayerSeasonRoster** — Represents a player’s roster membership for a specific team-season, including jersey number, roster status, and active status.
+* **Coach** — Represents an NFL coach, including name and coaching role.
+* **CoachSeasonAssignment** — Assigns a coach to a specific team-season with role, active status, start date, and end date.
+* **StatType** — Defines a supported statistic, including key, name, category, unit, and description.
+* **PositionStatType** — Defines which stat types apply to each player position.
+* **PlayerSeasonStat** — Stores a stat value for a player roster entry and stat type.
 
 ### Key Design Decisions
 
