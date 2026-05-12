@@ -32,6 +32,9 @@ export const authAPI = {
     getUsers: (params = {}) =>
         apiClient.get(`/users/${buildQuery(params)}`),
 
+    createUser: (payload) =>
+        apiClient.post("/users/", payload),
+
     updateUser: (id, payload) =>
         apiClient.patch(`/users/${id}/`, payload),
 

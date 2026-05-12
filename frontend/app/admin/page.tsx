@@ -91,7 +91,7 @@ const ADMIN_NAV: NavSection[] = [
         heading: "Overview",
         items: [
             { label: "Dashboard", section: "dashboard" },
-            { label: "Season summary", section: "season-summary" },
+            { label: "Season Summary", section: "season-summary" },
         ],
     },
     {
@@ -114,9 +114,9 @@ const ADMIN_NAV: NavSection[] = [
     {
         heading: "Admin",
         items: [
-            { label: "User roles", section: "user-roles", adminOnly: true },
-            { label: "Manage seasons", section: "manage-seasons", adminOnly: true },
-            { label: "Manage teams", section: "manage-teams", adminOnly: true },
+            { label: "User Roles", section: "user-roles", adminOnly: true },
+            { label: "Manage Seasons", section: "manage-seasons", adminOnly: true },
+            { label: "Manage Teams", section: "manage-teams", adminOnly: true },
         ],
     },
 ];
