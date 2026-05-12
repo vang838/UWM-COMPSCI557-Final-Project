@@ -42,7 +42,6 @@ import {
 } from "@/src/types/dashboard";
 
 import {
-    CoachSeasonAssignmentFormData,
     PlayerFormData,
     PlayerSeasonRoster,
     RosterFormData,
@@ -82,6 +81,13 @@ const REPORT_DATA_SECTIONS = new Set([
     "stat-types",
 ]);
 
+type CoachAssignmentEditFormData = {
+    role: string;
+    is_active: boolean;
+    start_date: string;
+    end_date: string;
+};
+
 // ---------------------------------------------------------------------------
 // Nav config
 // ---------------------------------------------------------------------------
@@ -114,9 +120,9 @@ const ADMIN_NAV: NavSection[] = [
     {
         heading: "Admin",
         items: [
-            { label: "User Roles", section: "user-roles", adminOnly: true },
+            { label: "Manage Users", section: "user-roles", adminOnly: true },
             { label: "Manage Seasons", section: "manage-seasons", adminOnly: true },
-            { label: "Manage Teams", section: "manage-teams", adminOnly: true },
+            { label: "Manage teams", section: "manage-teams", adminOnly: true },
         ],
     },
 ];
@@ -179,7 +185,9 @@ function displayCoachAssignmentName(assignment: CoachSeasonAssignment): string {
     );
 }
 
-function coachAssignmentToFormData( assignment: CoachSeasonAssignment ): CoachSeasonAssignmentFormData {
+function coachAssignmentToFormData(
+    assignment: CoachSeasonAssignment
+): CoachAssignmentEditFormData {
     return {
         role: assignment.role ?? "",
         is_active: assignment.is_active !== false,
@@ -1531,9 +1539,9 @@ function EditCoachAssignmentModal({
     saving,
 }: {
     assignment: CoachSeasonAssignment;
-    formData: CoachSeasonAssignmentFormData;
+    formData: CoachAssignmentEditFormData;
     onChange: (
-        field: keyof CoachSeasonAssignmentFormData,
+        field: keyof CoachAssignmentEditFormData,
         value: string | boolean
     ) => void;
     onClose: () => void;
@@ -2350,7 +2358,8 @@ export default function AdminPage() {
     const [playerOverrides, setPlayerOverrides] = useState<Player[] | null>(null);
 
     const [editingCoachAssignment, setEditingCoachAssignment] = useState<CoachSeasonAssignment | null>(null);
-    const [coachAssignmentFormData, setCoachAssignmentFormData] = useState<CoachSeasonAssignmentFormData | null>(null);
+    const [coachAssignmentFormData, setCoachAssignmentFormData] =
+        useState<CoachAssignmentEditFormData | null>(null);
     const [coachAssignmentPendingDelete, setCoachAssignmentPendingDelete] = useState<CoachSeasonAssignment | null>(null);
     const [savingCoachAssignment, setSavingCoachAssignment] = useState(false);
     const [deletingCoachAssignment, setDeletingCoachAssignment] = useState(false);
@@ -3607,7 +3616,7 @@ const handleSaveStatType = async () => {
     };
 
     const handleCoachAssignmentFormChange = (
-        field: keyof CoachSeasonAssignmentFormData,
+        field: keyof CoachAssignmentEditFormData,
         value: string | boolean
     ) => {
         setCoachAssignmentFormData((current) => {

@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { authAPI } from "@/src/api/auth";
+import ConfirmDialog from "@/src/components/ui/ConfirmDialog";
 
 interface UserRecord {
     id: number;
@@ -25,8 +26,7 @@ type UserEditFormData = {
     is_active: boolean;
 };
 
-// helpers
-
+// helpers/formatters
 function displayName(user: UserRecord) {
     return (
         `${user.first_name ?? ""} ${user.last_name ?? ""}`.trim() ||
@@ -64,11 +64,15 @@ export default function AdminUserRolesPanel() {
     const [editingUser, setEditingUser] = useState<UserRecord | null>(null);
     const [editForm, setEditForm] = useState<UserEditFormData | null>(null);
 
+    const [pendingDeleteUser, setPendingDeleteUser] = useState<UserRecord | null>(null);
+    const [deletingUser, setDeletingUser] = useState(false);
+
     const [loading, setLoading] = useState(true);
     const [savingId, setSavingId] = useState<number | null>(null);
 
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
+
 
     const fetchUsers = async () => {
         try {
@@ -118,24 +122,32 @@ export default function AdminUserRolesPanel() {
         }
     };
 
-    const deleteUser = async (user: UserRecord) => {
-        if (!window.confirm(`Delete ${displayName(user)}?`)) {
+    const confirmDeleteUser = async () => {
+        if (!pendingDeleteUser) {
             return;
         }
 
+        const userToDelete = pendingDeleteUser;
+
         try {
-            setSavingId(user.id);
+            setDeletingUser(true);
+            setSavingId(userToDelete.id);
             setError("");
             setSuccess("");
 
-            await authAPI.deleteUser(user.id);
+            await authAPI.deleteUser(userToDelete.id);
 
-            setUsers((current) => current.filter((item) => item.id !== user.id));
-            setSuccess(`${displayName(user)} deleted successfully.`);
+            setUsers((current) =>
+                current.filter((item) => item.id !== userToDelete.id)
+            );
+
+            setPendingDeleteUser(null);
+            setSuccess(`${displayName(userToDelete)} deleted successfully.`);
         } catch (err) {
             console.error("Delete user error:", err);
             setError("Failed to delete user. You cannot delete your own account.");
         } finally {
+            setDeletingUser(false);
             setSavingId(null);
         }
     };
@@ -173,7 +185,7 @@ export default function AdminUserRolesPanel() {
 
             const createdUser = response.data;
 
-            setUsers((current) => [...current, createdUser]);
+            await fetchUsers();
 
             setCreateForm({
                 username: "",
@@ -186,7 +198,14 @@ export default function AdminUserRolesPanel() {
             });
 
             setShowCreateModal(false);
-            setSuccess(`${displayName(createdUser)} created successfully.`);
+            setSuccess(
+                `${displayName({
+                    ...createdUser,
+                    username: createdUser.username || createForm.username.trim(),
+                    first_name: createdUser.first_name || createForm.first_name.trim(),
+                    last_name: createdUser.last_name || createForm.last_name.trim(),
+                })} created successfully.`
+            );
         } catch (err) {
             console.error("Create user error:", err);
             setError("Failed to create user. Username or email may already exist.");
@@ -372,7 +391,7 @@ export default function AdminUserRolesPanel() {
 
                             <button
                                 disabled={savingId === user.id || user.is_superuser}
-                                onClick={() => deleteUser(user)}
+                                onClick={() => setPendingDeleteUser(user)}
                                 className="text-[10px] px-2 py-0.5 rounded border border-red-900/50 text-red-500 hover:border-red-700 hover:text-red-300 transition-colors cursor-pointer bg-transparent disabled:opacity-40 disabled:cursor-not-allowed"
                             >
                                 Delete
@@ -672,6 +691,35 @@ export default function AdminUserRolesPanel() {
                     </div>
                 </div>
             )}
+
+            <ConfirmDialog
+                open={pendingDeleteUser !== null}
+                title="Delete user?"
+                variant="danger"
+                confirmLabel="Delete User"
+                cancelLabel="Cancel"
+                loading={deletingUser}
+                onCancel={() => {
+                    if (!deletingUser) {
+                        setPendingDeleteUser(null);
+                    }
+                }}
+                onConfirm={confirmDeleteUser}
+                description={
+                    <>
+                        Are you sure you want to delete{" "}
+                        <span className="text-red-300 font-medium">
+                            {pendingDeleteUser ? displayName(pendingDeleteUser) : "this user"}
+                        </span>
+                        ?
+                        <p className="text-[11px] text-gray-500 mt-2">
+                            For real systems, deactivating an account is usually safer than
+                            permanently deleting it because historical records may still reference
+                            the user.
+                        </p>
+                    </>
+                }
+            />
         </div>
     );
 }

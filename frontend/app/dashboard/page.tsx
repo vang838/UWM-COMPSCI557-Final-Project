@@ -71,7 +71,7 @@ const USER_NAV: NavSection[] = [
         heading: "Overview",
         items: [
             { label: "Dashboard", section: "dashboard" },
-            { label: "Season summary", section: "season-summary" },
+            { label: "Season Summary", section: "season-summary" },
         ],
     },
     {
@@ -79,7 +79,7 @@ const USER_NAV: NavSection[] = [
         items: [
             { label: "Players", section: "players" },
             { label: "Coaches", section: "coaches" },
-            { label: "Team Roster", section: "team-roster" },
+            { label: "Team Rosters", section: "team-roster" },
         ],
     },
     {
