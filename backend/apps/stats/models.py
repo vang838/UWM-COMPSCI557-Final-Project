@@ -57,8 +57,6 @@ class PlayerSeasonStat(models.Model):
         "seasons.PlayerSeasonRoster",
         on_delete=models.PROTECT,
         related_name="stats",
-        null=True,
-        blank=True,
     )
 
     stat_type = models.ForeignKey(

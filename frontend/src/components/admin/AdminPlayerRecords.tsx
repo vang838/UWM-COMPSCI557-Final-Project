@@ -1,5 +1,5 @@
 // frontend/src/components/admin/AdminPlayerRecords.tsx
-'use client';
+"use client";
 
 import React, { useEffect, useMemo, useState } from "react";
 
@@ -41,6 +41,7 @@ interface AdminPlayerRecordsProps {
     description?: string;
     pageSize?: number;
     defaultStatusFilter?: "all" | "active" | "inactive";
+    deleteLabel?: string;
 }
 
 function displayPlayerName(player: Player): string {
@@ -143,11 +144,13 @@ function PlayerRow({
     teamLookup,
     onEdit,
     onDelete,
+    deleteLabel,
 }: {
     player: Player;
     teamLookup: Map<string, string>;
     onEdit: (player: Player) => void;
     onDelete: (player: Player) => void;
+    deleteLabel: string;
 }) {
     const active = player.is_active !== false;
 
@@ -157,17 +160,13 @@ function PlayerRow({
                 {displayPlayerName(player)}
             </span>
 
-            <span className="text-gray-400">
-                {player.position || "—"}
-            </span>
+            <span className="text-gray-400">{player.position || "—"}</span>
 
             <span className="text-gray-400 truncate">
                 {getPlayerTeamLabel(player, teamLookup)}
             </span>
 
-            <span className="text-gray-400">
-                {displayAdminValue(player.age)}
-            </span>
+            <span className="text-gray-400">{displayAdminValue(player.age)}</span>
 
             <span className="text-gray-400 truncate">
                 {displayAdminValue(player.college)}
@@ -208,9 +207,10 @@ function PlayerRow({
 
                 <button
                     onClick={() => onDelete(player)}
-                    className="text-[10px] px-2 py-0.5 rounded border border-red-900/50 text-red-500 hover:border-red-700 hover:text-red-300 transition-colors cursor-pointer bg-transparent"
+                    title={deleteLabel}
+                    className="text-[10px] px-2 py-0.5 rounded border border-red-900/50 text-red-500 hover:border-red-700 hover:text-red-300 transition-colors cursor-pointer bg-transparent whitespace-nowrap"
                 >
-                    Delete
+                    {deleteLabel}
                 </button>
             </div>
         </div>
@@ -223,9 +223,10 @@ export default function AdminPlayerRecords({
     onEdit,
     onDelete,
     title = "Player records",
-    description = "Search, filter, group, edit, or delete player records.",
+    description = "Search, filter, group, edit, or remove player season assignments.",
     pageSize = 25,
     defaultStatusFilter = "all",
+    deleteLabel = "Remove from season",
 }: AdminPlayerRecordsProps) {
     const [searchTerm, setSearchTerm] = useState("");
     const [teamFilter, setTeamFilter] = useState("all");
@@ -261,10 +262,11 @@ export default function AdminPlayerRecords({
                     !normalizedSearch ||
                     name.includes(normalizedSearch) ||
                     college.includes(normalizedSearch) ||
-                    String(player.player_id ?? player.id ?? "").includes(normalizedSearch);
+                    String(player.player_id ?? player.id ?? "").includes(
+                        normalizedSearch
+                    );
 
-                const matchesTeam =
-                    teamFilter === "all" || teamId === teamFilter;
+                const matchesTeam = teamFilter === "all" || teamId === teamFilter;
 
                 const matchesPosition =
                     positionFilter === "all" || player.position === positionFilter;
@@ -390,7 +392,9 @@ export default function AdminPlayerRecords({
                     <select
                         value={statusFilter}
                         onChange={(event) =>
-                            setStatusFilter(event.target.value as "all" | "active" | "inactive")
+                            setStatusFilter(
+                                event.target.value as "all" | "active" | "inactive"
+                            )
                         }
                         className="bg-[#111] border border-white/10 rounded px-2 py-1.5 text-[12px] text-white outline-none focus:border-white/30"
                     >
@@ -442,6 +446,7 @@ export default function AdminPlayerRecords({
                                 teamLookup={teamLookup}
                                 onEdit={onEdit}
                                 onDelete={onDelete}
+                                deleteLabel={deleteLabel}
                             />
                         ))
                     ) : (
@@ -454,7 +459,10 @@ export default function AdminPlayerRecords({
                 <div>
                     {groupedPlayers.length > 0 ? (
                         groupedPlayers.map(([teamName, groupPlayers]) => (
-                            <div key={teamName} className="border-b border-white/8 last:border-b-0">
+                            <div
+                                key={teamName}
+                                className="border-b border-white/8 last:border-b-0"
+                            >
                                 <div className="px-3 py-2 bg-[#111] border-b border-white/8 flex items-center justify-between">
                                     <span className="text-[11px] font-medium uppercase tracking-widest text-gray-300">
                                         {teamName}
@@ -483,6 +491,7 @@ export default function AdminPlayerRecords({
                                         teamLookup={teamLookup}
                                         onEdit={onEdit}
                                         onDelete={onDelete}
+                                        deleteLabel={deleteLabel}
                                     />
                                 ))}
                             </div>
