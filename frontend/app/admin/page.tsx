@@ -122,7 +122,7 @@ const ADMIN_NAV: NavSection[] = [
         items: [
             { label: "Manage Users", section: "user-roles", adminOnly: true },
             { label: "Manage Seasons", section: "manage-seasons", adminOnly: true },
-            { label: "Manage teams", section: "manage-teams", adminOnly: true },
+            { label: "Manage Teams", section: "manage-teams", adminOnly: true },
         ],
     },
 ];
