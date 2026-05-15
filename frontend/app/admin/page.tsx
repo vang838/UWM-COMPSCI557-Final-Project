@@ -209,6 +209,16 @@ function getTeamDisplayName(team: Team): string {
     );
 }
 
+function getRosterTeamDisplayName(roster: PlayerSeasonRoster): string {
+    return (
+        roster.team_display_name ||
+        roster.team_abbreviation ||
+        (roster.team_id !== undefined && roster.team_id !== null
+            ? `Team #${roster.team_id}`
+            : "Unknown team")
+    );
+}
+
 function isValidHexColor(value: string): boolean {
     return /^#[0-9A-Fa-f]{6}$/.test(value);
 }
@@ -449,8 +459,9 @@ function AdminOverview({
                 onEdit={onEditPlayer}
                 onDelete={onDeletePlayer}
                 title="Player records"
-                description="Filter or group player records before editing."
+                description="Filter or group player records before editing or removing season assignments."
                 pageSize={10}
+                deleteLabel="Remove from season"
             />
         </>
     );
@@ -1391,30 +1402,118 @@ function EditPlayerModal({
 
 function DeletePlayerModal({
     player,
+    seasons,
+    rosterOptions,
+    loadingRosterOptions,
+    selectedSeasonYear,
+    selectedRosterId,
+    onSeasonChange,
+    onRosterChange,
     onClose,
     onConfirm,
     deleting,
 }: {
     player: Player;
+    seasons: Season[];
+    rosterOptions: PlayerSeasonRoster[];
+    loadingRosterOptions: boolean;
+    selectedSeasonYear: string;
+    selectedRosterId: string;
+    onSeasonChange: (year: string) => void | Promise<void>;
+    onRosterChange: (rosterId: string) => void;
     onClose: () => void;
     onConfirm: () => void;
     deleting: boolean;
 }) {
+    const teamSelectDisabled =
+        deleting ||
+        loadingRosterOptions ||
+        !selectedSeasonYear ||
+        rosterOptions.length === 0;
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
             <div className="w-full max-w-md bg-[#1a1a1a] border border-red-900/50 rounded-lg shadow-xl">
                 <div className="px-4 py-3 border-b border-white/8">
-                    <p className="text-sm font-medium text-white">Delete player?</p>
+                    <p className="text-sm font-medium text-white">
+                        Remove player from season?
+                    </p>
                     <p className="text-[12px] text-gray-400 mt-1">
-                        Are you sure you want to delete{" "}
+                        Remove{" "}
                         <span className="text-red-300 font-medium">
                             {displayPlayerName(player)}
-                        </span>
-                        ? This may also affect roster and stat records connected to this player.
+                        </span>{" "}
+                        from one team roster for the selected season. This will not
+                        delete the global player record.
                     </p>
                 </div>
 
-                <div className="px-4 py-3 flex justify-end gap-2">
+                <div className="px-4 py-3 grid gap-3">
+                    <label className="flex flex-col gap-1">
+                        <span className="text-[10px] uppercase tracking-widest text-gray-500">
+                            Season
+                        </span>
+                        <select
+                            value={selectedSeasonYear}
+                            onChange={(event) => onSeasonChange(event.target.value)}
+                            disabled={deleting}
+                            className="bg-[#111] border border-white/10 rounded px-2 py-1.5 text-sm text-white outline-none focus:border-white/30 disabled:opacity-50"
+                        >
+                            <option value="">Select season</option>
+                            {seasons.map((season) => (
+                                <option
+                                    key={season.season_id ?? season.id ?? season.year}
+                                    value={String(season.year)}
+                                >
+                                    {season.year}
+                                </option>
+                            ))}
+                        </select>
+                    </label>
+
+                    <label className="flex flex-col gap-1">
+                        <span className="text-[10px] uppercase tracking-widest text-gray-500">
+                            Team roster assignment
+                        </span>
+                        <select
+                            value={selectedRosterId}
+                            onChange={(event) => onRosterChange(event.target.value)}
+                            disabled={teamSelectDisabled}
+                            className="bg-[#111] border border-white/10 rounded px-2 py-1.5 text-sm text-white outline-none focus:border-white/30 disabled:opacity-50"
+                        >
+                            <option value="">
+                                {loadingRosterOptions
+                                    ? "Loading teams..."
+                                    : !selectedSeasonYear
+                                        ? "Select a season first"
+                                        : rosterOptions.length === 0
+                                            ? "No teams found for this season"
+                                            : "Select team"}
+                            </option>
+
+                            {rosterOptions.map((roster) => (
+                                <option
+                                    key={roster.roster_id}
+                                    value={String(roster.roster_id)}
+                                >
+                                    {getRosterTeamDisplayName(roster)}
+                                    {roster.roster_status
+                                        ? ` · ${roster.roster_status}`
+                                        : ""}
+                                </option>
+                            ))}
+                        </select>
+
+                        {selectedSeasonYear && !loadingRosterOptions && (
+                            <span className="text-[10px] text-gray-600">
+                                Only teams where this player is assigned in the selected
+                                season are shown.
+                            </span>
+                        )}
+                    </label>
+                </div>
+
+                <div className="px-4 py-3 flex justify-end gap-2 border-t border-white/8">
                     <button
                         onClick={onClose}
                         disabled={deleting}
@@ -1425,10 +1524,15 @@ function DeletePlayerModal({
 
                     <button
                         onClick={onConfirm}
-                        disabled={deleting}
+                        disabled={
+                            deleting ||
+                            loadingRosterOptions ||
+                            !selectedSeasonYear ||
+                            !selectedRosterId
+                        }
                         className="px-3 py-1.5 rounded border border-red-800 bg-red-900/40 text-red-300 text-xs hover:bg-red-800/60 disabled:opacity-50"
                     >
-                        {deleting ? "Deleting..." : "Delete player"}
+                        {deleting ? "Removing..." : "Remove from season"}
                     </button>
                 </div>
             </div>
@@ -2353,6 +2457,12 @@ export default function AdminPage() {
     const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
     const [playerFormData, setPlayerFormData] = useState<PlayerFormData | null>(null);
     const [playerPendingDelete, setPlayerPendingDelete] = useState<Player | null>(null);
+    const [playerRemovalSeasonYear, setPlayerRemovalSeasonYear] = useState("");
+    const [playerRemovalRosterId, setPlayerRemovalRosterId] = useState("");
+    const [playerRemovalRosterOptions, setPlayerRemovalRosterOptions] =
+        useState<PlayerSeasonRoster[]>([]);
+    const [loadingPlayerRemovalOptions, setLoadingPlayerRemovalOptions] =
+        useState(false);
     const [savingPlayer, setSavingPlayer] = useState(false);
     const [deletingPlayer, setDeletingPlayer] = useState(false);
     const [playerOverrides, setPlayerOverrides] = useState<Player[] | null>(null);
@@ -2780,6 +2890,50 @@ export default function AdminPage() {
         }
     }, [selectedRosterSeasonYear, selectedRosterTeamId]);
 
+    const fetchPlayerRemovalRosterOptions = useCallback(
+        async (player: Player, seasonYear: string) => {
+            const playerId = getStablePlayerId(player);
+
+            if (playerId === undefined || !seasonYear) {
+                setPlayerRemovalRosterOptions([]);
+                setPlayerRemovalRosterId("");
+                return;
+            }
+
+            try {
+                setLoadingPlayerRemovalOptions(true);
+
+                const rosterData = await safeApiCall<unknown[]>(
+                    () =>
+                        seasonAPI.getPlayerSeasonRosters({
+                            player: playerId,
+                            year: seasonYear,
+                        }),
+                    []
+                );
+
+                const rosterOptions = normalizeApiList<PlayerSeasonRoster>(rosterData)
+                    .filter((roster) => roster.roster_id !== undefined)
+                    .sort((a, b) =>
+                        getRosterTeamDisplayName(a).localeCompare(
+                            getRosterTeamDisplayName(b)
+                        )
+                    );
+
+                setPlayerRemovalRosterOptions(rosterOptions);
+
+                setPlayerRemovalRosterId(
+                    rosterOptions.length === 1
+                        ? String(rosterOptions[0].roster_id)
+                        : ""
+                );
+            } finally {
+                setLoadingPlayerRemovalOptions(false);
+            }
+        },
+        []
+    );
+
     useEffect(() => {
         if (!authChecked) {
             return;
@@ -3076,8 +3230,20 @@ export default function AdminPage() {
         }
     };
 
-    const handleDeletePlayer = (player: Player) => {
+    const handleDeletePlayer = async (player: Player) => {
+        const defaultSeasonYear =
+            selectedRosterSeasonYear ||
+            selectedDashboardSeasonYear ||
+            String(seasons[0]?.year ?? "");
+
         setPlayerPendingDelete(player);
+        setPlayerRemovalSeasonYear(defaultSeasonYear);
+        setPlayerRemovalRosterId("");
+        setPlayerRemovalRosterOptions([]);
+
+        if (defaultSeasonYear) {
+            await fetchPlayerRemovalRosterOptions(player, defaultSeasonYear);
+        }
     };
 
     const handleConfirmDeletePlayer = async () => {
@@ -3085,30 +3251,41 @@ export default function AdminPage() {
             return;
         }
 
-        const playerId = getStablePlayerId(playerPendingDelete);
+        if (!playerRemovalSeasonYear) {
+            showTemporaryError("Select a season before removing the player");
+            return;
+        }
 
-        if (playerId === undefined) {
-            showTemporaryError("Unable to delete player because the player ID is missing");
+        if (!playerRemovalRosterId) {
+            showTemporaryError("Select a team roster assignment before removing the player");
+            return;
+        }
+
+        const selectedRoster = playerRemovalRosterOptions.find(
+            (roster) => String(roster.roster_id) === String(playerRemovalRosterId)
+        );
+
+        const playerName = displayPlayerName(playerPendingDelete);
+
+        if (!selectedRoster) {
+            showTemporaryError(
+                `${playerName} is not assigned to a team roster for the ${playerRemovalSeasonYear} season.`
+            );
             return;
         }
 
         try {
             setDeletingPlayer(true);
 
-            const playerName = displayPlayerName(playerPendingDelete);
+            const removalSeasonYear = playerRemovalSeasonYear;
+            const removedTeamName = getRosterTeamDisplayName(selectedRoster);
 
-            await playerAPI.deletePlayer(playerId);
-
-            setPlayerOverrides((current) => {
-                const source = current ?? playerList;
-
-                return source.filter((player) => {
-                    const currentPlayerId = getStablePlayerId(player);
-                    return String(currentPlayerId) !== String(playerId);
-                });
-            });
+            await seasonAPI.deletePlayerSeasonRoster(selectedRoster.roster_id);
 
             setPlayerPendingDelete(null);
+            setPlayerRemovalSeasonYear("");
+            setPlayerRemovalRosterId("");
+            setPlayerRemovalRosterOptions([]);
 
             clearRosterCache();
             clearDashboardReportCache();
@@ -3116,11 +3293,13 @@ export default function AdminPage() {
             await fetchSelectedRoster();
             await fetchDashboardReports();
 
-            showTemporarySuccess(`${playerName} deleted successfully`);
+            showTemporarySuccess(
+                `${playerName} removed from ${removedTeamName} for the ${removalSeasonYear} season.`
+            );
         } catch (error) {
-            console.error("Delete player error:", error);
+            console.error("Remove player from season error:", error);
             showTemporaryError(
-                "Failed to delete player. They may still be connected to roster or stat records."
+                "Failed to remove player from the selected season roster. They may still be connected to season stat records."
             );
         } finally {
             setDeletingPlayer(false);
@@ -3781,8 +3960,9 @@ const handleSaveStatType = async () => {
                         onEdit={handleEditPlayer}
                         onDelete={handleDeletePlayer}
                         title="Player records"
-                        description="Search, filter, group, edit, or delete all player records."
+                        description="Search, filter, group, edit, or remove players from a selected season roster."
                         pageSize={25}
+                        deleteLabel="Remove from season"
                     />
                 );
 
@@ -3980,7 +4160,30 @@ const handleSaveStatType = async () => {
             {playerPendingDelete && (
                 <DeletePlayerModal
                     player={playerPendingDelete}
-                    onClose={() => setPlayerPendingDelete(null)}
+                    seasons={seasons}
+                    rosterOptions={playerRemovalRosterOptions}
+                    loadingRosterOptions={loadingPlayerRemovalOptions}
+                    selectedSeasonYear={playerRemovalSeasonYear}
+                    selectedRosterId={playerRemovalRosterId}
+                    onSeasonChange={async (year) => {
+                        setPlayerRemovalSeasonYear(year);
+                        setPlayerRemovalRosterId("");
+                        setPlayerRemovalRosterOptions([]);
+
+                        if (playerPendingDelete && year) {
+                            await fetchPlayerRemovalRosterOptions(
+                                playerPendingDelete,
+                                year
+                            );
+                        }
+                    }}
+                    onRosterChange={setPlayerRemovalRosterId}
+                    onClose={() => {
+                        setPlayerPendingDelete(null);
+                        setPlayerRemovalSeasonYear("");
+                        setPlayerRemovalRosterId("");
+                        setPlayerRemovalRosterOptions([]);
+                    }}
                     onConfirm={handleConfirmDeletePlayer}
                     deleting={deletingPlayer}
                 />
