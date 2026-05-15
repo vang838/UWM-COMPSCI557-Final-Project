@@ -1980,23 +1980,83 @@ function RosterModal({
     saving: boolean;
 }) {
     const assignedPlayerIds = useMemo(
-        () => new Set(existingRosters.map((roster) => String(roster.player))),
-        [existingRosters]
-    );
+            () => new Set(existingRosters.map((roster) => String(roster.player))),
+            [existingRosters]
+        );
 
-    const availablePlayers = useMemo(
-        () =>
-            players.filter((player) => {
-                const playerId = getStablePlayerId(player);
+        const availablePlayers = useMemo(() => {
+        const uniquePlayers = new Map<string, Player>();
 
-                if (playerId === undefined) {
-                    return false;
-                }
+        players.forEach((player) => {
+            const playerId = getStablePlayerId(player);
 
-                return !assignedPlayerIds.has(String(playerId));
-            }),
-        [assignedPlayerIds, players]
-    );
+            if (playerId === undefined) {
+                return;
+            }
+
+            if (assignedPlayerIds.has(String(playerId))) {
+                return;
+            }
+
+            const normalizedName = displayPlayerName(player)
+                .trim()
+                .toLowerCase()
+                .replace(/\s+/g, " ");
+
+            const normalizedPosition = (player.position ?? "")
+                .trim()
+                .toLowerCase();
+
+            const normalizedDateOfBirth = (player.date_of_birth ?? "")
+                .trim()
+                .toLowerCase();
+
+            const normalizedCollege = (player.college ?? "")
+                .trim()
+                .toLowerCase();
+
+            const identityKey =
+                normalizedName && normalizedPosition && normalizedDateOfBirth
+                    ? `${normalizedName}|${normalizedPosition}|${normalizedDateOfBirth}`
+                    : normalizedName && normalizedPosition && normalizedCollege
+                        ? `${normalizedName}|${normalizedPosition}|${normalizedCollege}`
+                        : normalizedName && normalizedPosition
+                            ? `${normalizedName}|${normalizedPosition}`
+                            : `player-id:${playerId}`;
+
+            const existingPlayer = uniquePlayers.get(identityKey);
+
+            if (!existingPlayer) {
+                uniquePlayers.set(identityKey, player);
+                return;
+            }
+
+            const existingHasBirthDate = Boolean(existingPlayer.date_of_birth);
+            const currentHasBirthDate = Boolean(player.date_of_birth);
+
+            const existingHasCollege = Boolean(existingPlayer.college);
+            const currentHasCollege = Boolean(player.college);
+
+            if (
+                (!existingHasBirthDate && currentHasBirthDate) ||
+                (!existingHasCollege && currentHasCollege)
+            ) {
+                uniquePlayers.set(identityKey, player);
+            }
+        });
+
+        return Array.from(uniquePlayers.values()).sort((a, b) => {
+            const nameCompare = displayPlayerName(a).localeCompare(
+                displayPlayerName(b)
+            );
+
+            if (nameCompare !== 0) {
+                return nameCompare;
+            }
+
+            return String(a.position ?? "").localeCompare(String(b.position ?? ""));
+        });
+    }, [assignedPlayerIds, players]);
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">

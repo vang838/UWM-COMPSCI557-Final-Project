@@ -141,7 +141,7 @@ class PlayerViewSet(viewsets.ModelViewSet):
             )
         )
 
-        return queryset.order_by("last_name", "first_name")
+        return queryset.distinct().order_by("last_name", "first_name")
 
     def get_lightweight_player(self):
         return (

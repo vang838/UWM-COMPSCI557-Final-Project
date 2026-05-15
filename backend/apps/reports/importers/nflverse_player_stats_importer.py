@@ -505,36 +505,62 @@ def import_nflverse_player_stats(
                     first_name, last_name = split_player_name(player_display_name)
                     position = (row.get("position") or "").strip() or "UNK"
 
-                    player, player_created = Player.objects.get_or_create(
-                        first_name=first_name,
-                        last_name=last_name,
-                        team=team,
-                        defaults={
-                            "position": position,
-                            "is_active": True,
-                        },
-                    )
+                    source_player_id = (
+                            row.get("player_id")
+                            or row.get("gsis_id")
+                            or row.get("nflverse_id")
+                            or ""
+                    ).strip()
+
+                    player_defaults = {
+                        "first_name": first_name,
+                        "last_name": last_name,
+                        "position": position,
+                        "team": team,
+                        "is_active": True,
+                    }
+
+                    if source_player_id:
+                        player, player_created = Player.objects.update_or_create(
+                            external_player_id=source_player_id,
+                            defaults=player_defaults,
+                        )
+                    else:
+                        # Fallback only. Names are not ideal identifiers, but this avoids creating
+                        # one Player row per team when the source file does not provide a stable ID.
+                        player = (
+                            Player.objects.filter(
+                                first_name=first_name,
+                                last_name=last_name,
+                                position=position,
+                            )
+                            .order_by("player_id")
+                            .first()
+                        )
+
+                        if player is None:
+                            player = Player.objects.create(**player_defaults)
+                            player_created = True
+                        else:
+                            player_created = False
+
+                            changed_fields = []
+
+                            if player.team_id != team.team_id:
+                                player.team = team
+                                changed_fields.append("team")
+
+                            if player.is_active is False:
+                                player.is_active = True
+                                changed_fields.append("is_active")
+
+                            if changed_fields:
+                                player.save(update_fields=changed_fields)
 
                     if player_created:
                         summary.players_created += 1
                     else:
-                        changed = False
-
-                        if player.position != position:
-                            player.position = position
-                            changed = True
-
-                        if player.team_id != team.team_id:
-                            player.team = team
-                            changed = True
-
-                        if player.is_active is False:
-                            player.is_active = True
-                            changed = True
-
-                        if changed:
-                            player.save(update_fields=["position", "team", "is_active"])
-                            summary.players_updated += 1
+                        summary.players_updated += 1
 
                     roster, roster_created = PlayerSeasonRoster.objects.get_or_create(
                         player=player,

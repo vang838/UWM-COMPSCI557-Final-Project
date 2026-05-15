@@ -7,6 +7,14 @@ from apps.teams.models import Team
 class Player(models.Model):
     player_id = models.AutoField(primary_key=True)
 
+    external_player_id = models.CharField(
+        max_length=64,
+        unique=True,
+        null=True,
+        blank=True,
+        db_index=True,
+    )
+
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     position = models.CharField(max_length=20)
